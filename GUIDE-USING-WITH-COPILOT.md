@@ -95,6 +95,7 @@ Useful commands and prompts:
 |---|---|
 | Add telemetry connection | Command Palette → `Kusto: Add Connection` |
 | Run the active query | Select KQL, then **Run Query** / `Ctrl+Shift+E` |
+| Preview a markdown guide or dashboard | Open the `.md` file, then press `Ctrl+Shift+V` (`Markdown: Open Preview`) |
 | Open Copilot Chat | Command Palette → `GitHub Copilot: Open Chat` |
 | Regenerate a dashboard | `@workspace Use kql/<component>/DASHBOARD-<name>.md to regenerate this dashboard in my App Insights resource. Use the Kusto extension to run every linked .kql and tell me the suggested visualization for each tile.` |
 | Start troubleshooting from a symptom | `@workspace I am seeing <symptom>. Pick the right dashboard from AGENTS.md, run the broad health tiles first, then drill into raw rows and explain what is verified.` |
@@ -113,7 +114,7 @@ Every folder under `kql/` has at least one `DASHBOARD-*.md` file. Open one — f
 - **Copilot prompts** for chat-driven regeneration and troubleshooting
 - Links to **Related dashboards**
 
-You can read the dashboard markdown as a tutorial, or hand it to Copilot Chat as context. When viewing results, start from the broad health tiles, then drill into raw rows only after a trend, spike, error family, user, session, operation, or resource ID stands out. Treat a zero-row tile as a signal to verify instrumentation, time range, table naming, and filters before concluding that the problem is absent.
+Use `Ctrl+Shift+V` to preview the dashboard markdown in VS Code. You can read it as a tutorial, or hand it to Copilot Chat as context. When viewing results, start from the broad health tiles, then drill into raw rows only after a trend, spike, error family, user, session, operation, or resource ID stands out. Treat a zero-row tile as a signal to verify instrumentation, time range, table naming, and filters before concluding that the problem is absent.
 
 ---
 
@@ -136,6 +137,10 @@ The dashboard markdown describes everything Copilot needs.
    - Suggest the viz from the catalog's **Viz** column
 
 You can also ask Copilot to **export the whole thing as an Azure Data Explorer dashboard JSON** that you import via the ADX dashboards UI — the tile metadata is all there in the markdown.
+
+For hands-on execution, be explicit that Copilot should use the VS Code Kusto / Akusto Explorer connection rather than just explaining the query:
+
+> `@workspace Open the linked .kql files from this DASHBOARD markdown, use the Kusto / Akusto Explorer extension to run each query against my selected App Insights connection, capture which rows came back, and tell me how to configure the chart for each tile.`
 
 ### Workflow B — "I'm seeing X — walk me through diagnosing it"
 
@@ -188,6 +193,10 @@ If the customer gives you a known value, start there and save the case-specific 
 
 > `@workspace Investigate <operation_Id/session_Id/requestId/conversationId/flowRunId/pluginTypeName/AppSessionID> for this case. Walk the relevant tables, save any case-specific KQL under cases/<case>/queries/, summarize the returned rows, and list what still needs cross-verification.`
 
+Encourage creative troubleshooting, but keep it evidence-led:
+
+> `@workspace Be creative but cautious. Give me three plausible hypotheses for this symptom, one query that can prove or disprove each, and the expected signal. Run the queries, discard weak hypotheses, and keep only findings backed by returned rows.`
+
 ---
 
 ## Optional case tooling
@@ -223,6 +232,7 @@ Then ask Copilot:
 | `Walk operation_Id end to end` | Joins `requests` + `dependencies` + `exceptions` for one correlation |
 | `Verify this against Microsoft Learn` | Uses available docs/MCP tools to check table meaning, feature behavior, or setup docs |
 | `Inspect the solution export in cases/.../solution/` | Uses local files plus Power Platform tooling to correlate app customizations with telemetry |
+| `Establish exception and trace noise first` | Builds a baseline of recurring low-value errors/traces before looking for the real signal |
 
 ---
 
@@ -237,6 +247,19 @@ Copilot is a helper, not the source of truth. Before you share a conclusion with
 5. Keep asking Copilot to remove false positives until the finding is specific, reproducible, and tied to concrete rows.
 
 Customer identifiers, screenshots, exports, and case notes belong in `cases/` or another private workspace. Only sanitized, reusable KQL should move back into `kql/`.
+
+### Establish noise before diagnosis
+
+Many D365 and Power Platform environments produce recurring exception and trace rows that are not the incident you are chasing. Do this before spending time on a spike:
+
+1. Run the shared exception noise queries first: [`kql/_shared/exceptions/01-noise-catalog-breakdown-7d.kql`](kql/_shared/exceptions/01-noise-catalog-breakdown-7d.kql), [`kql/_shared/exceptions/04-exceptions-signal-vs-noise-30d.kql`](kql/_shared/exceptions/04-exceptions-signal-vs-noise-30d.kql), and [`kql/_shared/exceptions/06-noise-discovery-candidates-7d.kql`](kql/_shared/exceptions/06-noise-discovery-candidates-7d.kql).
+2. For `traces`, start with a top-N baseline by `severityLevel`, message prefix, `operation_Name`, `cloud_RoleName`, and important `customDimensions`. Mark repetitive health checks, expected retries, framework chatter, and old known-noise strings in the case notes.
+3. Ask Copilot to summarize what was filtered out and why. Do not hide filters; keep them visible in the case-specific query so another reviewer can challenge them.
+4. Re-run the symptom query with the noise removed, then inspect raw rows behind the remaining top errors or trace messages.
+
+Useful prompt:
+
+> `@workspace Before diagnosing this incident, establish the exception and traces noise baseline for the last 30 days. Identify recurring known-noise patterns, show the filters you propose, then run the incident query with and without those filters so we do not waste time on false positives.`
 
 ---
 
