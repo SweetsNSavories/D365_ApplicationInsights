@@ -76,6 +76,20 @@ Only the dry-run `live-output/index.html` preview is committed. Keep `live-dashb
 
 You can run the same workflow from VS Code by opening a folder's `LIVE-DASHBOARD.ipynb`, setting `DRY_RUN = False`, and filling either `APPINSIGHTS_RESOURCE_ID`, `WORKSPACE_ID`, or `SUBSCRIPTIONS` depending on the manifest runtime.
 
+## Copilot Prompt: Load The Live Dashboard Preview
+
+Use this when you want GitHub Copilot to open the committed no-data preview first, then guide the real run:
+
+> `@workspace Load the live dashboard preview at kql/<component>/live-output/index.html. Confirm the dashboard title, tile count, and dry-run status. Then open kql/<component>/LIVE-DASHBOARD.json and kql/<component>/LIVE-DASHBOARD.ipynb, explain what each tile will run, and tell me exactly what values I need to fill before running this against my App Insights resource. Do not treat the dry-run preview as customer evidence.`
+
+For example:
+
+> `@workspace Load kql/dataverse/live-output/index.html, then inspect kql/dataverse/LIVE-DASHBOARD.json and kql/dataverse/LIVE-DASHBOARD.ipynb. Walk me through how to turn this preview into a real customer run using my App Insights resource ID, and remind me that live customer output goes to kql/dataverse/live-dashboard-output/.`
+
+Use this when you want Copilot to run the packaged notebook or manifest from VS Code agent mode:
+
+> `@workspace Run the packaged live dashboard for kql/<component>. Use kql/<component>/LIVE-DASHBOARD.ipynb or tools/live_dashboard_runner.py. First dry-run it to refresh kql/<component>/live-output/index.html. Then, after I provide the App Insights resource ID or workspace ID, run it with output in kql/<component>/live-dashboard-output/ and summarize live-dashboard-output/observations.md.`
+
 ## Copilot Prompt: Build A Live Dashboard
 
 Use this when you want GitHub Copilot to go beyond listing files:

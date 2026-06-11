@@ -72,6 +72,8 @@ Then ask Copilot questions like:
 
 > *"@workspace My users are seeing slow form loads on the case form. Use `kql/modeldrivenapp/DASHBOARD-uci-form-perf.md` to pick the right tiles in order."*
 >
+> *"@workspace Load `kql/dataverse/live-output/index.html`, confirm the tile count and dry-run status, then inspect `kql/dataverse/LIVE-DASHBOARD.json` and explain what this dashboard will run."*
+>
 > *"@workspace Show me how to detect a sudden 5xx error spike during business hours using `kql/dataverse/`."*
 >
 > *"@workspace Build a live dashboard from `kql/conversationdiagnostics/DASHBOARD-conversation-routing.md`: run each linked KQL file, show the result, and write observations for the returned rows."*

@@ -105,6 +105,7 @@ Useful commands and prompts:
 | Run the active query | Select KQL, then **Run Query** / `Ctrl+Shift+E` |
 | Preview a markdown guide or dashboard | Open the `.md` file, then press `Ctrl+Shift+V` (`Markdown: Open Preview`) |
 | Open Copilot Chat | Command Palette → `GitHub Copilot: Open Chat` |
+| Load committed live dashboard preview | `@workspace Load kql/<component>/live-output/index.html. Confirm the title, tile count, and dry-run status, then open kql/<component>/LIVE-DASHBOARD.json and tell me what this dashboard will run.` |
 | Build a live dashboard | `@workspace Use kql/<component>/DASHBOARD-<name>.md to build a live dashboard in my App Insights resource. Run every linked .kql through the Kusto extension, show returned results, and write observations for each tile.` |
 | Run packaged live dashboard output | Open `kql/<component>/LIVE-DASHBOARD.ipynb`, fill the resource ID/workspace/subscription values, then run all cells. |
 | Start troubleshooting from a symptom | `@workspace I am seeing <symptom>. Pick the right dashboard from AGENTS.md, run the broad health tiles first, then drill into raw rows and explain what is verified.` |
@@ -147,6 +148,14 @@ python tools\live_dashboard_runner.py --manifest kql\resourcegraph\LIVE-DASHBOAR
 ```
 
 Every folder has a committed `live-output/index.html` dry-run preview. Real customer runs write `live-dashboard-output/index.html`, `live-dashboard-output/observations.md`, `live-dashboard-output/results.json`, and one CSV per tile. The customer output folder is ignored by Git so telemetry does not get pushed back to the public repo.
+
+Prompt Copilot to load the preview first:
+
+> `@workspace Load kql/dataverse/live-output/index.html. Confirm this is a dry-run preview, count the tiles, then inspect kql/dataverse/LIVE-DASHBOARD.json and explain what each tile will run before I provide the App Insights resource ID.`
+
+Prompt Copilot to run the packaged dashboard after you have the resource details:
+
+> `@workspace Run the packaged live dashboard in kql/dataverse. Use LIVE-DASHBOARD.ipynb or tools/live_dashboard_runner.py. Write customer results to kql/dataverse/live-dashboard-output/, not live-output/. After it runs, summarize live-dashboard-output/observations.md and call out zero-row tiles as instrumentation, time-window, table-name, or filter questions.`
 
 ---
 
