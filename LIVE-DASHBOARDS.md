@@ -50,6 +50,8 @@ Run against an Application Insights resource. Write customer results to `live-da
 python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-dashboard-output --appinsights-resource-id "<resourceId>" --timespan-days 30
 ```
 
+The HTML page heading displays the App Insights instance name inferred from `--appinsights-resource-id`, for example `App Insights: contoso-prod-ai`. If you query through a workspace or want a customer-friendly display label, add `--instance-name "<friendlyName>"`.
+
 Run against a Log Analytics workspace instead:
 
 ```pwsh
@@ -80,7 +82,7 @@ You can run the same workflow from VS Code by opening a folder's `LIVE-DASHBOARD
 
 Use this when you want GitHub Copilot to open the committed no-data preview first, then guide the real run:
 
-> `@workspace Load the live dashboard preview at kql/<component>/live-output/index.html. Confirm the dashboard title, tile count, and dry-run status. Then open kql/<component>/LIVE-DASHBOARD.json and kql/<component>/LIVE-DASHBOARD.ipynb, explain what each tile will run, and tell me exactly what values I need to fill before running this against my App Insights resource. Do not treat the dry-run preview as customer evidence.`
+> `@workspace Load the live dashboard preview at kql/<component>/live-output/index.html. Confirm the dashboard title, tile count, dry-run status, and current heading. Then open kql/<component>/LIVE-DASHBOARD.json and kql/<component>/LIVE-DASHBOARD.ipynb, explain what each tile will run, and tell me exactly what values I need to fill before running this against my App Insights resource. When I provide the resource ID, make sure the generated live dashboard heading includes the App Insights instance name. Do not treat the dry-run preview as customer evidence.`
 
 For example:
 
@@ -88,7 +90,7 @@ For example:
 
 Use this when you want Copilot to run the packaged notebook or manifest from VS Code agent mode:
 
-> `@workspace Run the packaged live dashboard for kql/<component>. Use kql/<component>/LIVE-DASHBOARD.ipynb or tools/live_dashboard_runner.py. First dry-run it to refresh kql/<component>/live-output/index.html. Then, after I provide the App Insights resource ID or workspace ID, run it with output in kql/<component>/live-dashboard-output/ and summarize live-dashboard-output/observations.md.`
+> `@workspace Run the packaged live dashboard for kql/<component>. Use kql/<component>/LIVE-DASHBOARD.ipynb or tools/live_dashboard_runner.py. First dry-run it to refresh kql/<component>/live-output/index.html. Then, after I provide the App Insights resource ID or workspace ID, run it with output in kql/<component>/live-dashboard-output/, set or verify the App Insights instance name in the dashboard heading, and summarize live-dashboard-output/observations.md.`
 
 ## Copilot Prompt: Build A Live Dashboard
 

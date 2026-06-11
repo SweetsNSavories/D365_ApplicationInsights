@@ -60,7 +60,7 @@ For a real customer run, write to the ignored customer-output folder:
 python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-dashboard-output --appinsights-resource-id "<resourceId>"
 ```
 
-Each folder's committed `live-output/index.html` is a no-data preview that makes the dashboard obvious on GitHub. Open `live-dashboard-output/index.html` for real rendered results and `live-dashboard-output/observations.md` for the customer observation log. Customer output folders are ignored by Git so telemetry stays local.
+Each folder's committed `live-output/index.html` is a no-data preview that makes the dashboard obvious on GitHub. Open `live-dashboard-output/index.html` for real rendered results and `live-dashboard-output/observations.md` for the customer observation log. The generated dashboard heading displays the App Insights instance name inferred from `--appinsights-resource-id`; use `--instance-name "<friendlyName>"` to override it. Customer output folders are ignored by Git so telemetry stays local.
 
 ## Use with GitHub Copilot + Akusto Explorer
 
@@ -72,7 +72,7 @@ Then ask Copilot questions like:
 
 > *"@workspace My users are seeing slow form loads on the case form. Use `kql/modeldrivenapp/DASHBOARD-uci-form-perf.md` to pick the right tiles in order."*
 >
-> *"@workspace Load `kql/dataverse/live-output/index.html`, confirm the tile count and dry-run status, then inspect `kql/dataverse/LIVE-DASHBOARD.json` and explain what this dashboard will run."*
+> *"@workspace Load `kql/dataverse/live-output/index.html`, confirm the tile count, dry-run status, and current heading, then inspect `kql/dataverse/LIVE-DASHBOARD.json` and explain what this dashboard will run. When I provide an App Insights resource ID, make sure the generated live dashboard heading shows that instance name."*
 >
 > *"@workspace Show me how to detect a sudden 5xx error spike during business hours using `kql/dataverse/`."*
 >

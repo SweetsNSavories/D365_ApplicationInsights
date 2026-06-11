@@ -170,10 +170,38 @@ def render_table(columns: list[str], rows: list[dict[str, Any]], limit: int) -> 
     return f"<table><thead><tr>{header}</tr></thead><tbody>{''.join(body_rows)}</tbody></table>"
 
 
-def write_outputs(manifest: dict[str, Any], results: list[TileResult], output_dir: Path, preview_rows: int) -> None:
+def appinsights_name_from_resource_id(resource_id: str) -> str:
+    parts = [part for part in resource_id.replace("\\", "/").split("/") if part]
+    for index, part in enumerate(parts):
+        if part.lower() == "components" and index + 1 < len(parts):
+            return parts[index + 1]
+    return parts[-1] if parts else ""
+
+
+def dashboard_source_label(args: argparse.Namespace, runtime: str) -> str:
+    if args.instance_name.strip():
+        return args.instance_name.strip()
+    if runtime == "resourcegraph":
+        if args.subscriptions.strip():
+            return f"Azure Resource Graph: {args.subscriptions.strip()}"
+        return "Azure Resource Graph: dry-run preview"
+    if args.appinsights_resource_id.strip():
+        name = appinsights_name_from_resource_id(args.appinsights_resource_id.strip())
+        return f"App Insights: {name or args.appinsights_resource_id.strip()}"
+    if args.workspace_id.strip():
+        return f"Log Analytics workspace: {args.workspace_id.strip()}"
+    return "App Insights: dry-run preview"
+
+
+def dashboard_heading(manifest: dict[str, Any], source_label: str) -> str:
+    return f"{manifest.get('name', 'Live dashboard')} - {source_label}"
+
+
+def write_outputs(manifest: dict[str, Any], results: list[TileResult], output_dir: Path, preview_rows: int, source_label: str) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     csv_dir = output_dir / "csv"
     csv_dir.mkdir(exist_ok=True)
+    heading = dashboard_heading(manifest, source_label)
 
     serializable = []
     for index, result in enumerate(results, start=1):
@@ -188,6 +216,7 @@ def write_outputs(manifest: dict[str, Any], results: list[TileResult], output_di
                 "rowCount": result.row_count,
                 "observations": result.observations,
                 "error": result.error,
+                "sourceLabel": source_label,
                 "csv": str(Path("csv") / csv_name),
                 "rowsPreview": [
                     {key: normalize_value(value) for key, value in row.items()} for row in result.rows[:preview_rows]
@@ -196,8 +225,9 @@ def write_outputs(manifest: dict[str, Any], results: list[TileResult], output_di
         )
     (output_dir / "results.json").write_text(json.dumps(serializable, indent=2), encoding="utf-8")
 
-    md_lines = [f"# {manifest.get('name', 'Live dashboard')} Observations", ""]
+    md_lines = [f"# {heading} Observations", ""]
     md_lines.append(f"Runtime: `{manifest.get('runtime', 'appinsights')}`")
+    md_lines.append(f"Data source: `{source_label}`")
     md_lines.append("")
     for index, result in enumerate(results, start=1):
         md_lines.extend(
@@ -234,7 +264,7 @@ def write_outputs(manifest: dict[str, Any], results: list[TileResult], output_di
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{html.escape(manifest.get('name', 'Live dashboard'))}</title>
+<title>{html.escape(heading)}</title>
 <style>
 body {{ font-family: Segoe UI, Arial, sans-serif; margin: 0; background: #f6f8fb; color: #1f2937; }}
 main {{ max-width: 1180px; margin: 0 auto; padding: 28px; }}
@@ -254,8 +284,8 @@ th {{ background: #f1f5f9; }}
 </style>
 </head>
 <body><main>
-<h1>{html.escape(manifest.get('name', 'Live dashboard'))}</h1>
-<p class="subtitle">Generated live dashboard output. Customer-specific data stays local.</p>
+<h1>{html.escape(heading)}</h1>
+<p class="subtitle">Generated live dashboard output. Data source: {html.escape(source_label)}. Customer-specific data stays local.</p>
 {''.join(cards)}
 </main></body></html>"""
     (output_dir / "index.html").write_text(html_doc, encoding="utf-8")
@@ -265,6 +295,7 @@ def execute_manifest(args: argparse.Namespace) -> list[TileResult]:
     manifest_path = Path(args.manifest).resolve()
     manifest = load_manifest(manifest_path)
     runtime = args.runtime or manifest.get("runtime", "appinsights")
+    source_label = dashboard_source_label(args, runtime)
     results: list[TileResult] = []
     for tile in manifest.get("tiles", []):
         query_path, query = read_query(manifest_path, tile["queryFile"])
@@ -297,7 +328,7 @@ def execute_manifest(args: argparse.Namespace) -> list[TileResult]:
                 error=error,
             )
         )
-    write_outputs(manifest, results, Path(args.output), args.preview_rows)
+    write_outputs(manifest, results, Path(args.output), args.preview_rows, source_label)
     return results
 
 
@@ -307,6 +338,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", required=True, help="Output folder for index.html, observations.md, results.json, and CSVs")
     parser.add_argument("--runtime", choices=["appinsights", "resourcegraph"], help="Override manifest runtime")
     parser.add_argument("--appinsights-resource-id", default="", help="Application Insights Azure resource ID")
+    parser.add_argument("--instance-name", default="", help="Friendly data source name shown in the dashboard heading")
     parser.add_argument("--workspace-id", default="", help="Log Analytics workspace ID")
     parser.add_argument("--subscriptions", default="", help="Comma-separated subscription IDs for Azure Resource Graph")
     parser.add_argument("--timespan-days", type=int, default=30, help="Timespan supplied to Azure Monitor Logs API")

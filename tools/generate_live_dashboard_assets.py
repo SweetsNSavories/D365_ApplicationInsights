@@ -211,6 +211,7 @@ def notebook_for(folder: Path) -> dict:
                 "source": [
                     "DRY_RUN = True\n",
                     "APPINSIGHTS_RESOURCE_ID = ''  # /subscriptions/<sub>/resourceGroups/<rg>/providers/microsoft.insights/components/<name>\n",
+                    "INSTANCE_NAME = ''            # Optional friendly name shown in the dashboard heading\n",
                     "WORKSPACE_ID = ''             # Optional Log Analytics workspace ID\n",
                     "SUBSCRIPTIONS = ''           # Comma-separated subscription IDs for Azure Resource Graph manifests\n",
                     "TIMESPAN_DAYS = 30\n",
@@ -232,6 +233,8 @@ def notebook_for(folder: Path) -> dict:
                     "    cmd.append('--dry-run')\n",
                     "if APPINSIGHTS_RESOURCE_ID:\n",
                     "    cmd.extend(['--appinsights-resource-id', APPINSIGHTS_RESOURCE_ID])\n",
+                    "if INSTANCE_NAME:\n",
+                    "    cmd.extend(['--instance-name', INSTANCE_NAME])\n",
                     "if WORKSPACE_ID:\n",
                     "    cmd.extend(['--workspace-id', WORKSPACE_ID])\n",
                     "if SUBSCRIPTIONS:\n",
