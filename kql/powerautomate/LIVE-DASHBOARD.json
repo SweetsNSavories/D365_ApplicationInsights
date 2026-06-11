@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - powerautomate",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-flow-runs.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Failed flow runs",
+      "viz": "table",
+      "queryFile": "01-flow-run-failures.kql",
+      "observationFocus": "Recent flow-run failures"
+    },
+    {
+      "id": "tile-02",
+      "title": "Trigger failures",
+      "viz": "table",
+      "queryFile": "02-flow-trigger-failures.kql",
+      "observationFocus": "Trigger-side failures (skipped, throttled)"
+    },
+    {
+      "id": "tile-03",
+      "title": "Per-action failures",
+      "viz": "table",
+      "queryFile": "03-flow-action-failures.kql",
+      "observationFocus": "Which action inside a flow is failing"
+    },
+    {
+      "id": "tile-04",
+      "title": "Runs with deep link",
+      "viz": "table",
+      "queryFile": "04-flow-runs-with-direct-link.kql",
+      "observationFocus": "All runs with a clickable `make.powerautomate.com/...` link"
+    },
+    {
+      "id": "tile-05",
+      "title": "Flows in use by trigger",
+      "viz": "table",
+      "queryFile": "05-flows-in-use-by-trigger.kql",
+      "observationFocus": "`requests` \u2a1d `dependencies` to attribute runs to triggers"
+    },
+    {
+      "id": "tile-06",
+      "title": "Per-flow reliability leaderboard",
+      "viz": "table",
+      "queryFile": "06-flow-runs-statuses-summary.kql",
+      "observationFocus": "nRun / nSuccess / nFailed per flow"
+    },
+    {
+      "id": "tile-07",
+      "title": "Trigger types in use",
+      "viz": "piechart",
+      "queryFile": "07-trigger-types-in-use.kql",
+      "observationFocus": "Scheduled / webhook / Dataverse / manual share"
+    },
+    {
+      "id": "tile-08",
+      "title": "Runs over 10 seconds",
+      "viz": "table",
+      "queryFile": "08-flowruns-response-time-gt-10s.kql",
+      "observationFocus": "Outlier runs \u2014 pair with 04 for direct-link triage"
+    },
+    {
+      "id": "tile-09",
+      "title": "Daily billable actions across cohort",
+      "viz": "timechart",
+      "queryFile": "09-process-actions-by-day.kql",
+      "observationFocus": "Per-day billable actions for a hand-picked Process-license cohort"
+    },
+    {
+      "id": "tile-10",
+      "title": "Distinct flow inventory",
+      "viz": "table",
+      "queryFile": "10-list-of-flows.kql",
+      "observationFocus": "All `(FlowDisplayName, FlowId)` seen in App Insights"
+    },
+    {
+      "id": "tile-11",
+      "title": "Daily billable actions \u2014 one flow",
+      "viz": "timechart",
+      "queryFile": "11-flow-actions-by-day-for-flow.kql",
+      "observationFocus": "Per-day billable actions for one specific flow"
+    },
+    {
+      "id": "tile-12",
+      "title": "Top 10 flows by billable actions",
+      "viz": "barchart",
+      "queryFile": "12-top10-flows-by-billable-actions.kql",
+      "observationFocus": "Tenant-wide leaderboard"
+    },
+    {
+      "id": "tile-13",
+      "title": "Top 10 flows by runs",
+      "viz": "barchart",
+      "queryFile": "13-top10-flows-by-runs.kql",
+      "observationFocus": "Tenant-wide run leaderboard"
+    },
+    {
+      "id": "tile-14",
+      "title": "Per-flow P95 duration timechart",
+      "viz": "timechart",
+      "queryFile": "14-flow-response-time-p95-timechart.kql",
+      "observationFocus": "P95 per flow, 10-min bins"
+    },
+    {
+      "id": "tile-15",
+      "title": "Daily cloud-flow runs (30 d)",
+      "viz": "timechart",
+      "queryFile": "timelines/01-cloudflow-runs-daily-30d.kql",
+      "observationFocus": "Tenant-wide daily run volume"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # AGENTS.md — guidance for GitHub Copilot and other coding agents
 
-This repo is a **library of standalone KQL queries** for troubleshooting Microsoft Dynamics 365 and Power Platform workloads using Azure Application Insights. There is **no build, no test, no runtime code** — only `.kql` files and Markdown.
+This repo is a **library of standalone KQL queries** for troubleshooting Microsoft Dynamics 365 and Power Platform workloads using Azure Application Insights. The core artifact is still paste-and-run `.kql`, with Markdown runbooks plus optional Python/Jupyter live-dashboard tooling that executes generated manifests and writes local customer-specific output.
 
 ## How to help the user
 
@@ -29,6 +29,7 @@ When the user opens this repo and asks for help troubleshooting:
    See `kql/_shared/timelines/01-pageviews-daily-30d-by-channel.kql` for the canonical split.
 5. **Correlation walks** — to follow one user action across tables, use `operation_Id`. Walk parent/child spans with `operation_ParentId` / `id`. UCI sessions are `session_Id`. See `kql/_shared/overview/02-pageviews-by-operation-id.kql`.
 6. **F&O (`fno/`) specifics** — F&O telemetry is point-to-point to a customer-owned App Insights, distinct from the tenant-wide Power Platform pipeline. Triage facets to always include: `cloud_RoleName` (`AOSService` / `BatchService` / `DIXFService`), `cloud_RoleInstance` (the specific AOS), `customDimensions.ExecutionMode` (Interactive / Batch / Service / DMF), `customDimensions.LegalEntity`, `customDimensions.environmentId`. Dashboard parameters in every `fno/` file are `let` bindings near the top with safe defaults — empty string is the pass-through value because upstream queries use the `isempty(<var>) or <Column> == <var>` idiom.
+7. **Live dashboard requests** → prefer the matching folder's `LIVE-DASHBOARD.ipynb` or `LIVE-DASHBOARD.json` when the user wants executable dashboards, results, observations, or CSV/HTML output. Use `tools/live_dashboard_runner.py`; keep all generated `live-output/` files local and uncommitted.
 
 ## Placeholder convention
 
@@ -50,10 +51,11 @@ When showing a query to the user, point out any placeholders that need substitut
 - **New component-specific queries** → bump the numeric prefix in that folder; update the folder's `README.md` table.
 - **Resource Graph** queries always go in `kql/resourcegraph/` — they don't run in App Insights and shouldn't be `union`-ed with App Insights tables.
 - **Do not commit customer-specific identifiers** (subscription GUIDs, resource names, real user IDs). Use the placeholder convention above.
+- **Do not commit customer telemetry output**. `live-output/`, `live-dashboard-output/`, and `cases/` are local evidence folders and must stay out of commits.
 
 ## What NOT to suggest
 
-- Don't propose adding non-KQL code (Bicep, ARM, Terraform, code samples) — this is a query library only. Direct the user to upstream Microsoft docs for provisioning.
+- Don't propose adding provisioning/application code (Bicep, ARM, Terraform, app samples) — this is a query library with live-dashboard runner tooling only. Direct the user to upstream Microsoft docs for provisioning.
 - Don't propose Workbooks JSON or Grafana dashboards — out of scope.
 - Don't propose creating new top-level component folders without first checking whether `_shared/` is the right home.
 - Don't strip `// Source:` headers when refactoring.
@@ -67,6 +69,9 @@ When showing a query to the user, point out any placeholders that need substitut
 ├── CONTRIBUTING.md            query style + PR rules
 ├── SECURITY.md                vulnerability reporting
 ├── LICENSE                    MIT
+├── LIVE-DASHBOARDS.md         live dashboard runner workflow
+├── requirements-live-dashboard.txt
+├── tools/                     manifest generator, runner, validator
 ├── aliyoussefi-kql-extracted.md   raw extraction notes (history)
 └── kql/                       all queries; see kql/README.md
     ├── README.md
@@ -85,7 +90,9 @@ When showing a query to the user, point out any placeholders that need substitut
     │   ├── slowqueries/       AOS-surfaced slow SQL
     │   ├── custom/            X++ custom telemetry signals (SysApplicationInsightsTelemetryLogger)
     │   └── commerce/          POS / Cloud POS / CSU / CRT extensions, AppSession walk, Event 5000
-    ├── conversationdiagnostics/   Customer Service / Contact Center unified routing — fallback queues, CSR assignment, overflow, transfers, consults, point-in-time rep state
-    ├── platform-traces/
-    └── resourcegraph/
+      ├── conversationdiagnostics/   Customer Service / Contact Center unified routing — fallback queues, CSR assignment, overflow, transfers, consults, point-in-time rep state
+      ├── platform-traces/
+      └── resourcegraph/
 ```
+
+Every folder with runnable tiles also has generated `LIVE-DASHBOARD.json` and `LIVE-DASHBOARD.ipynb` files. These are committed; generated `live-output/` folders are not.

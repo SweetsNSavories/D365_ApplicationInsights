@@ -2,6 +2,13 @@
 
 The `DASHBOARD-*.md` files in this repository are **dashboard specs and runbooks**. They are not the final dashboard by themselves.
 
+Every KQL folder that has runnable tiles also has two generated live-dashboard files:
+
+| File | What it does |
+|---|---|
+| `LIVE-DASHBOARD.json` | Machine-readable manifest with 10-15 tiles, query paths, visualization hints, runtime, and observation focus. |
+| `LIVE-DASHBOARD.ipynb` | VS Code/Jupyter runbook that executes the manifest through the shared Python runner. |
+
 A customer-facing dashboard is created in the customer's own Application Insights / Azure Data Explorer context. It must:
 
 1. Run the KQL for each tile against the selected App Insights resource.
@@ -21,6 +28,51 @@ Use one of these runtime surfaces:
 | **VS Code + Akusto Explorer / Kusto extension** | Copilot-assisted troubleshooting where Copilot opens linked `.kql`, runs it, and summarizes observations. |
 
 The public GitHub repo stays generic. Customer-specific dashboard output, screenshots, query exports, and observations should go under a local `cases/` folder or another private customer workspace.
+
+## Run The Packaged Live Dashboards
+
+Install the Python dependencies once:
+
+```pwsh
+python -m pip install -r requirements-live-dashboard.txt
+```
+
+Dry-run any folder first. This checks that the manifest, query files, and output generation work without querying customer data:
+
+```pwsh
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --dry-run
+```
+
+Run against an Application Insights resource:
+
+```pwsh
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --appinsights-resource-id "<resourceId>" --timespan-days 30
+```
+
+Run against a Log Analytics workspace instead:
+
+```pwsh
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --workspace-id "<workspaceId>" --timespan-days 30
+```
+
+Run the Azure Resource Graph inventory dashboard:
+
+```pwsh
+python tools\live_dashboard_runner.py --manifest kql\resourcegraph\LIVE-DASHBOARD.json --output kql\resourcegraph\live-output --subscriptions "<subscriptionId1>,<subscriptionId2>"
+```
+
+Each run writes local artifacts:
+
+| Output | Purpose |
+|---|---|
+| `live-output/index.html` | Rendered dashboard with tile status, observations, and table previews. |
+| `live-output/observations.md` | Markdown observation log for the case notes. |
+| `live-output/results.json` | Structured result summary and row previews. |
+| `live-output/csv/tile-XX.csv` | Per-tile CSV exports. |
+
+The `live-output/` folders are ignored by Git. Keep those outputs local or move them into a private customer case workspace.
+
+You can run the same workflow from VS Code by opening a folder's `LIVE-DASHBOARD.ipynb`, setting `DRY_RUN = False`, and filling either `APPINSIGHTS_RESOURCE_ID`, `WORKSPACE_ID`, or `SUBSCRIPTIONS` depending on the manifest runtime.
 
 ## Copilot Prompt: Build A Live Dashboard
 

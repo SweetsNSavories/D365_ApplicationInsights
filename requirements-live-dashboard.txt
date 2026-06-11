@@ -1,0 +1,4 @@
+azure-identity>=1.16.0
+azure-monitor-query>=1.4.0
+azure-mgmt-resourcegraph>=8.0.0
+azure-mgmt-resource>=23.0.0

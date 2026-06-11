@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - modeldrivenapp",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-uci-form-perf.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Single `pageViews` sample",
+      "viz": "table",
+      "queryFile": "01-pageviews-take1.kql",
+      "observationFocus": "Schema look \u2014 what fields/customDimensions are populated"
+    },
+    {
+      "id": "tile-02",
+      "title": "UCI session XHR `dependencies`",
+      "viz": "table",
+      "queryFile": "02-uci-request-dependencies.kql",
+      "observationFocus": "Every XHR/fetch a UCI session made"
+    },
+    {
+      "id": "tile-03",
+      "title": "UCI page latency by user",
+      "viz": "table",
+      "queryFile": "03-uci-latency-by-user.kql",
+      "observationFocus": "Per-user pageview duration distribution"
+    },
+    {
+      "id": "tile-04",
+      "title": "pageViews by browser/UA",
+      "viz": "barchart",
+      "queryFile": "04-useragent-pageviews.kql",
+      "observationFocus": "Browser version share"
+    },
+    {
+      "id": "tile-05",
+      "title": "Count by `hostType`",
+      "viz": "piechart",
+      "queryFile": "05-hosttype-count.kql",
+      "observationFocus": "Web / Outlook / Mobile App share"
+    },
+    {
+      "id": "tile-06",
+      "title": "`hostType` per user",
+      "viz": "table",
+      "queryFile": "06-hosttype-by-user.kql",
+      "observationFocus": "Which users use which host"
+    },
+    {
+      "id": "tile-07",
+      "title": "Per-session UCI activity timeline",
+      "viz": "table",
+      "queryFile": "07-session-timeline.kql",
+      "observationFocus": "All telemetry for one `session_Id` chronologically"
+    },
+    {
+      "id": "tile-08",
+      "title": "Form load duration by geo",
+      "viz": "barchart",
+      "queryFile": "08-form-perf-by-location.kql",
+      "observationFocus": "Latency \u00d7 geography"
+    },
+    {
+      "id": "tile-09",
+      "title": "Monitor tool \u2014 pull by activity ID",
+      "viz": "table",
+      "queryFile": "09-monitor-activity-id.kql",
+      "observationFocus": "Drill into a Monitor tool capture"
+    },
+    {
+      "id": "tile-10",
+      "title": "Web-resource `customEvents` parser",
+      "viz": "table",
+      "queryFile": "10-customEvents-parse.kql",
+      "observationFocus": "Parse D365 web-resource `customEvents` payload"
+    },
+    {
+      "id": "tile-11",
+      "title": "Client perf from `customEvents`",
+      "viz": "table",
+      "queryFile": "11-customEvents-client-perf.kql",
+      "observationFocus": "Web-resource emitted timings"
+    },
+    {
+      "id": "tile-12",
+      "title": "Browser / device / version info",
+      "viz": "table",
+      "queryFile": "12-customEvents-webresource-client-info.kql",
+      "observationFocus": "Client-context fields"
+    },
+    {
+      "id": "tile-13",
+      "title": "UCI on smartphones",
+      "viz": "timechart",
+      "queryFile": "13-pageViews-generic-smartphone.kql",
+      "observationFocus": "`Generic Smartphone` UA traffic"
+    },
+    {
+      "id": "tile-14",
+      "title": "Slowest browser/OS combos",
+      "viz": "barchart",
+      "queryFile": "14-pageViews-browser-os-slow.kql",
+      "observationFocus": "P95 per (`client_Browser`, `client_OS`)"
+    },
+    {
+      "id": "tile-15",
+      "title": "iOS exceptions",
+      "viz": "table",
+      "queryFile": "15-exceptions-ios.kql",
+      "observationFocus": "UCI on iOS errors"
+    }
+  ]
+}

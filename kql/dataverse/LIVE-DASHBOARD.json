@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - dataverse",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-plugin-and-webapi-health.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Top user agents calling Web API",
+      "viz": "barchart",
+      "queryFile": "01-requests-by-useragent.kql",
+      "observationFocus": "Who/what is hitting the API"
+    },
+    {
+      "id": "tile-02",
+      "title": "Top 100 plug-in executions by latency",
+      "viz": "table",
+      "queryFile": "02-plugin-dependencies-top100.kql",
+      "observationFocus": "Slowest single plug-in invocations"
+    },
+    {
+      "id": "tile-03",
+      "title": "SDK call breakdown",
+      "viz": "table",
+      "queryFile": "03-sdk-dependencies.kql",
+      "observationFocus": "What SDK operations dominate `dependencies`"
+    },
+    {
+      "id": "tile-04",
+      "title": "Top 10 exception messages",
+      "viz": "barchart",
+      "queryFile": "04-exceptions-top10.kql",
+      "observationFocus": "Headline exception list"
+    },
+    {
+      "id": "tile-05",
+      "title": "Exceptions per user",
+      "viz": "table",
+      "queryFile": "05-exceptions-by-user.kql",
+      "observationFocus": "Which users hit the most server errors"
+    },
+    {
+      "id": "tile-06",
+      "title": "`Retrieve` / `RetrieveMultiple` cost",
+      "viz": "table",
+      "queryFile": "06-sdk-retrieve-dependencies.kql",
+      "observationFocus": "Read-heavy callers"
+    },
+    {
+      "id": "tile-07",
+      "title": "Plug-in perf regressions",
+      "viz": "columnchart",
+      "queryFile": "07-plugin-perf-degradation.kql",
+      "observationFocus": "Plug-ins that got slower across a window"
+    },
+    {
+      "id": "tile-08",
+      "title": "API latency timechart",
+      "viz": "timechart",
+      "queryFile": "08-api-perf-timechart.kql",
+      "observationFocus": "API latency over time"
+    },
+    {
+      "id": "tile-09",
+      "title": "Plug-in usage \u00d7 performance",
+      "viz": "scatterchart",
+      "queryFile": "09-plugin-usage-perf.kql",
+      "observationFocus": "Heavy callers vs slow ones"
+    },
+    {
+      "id": "tile-10",
+      "title": "Pull telemetry for `x-ms-service-request-id`",
+      "viz": "table",
+      "queryFile": "10-telemetry-by-request-id.kql",
+      "observationFocus": "Full walk for one failed request"
+    },
+    {
+      "id": "tile-11",
+      "title": "Parse RemoteExecutionContext",
+      "viz": "table",
+      "queryFile": "11-customEvents-remoteExecutionContext.kql",
+      "observationFocus": "Inspect plug-in trace `customEvents` payload"
+    },
+    {
+      "id": "tile-12",
+      "title": "Non-web exceptions",
+      "viz": "table",
+      "queryFile": "12-exceptions-non-web.kql",
+      "observationFocus": "Plug-in / SDK / background errors"
+    },
+    {
+      "id": "tile-13",
+      "title": "Plug-ins with unpredictable tail latency",
+      "viz": "scatterchart",
+      "queryFile": "13-top-plugins-pt95-vs-pt50-ratio.kql",
+      "observationFocus": "High `P95/P50` ratio \u2014 variable, hard-to-rely-on perf"
+    },
+    {
+      "id": "tile-14",
+      "title": "Most-failed plug-ins by `pluginType`",
+      "viz": "barchart",
+      "queryFile": "14-most-failed-plugins-by-plugintype.kql",
+      "observationFocus": "Failures grouped by .NET type, not SDK step name"
+    },
+    {
+      "id": "tile-15",
+      "title": "Plug-ins firing at depth > 2",
+      "viz": "table",
+      "queryFile": "15-plugins-depth-gt-2-weekly.kql",
+      "observationFocus": "Nested plug-in chains with high P95"
+    }
+  ]
+}

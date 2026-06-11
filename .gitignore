@@ -3,3 +3,9 @@ cases/
 
 # Local VS Code/browser automation traces.
 .playwright-mcp/
+
+# Live dashboard outputs generated from customer telemetry.
+live-output/
+**/live-output/
+live-dashboard-output/
+**/live-dashboard-output/

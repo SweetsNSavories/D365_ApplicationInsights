@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - conversationdiagnostics",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-conversation-routing.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Conversation lifecycle by ID",
+      "viz": "table",
+      "queryFile": "01-conversation-lifecycle-by-id.kql",
+      "observationFocus": "Replay every diagnostic event for one conversation chronologically \u2014 **start here**"
+    },
+    {
+      "id": "tile-02",
+      "title": "End-to-end conversation tracing",
+      "viz": "table",
+      "queryFile": "19-end-to-end-conversation-tracing.kql",
+      "observationFocus": "Full event walk with `callId` + `channelType` projection"
+    },
+    {
+      "id": "tile-03",
+      "title": "Conversation orchestration events",
+      "viz": "table",
+      "queryFile": "04-conversation-orchestration-events.kql",
+      "observationFocus": "`AgCDDiagnosticsEvent` orchestrator decisions \u2014 `Rule` / `Scenario` / `Prompt` / `Action` / `Event` per stage"
+    },
+    {
+      "id": "tile-04",
+      "title": "Fallback queue conversations",
+      "viz": "table",
+      "queryFile": "02-fallback-queue-conversations.kql",
+      "observationFocus": "Conversations whose `RouteToQueue` landed on the fallback queue \u2014 routing-rule misconfig signal"
+    },
+    {
+      "id": "tile-05",
+      "title": "Overflow triggered conversations",
+      "viz": "table",
+      "queryFile": "03-overflow-triggered-conversations.kql",
+      "observationFocus": "Conversations where queue overflow was triggered (`OverflowTrigger`)"
+    },
+    {
+      "id": "tile-06",
+      "title": "Conversations ended unsuccessfully",
+      "viz": "table",
+      "queryFile": "18-conversations-ended-unsuccessfully.kql",
+      "observationFocus": "Voice calls with `CallEndDiagnosticEvent` + non-zero `CallStatusCode`"
+    },
+    {
+      "id": "tile-07",
+      "title": "CSR rejections by conversation",
+      "viz": "table",
+      "queryFile": "05-csr-rejections-by-conversation.kql",
+      "observationFocus": "Conversations rejected by >1 rep with per-agent rejection counts"
+    },
+    {
+      "id": "tile-08",
+      "title": "Top 20 rejectors",
+      "viz": "barchart",
+      "queryFile": "06-csr-rejections-top20-agents.kql",
+      "observationFocus": "Top 20 reps by total `CSRRejected` count"
+    },
+    {
+      "id": "tile-09",
+      "title": "Assignment time > 2 min",
+      "viz": "table",
+      "queryFile": "07-assignment-time-over-2min.kql",
+      "observationFocus": "Conversations where `CSRAccepted - latest RouteToQueue` > 2 min"
+    },
+    {
+      "id": "tile-10",
+      "title": "Manual assignments tracked",
+      "viz": "table",
+      "queryFile": "15-manual-assignments-track.kql",
+      "observationFocus": "`CSRAssignment` + `ManualAssignment` audit with `IsAgentAssigned` flag"
+    },
+    {
+      "id": "tile-11",
+      "title": "Why didn't this conversation get assigned?",
+      "viz": "table",
+      "queryFile": "08-why-conversation-not-assigned.kql",
+      "observationFocus": "**Resource-intensive.** State of every rep on the queue at the assignment timestamp"
+    },
+    {
+      "id": "tile-12",
+      "title": "Why agent X and not agent Y?",
+      "viz": "table",
+      "queryFile": "09-why-agent-x-vs-agent-y.kql",
+      "observationFocus": "**Resource-intensive.** Compare a shortlist of reps at the assignment timestamp"
+    },
+    {
+      "id": "tile-13",
+      "title": "Agent presence at point in time",
+      "viz": "table",
+      "queryFile": "10-agent-presence-at-point-in-time.kql",
+      "observationFocus": "One rep's presence (`Available` / `Busy` / \u2026)"
+    },
+    {
+      "id": "tile-14",
+      "title": "Agent unit capacity at point in time",
+      "viz": "table",
+      "queryFile": "11-agent-unit-capacity-at-point-in-time.kql",
+      "observationFocus": "One rep's unit-mode capacity"
+    },
+    {
+      "id": "tile-15",
+      "title": "Agents in queue at point in time",
+      "viz": "table",
+      "queryFile": "12-agents-in-queue-at-point-in-time.kql",
+      "observationFocus": "All reps on one queue at the timestamp"
+    }
+  ]
+}

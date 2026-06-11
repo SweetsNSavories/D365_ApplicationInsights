@@ -6,6 +6,8 @@ Covers **Dataverse, Model-Driven Apps, Power Pages, Canvas, Power Automate, Powe
 
 Every `.kql` file is **standalone** — paste it into the Logs blade of your App Insights resource and run. No project-wide setup required.
 
+Each folder with runnable tiles also includes `LIVE-DASHBOARD.json` and `LIVE-DASHBOARD.ipynb`. Those files run 10-15 selected KQL tiles through the shared live dashboard runner and write local HTML, Markdown, JSON, and CSV outputs for customer-specific observations.
+
 ## Folders
 
 | Folder | What it covers | Runtime |

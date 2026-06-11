@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - fno",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Batch server configuration",
+      "viz": "table",
+      "queryFile": "batch/01-batch-server-configuration.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-02",
+      "title": "Batch server tasks execution spread",
+      "viz": "table",
+      "queryFile": "batch/02-batch-server-tasks-execution-spread.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-03",
+      "title": "Throttled batch tasks",
+      "viz": "table",
+      "queryFile": "batch/03-throttled-batch-tasks.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-04",
+      "title": "Priority distribution",
+      "viz": "table",
+      "queryFile": "batch/04-priority-distribution.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-05",
+      "title": "Available batch threads",
+      "viz": "table",
+      "queryFile": "batch/05-available-batch-threads.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-06",
+      "title": "Batch execution history",
+      "viz": "table",
+      "queryFile": "batch/06-batch-execution-history.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-07",
+      "title": "Throttled batch tasks 2",
+      "viz": "table",
+      "queryFile": "batch/07-throttled-batch-tasks-2.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-08",
+      "title": "Throttled batch tasks 3",
+      "viz": "table",
+      "queryFile": "batch/08-throttled-batch-tasks-3.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-09",
+      "title": "Batch exceptions",
+      "viz": "table",
+      "queryFile": "batch/09-batch-exceptions.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-10",
+      "title": "Batch infolog errors",
+      "viz": "table",
+      "queryFile": "batch/10-batch-infolog-errors.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-11",
+      "title": "Batch exceptions over time",
+      "viz": "table",
+      "queryFile": "batch/11-batch-exceptions-over-time.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-12",
+      "title": "Batch infolog errors 2",
+      "viz": "table",
+      "queryFile": "batch/12-batch-infolog-errors-2.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-13",
+      "title": "Pbs queue sizes",
+      "viz": "table",
+      "queryFile": "batch/13-pbs-queue-sizes.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-14",
+      "title": "Pos extension events inventory",
+      "viz": "table",
+      "queryFile": "commerce/01-pos-extension-events-inventory.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    },
+    {
+      "id": "tile-15",
+      "title": "Crt extension traces inventory",
+      "viz": "table",
+      "queryFile": "commerce/02-crt-extension-traces-inventory.kql",
+      "observationFocus": "Cross-folder live tile. Inspect returned rows and choose the next component drill-down."
+    }
+  ]
+}

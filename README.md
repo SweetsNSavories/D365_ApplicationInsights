@@ -6,7 +6,7 @@ A curated, **vendor-neutral** collection of [Kusto (KQL)](https://learn.microsof
 
 Covers **Dataverse, Model-Driven Apps, Power Pages, Canvas, Power Automate, Power Apps Mobile, Copilot Studio, and Dynamics 365 Finance & Supply Chain (F&O / FSCM)**.
 
-Organized by component so you can find the right query in seconds, and designed to work well with **GitHub Copilot** for guided troubleshooting (see [AGENTS.md](AGENTS.md)).
+Organized by component so you can find the right query in seconds, and designed to work well with **GitHub Copilot** for guided troubleshooting (see [AGENTS.md](AGENTS.md)). Each KQL folder also includes a repeatable live-dashboard manifest and notebook for running 10-15 tiles, saving local results, and capturing observations.
 
 ## What's in here
 
@@ -25,6 +25,16 @@ kql/
 └── resourcegraph/          Azure Resource Graph tenant inventory (NOT App Insights)
 ```
 
+Live dashboard tooling lives outside the query folders:
+
+| File | Purpose |
+|---|---|
+| [`LIVE-DASHBOARDS.md`](LIVE-DASHBOARDS.md) | How to turn dashboard specs into customer-specific live results and observations. |
+| [`requirements-live-dashboard.txt`](requirements-live-dashboard.txt) | Python dependencies for the live dashboard runner. |
+| [`tools/live_dashboard_runner.py`](tools/live_dashboard_runner.py) | Executes a folder's `LIVE-DASHBOARD.json` and writes local HTML, Markdown, JSON, and CSV output. |
+| [`tools/generate_live_dashboard_assets.py`](tools/generate_live_dashboard_assets.py) | Regenerates per-folder `LIVE-DASHBOARD.json` and `LIVE-DASHBOARD.ipynb` files. |
+| [`tools/validate_live_dashboard_assets.py`](tools/validate_live_dashboard_assets.py) | Validates every manifest/notebook and dry-runs the generated dashboards. |
+
 See [`kql/README.md`](kql/README.md) for the full index, per-folder READMEs for file lists, and the [provenance map](kql/README.md#provenance-map-source--component-folder) showing which upstream repo each query came from.
 
 ## Quick start
@@ -36,6 +46,16 @@ See [`kql/README.md`](kql/README.md) for the full index, per-folder READMEs for 
 5. Run.
 
 Every `.kql` file is **standalone** — no project-wide setup, no `let` imports, no shared lambdas you have to paste in separately. The reusable noise-filter lambda from `_shared/exceptions/02-known-noise-filter.kql` is inlined into every consuming file.
+
+To run the packaged live dashboards locally:
+
+```pwsh
+python -m pip install -r requirements-live-dashboard.txt
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --dry-run
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --appinsights-resource-id "<resourceId>"
+```
+
+Open `live-output/index.html` for the rendered dashboard and `live-output/observations.md` for the observation log. Live output folders are ignored by Git so customer telemetry stays local.
 
 ## Use with GitHub Copilot + Akusto Explorer
 
@@ -56,6 +76,13 @@ Copilot follows the layout in [AGENTS.md](AGENTS.md) and the per-folder `DASHBOA
 ## Dashboards
 
 Every folder under `kql/` ships at least one **`DASHBOARD-*.md`**. These files are **dashboard specs and troubleshooting runbooks**, not the final live dashboard. The live dashboard is created in the customer's Application Insights / Azure Data Explorer context by running the linked KQL, rendering the returned rows or chart, and writing observations.
+
+Every KQL folder with runnable tiles also ships:
+
+| File | Use |
+|---|---|
+| `LIVE-DASHBOARD.json` | Machine-readable tile manifest with 10-15 queries, viz hints, runtime, and observation focus. |
+| `LIVE-DASHBOARD.ipynb` | VS Code/Jupyter runbook that calls the shared runner and writes `live-output/`. |
 
 See [LIVE-DASHBOARDS.md](LIVE-DASHBOARDS.md) for the exact workflow and Copilot prompts.
 
@@ -83,7 +110,7 @@ See [LIVE-DASHBOARDS.md](LIVE-DASHBOARDS.md) for the exact workflow and Copilot 
 | ✅ Included | ❌ Not included |
 |---|---|
 | KQL for App Insights data emitted by Power Platform components | Bicep / ARM / Terraform for Application Insights provisioning |
-| Markdown **`DASHBOARD-*.md`** specs per folder — use with Copilot/Akusto to run KQL, render results, and capture observations | Pre-built Azure Workbooks JSON / Grafana panels |
+| Markdown **`DASHBOARD-*.md`** specs plus per-folder **`LIVE-DASHBOARD.json`** and **`LIVE-DASHBOARD.ipynb`** runbooks — use with Copilot/Akusto or Python to run KQL, render results, and capture observations | Pre-built Azure Workbooks JSON / Grafana panels |
 | Reusable noise-filter and anomaly-detection patterns | A configured App Insights resource (you bring your own) |
 | Time-series, ranking, percentile, and anomaly queries | Customer-specific data — every query is generic |
 | Azure Resource Graph tenant inventory queries | An LLM — you bring your own GitHub Copilot subscription |

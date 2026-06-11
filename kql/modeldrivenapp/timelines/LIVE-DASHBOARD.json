@@ -1,0 +1,101 @@
+{
+  "name": "Live Dashboard - modeldrivenapp / timelines",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Mda top slow forms daily 30d",
+      "viz": "table",
+      "queryFile": "01-mda-top-slow-forms-daily-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-02",
+      "title": "Context: All tables pulse 24h",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/06-all-tables-pulse-24h.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-03",
+      "title": "Context: Pageviews daily 30d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/01-pageviews-daily-30d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-04",
+      "title": "Context: Pageviews hourly 7d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/02-pageviews-hourly-7d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-05",
+      "title": "Context: Pageviews duration percentiles 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/03-pageviews-duration-percentiles-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-06",
+      "title": "Context: Exceptions daily 30d top problems",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/05-exceptions-daily-30d-top-problems.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-07",
+      "title": "Context: Noise catalog breakdown 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/01-noise-catalog-breakdown-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-08",
+      "title": "Context: Top10 real problems 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/03-top10-real-problems-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-09",
+      "title": "Context: Exceptions signal vs noise 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/04-exceptions-signal-vs-noise-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-10",
+      "title": "Context: Noise discovery candidates 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/06-noise-discovery-candidates-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-11",
+      "title": "Context: Ingestion volume by table 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/cost/01-ingestion-volume-by-table-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-12",
+      "title": "Context: Noisy signals candidates for sampling",
+      "viz": "table",
+      "queryFile": "../../_shared/cost/02-noisy-signals-candidates-for-sampling.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-13",
+      "title": "Context: Pageviews by operation id",
+      "viz": "table",
+      "queryFile": "../../_shared/overview/02-pageviews-by-operation-id.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    }
+  ]
+}

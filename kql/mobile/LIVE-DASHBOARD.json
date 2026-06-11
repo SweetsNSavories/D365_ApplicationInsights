@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - mobile",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-fs-mobile-offline.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Distribution of sync types",
+      "viz": "piechart",
+      "queryFile": "06-sync-type-distribution.kql",
+      "observationFocus": "FIRST / DELTA / GRID / FORCED share \u2014 usability red flag if FIRST or GRID dominates"
+    },
+    {
+      "id": "tile-02",
+      "title": "Daily users doing offline sync",
+      "viz": "timechart",
+      "queryFile": "07-daily-users-offline-sync.kql",
+      "observationFocus": "DAU of users actually syncing offline (distinct `ProfileId`)"
+    },
+    {
+      "id": "tile-03",
+      "title": "Users by device + app version",
+      "viz": "table",
+      "queryFile": "05-users-by-device-and-version.kql",
+      "observationFocus": "Version rollout across Android / iOS / Windows"
+    },
+    {
+      "id": "tile-04",
+      "title": "P95 sync duration by mode (daily)",
+      "viz": "timechart",
+      "queryFile": "08-p95-sync-duration-by-mode-daily.kql",
+      "observationFocus": "Per-mode P95 trend"
+    },
+    {
+      "id": "tile-05",
+      "title": "Daily sync success rate",
+      "viz": "timechart",
+      "queryFile": "09-daily-sync-success-rate.kql",
+      "observationFocus": "`ScenarioResult == \"SUCCESS\"` / (`SUCCESS` + `FAILURE`) per day"
+    },
+    {
+      "id": "tile-06",
+      "title": "Failures by error code",
+      "viz": "table",
+      "queryFile": "01-offline-sync-failures-by-errorcode.kql",
+      "observationFocus": "Errors grouped by `ErrorCode` \u00d7 `ErrorMessage` \u00d7 `FailureType` \u00d7 day"
+    },
+    {
+      "id": "tile-07",
+      "title": "Offline filter perf (`SDKRetrieveMultiple` join)",
+      "viz": "table",
+      "queryFile": "13-offline-retrievemultiple-perf-join.kql",
+      "observationFocus": "P50/P95 server time per Dataverse table joined with the sync's `operation_Id`"
+    },
+    {
+      "id": "tile-08",
+      "title": "Network connectivity by geo",
+      "viz": "table",
+      "queryFile": "10-network-connectivity-by-geo.kql",
+      "observationFocus": "Online/offline counts + `warmThroughput` / `warmLatency` per state \u00d7 country"
+    },
+    {
+      "id": "tile-09",
+      "title": "Foreground vs background by device",
+      "viz": "table",
+      "queryFile": "12-foreground-vs-background-by-device.kql",
+      "observationFocus": "`ActiveDuration` vs total `duration` P95 by client \u00d7 device"
+    },
+    {
+      "id": "tile-10",
+      "title": "Avg records synced by table",
+      "viz": "piechart",
+      "queryFile": "02-avg-records-synced-by-table.kql",
+      "observationFocus": "Which Dataverse entities dominate sync payload"
+    },
+    {
+      "id": "tile-11",
+      "title": "Records-synced timeline (1-min)",
+      "viz": "timechart",
+      "queryFile": "11-records-synced-timeline-1min.kql",
+      "observationFocus": "Sub-minute timeline of records flowing per table / mode / user"
+    },
+    {
+      "id": "tile-12",
+      "title": "Avg payload size (KB) by sync mode",
+      "viz": "barchart",
+      "queryFile": "14-avg-payload-size-by-sync-mode.kql",
+      "observationFocus": "Average response size per `DataSyncMode` from `eventContext.ResponseSize`"
+    },
+    {
+      "id": "tile-13",
+      "title": "Detailed sync per user",
+      "viz": "table",
+      "queryFile": "04-sync-details-by-user.kql",
+      "observationFocus": "Per-user / per-external-correlation-ID drill: P95 active / background duration, last error message, sync count, failures"
+    },
+    {
+      "id": "tile-14",
+      "title": "Avg sync duration by mode",
+      "viz": "barchart",
+      "queryFile": "03-avg-sync-duration-by-mode.kql",
+      "observationFocus": "Baseline avg duration per sync mode"
+    },
+    {
+      "id": "tile-15",
+      "title": "Context: All tables pulse 24h",
+      "viz": "table",
+      "queryFile": "../_shared/timelines/06-all-tables-pulse-24h.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    }
+  ]
+}

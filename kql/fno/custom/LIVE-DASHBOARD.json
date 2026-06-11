@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - fno / custom",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-xpp-custom-signals.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Custom event inventory",
+      "viz": "table",
+      "queryFile": "01-custom-event-inventory.kql",
+      "observationFocus": "What custom event names are flowing \u2014 the catalog of X++ instrumentation in use"
+    },
+    {
+      "id": "tile-02",
+      "title": "UserLogOn activity",
+      "viz": "table",
+      "queryFile": "02-user-logon-activity.kql",
+      "observationFocus": "Who logged on when, from where"
+    },
+    {
+      "id": "tile-03",
+      "title": "X++ exceptions by class + method",
+      "viz": "table",
+      "queryFile": "03-xpp-exceptions-by-class-method.kql",
+      "observationFocus": "Exception count grouped by source `ClassName` + `MethodName`"
+    },
+    {
+      "id": "tile-04",
+      "title": "Custom traces by severity",
+      "viz": "columnchart",
+      "queryFile": "04-custom-traces-by-severity.kql",
+      "observationFocus": "Verbose / Information / Warning / Error / Critical share"
+    },
+    {
+      "id": "tile-05",
+      "title": "Custom metrics by dimension",
+      "viz": "table",
+      "queryFile": "05-custom-metrics-by-dimension.kql",
+      "observationFocus": "Custom-metric values grouped by dimension key"
+    },
+    {
+      "id": "tile-06",
+      "title": "DMF errors \u2014 events vs exceptions",
+      "viz": "table",
+      "queryFile": "06-dmf-errors-events-vs-exceptions.kql",
+      "observationFocus": "Confirms whether DMF errors land in `customEvents` or `exceptions` (depends on the version)"
+    },
+    {
+      "id": "tile-07",
+      "title": "Context: All tables pulse 24h",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/06-all-tables-pulse-24h.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-08",
+      "title": "Context: Pageviews daily 30d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/01-pageviews-daily-30d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-09",
+      "title": "Context: Pageviews hourly 7d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/02-pageviews-hourly-7d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-10",
+      "title": "Context: Pageviews duration percentiles 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/03-pageviews-duration-percentiles-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-11",
+      "title": "Context: Exceptions daily 30d top problems",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/05-exceptions-daily-30d-top-problems.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-12",
+      "title": "Context: Noise catalog breakdown 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/01-noise-catalog-breakdown-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-13",
+      "title": "Context: Top10 real problems 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/03-top10-real-problems-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-14",
+      "title": "Context: Exceptions signal vs noise 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/04-exceptions-signal-vs-noise-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-15",
+      "title": "Context: Noise discovery candidates 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/06-noise-discovery-candidates-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    }
+  ]
+}

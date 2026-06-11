@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - fno / forms",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-form-perf.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Top 20 most-opened forms",
+      "viz": "barchart",
+      "queryFile": "01-top-20-most-opened-forms.kql",
+      "observationFocus": "Which forms users open most often \u2014 usage facet"
+    },
+    {
+      "id": "tile-02",
+      "title": "Form usage by longest avg duration",
+      "viz": "barchart",
+      "queryFile": "02-form-usage-by-longest-average-duration.kql",
+      "observationFocus": "Forms ranked by avg open duration \u2014 perf facet"
+    },
+    {
+      "id": "tile-03",
+      "title": "Form execution spread",
+      "viz": "columnchart",
+      "queryFile": "03-form-execution-spread.kql",
+      "observationFocus": "Distribution / histogram of execution times"
+    },
+    {
+      "id": "tile-04",
+      "title": "Form execution by legal entity",
+      "viz": "barchart",
+      "queryFile": "04-form-execution-by-legal-entity.kql",
+      "observationFocus": "Which company drives the form load"
+    },
+    {
+      "id": "tile-05",
+      "title": "Form instance execution times",
+      "viz": "table",
+      "queryFile": "05-form-instance-execution-times.kql",
+      "observationFocus": "Per-instance durations (find outliers)"
+    },
+    {
+      "id": "tile-06",
+      "title": "Form duration trend",
+      "viz": "timechart",
+      "queryFile": "06-form-duration-trend.kql",
+      "observationFocus": "Avg duration over time \u2014 regression signal"
+    },
+    {
+      "id": "tile-07",
+      "title": "Form instance execution times (alt)",
+      "viz": "table",
+      "queryFile": "07-form-instance-execution-times-2.kql",
+      "observationFocus": "Alternative per-instance view (different pivot)"
+    },
+    {
+      "id": "tile-08",
+      "title": "Context: All tables pulse 24h",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/06-all-tables-pulse-24h.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-09",
+      "title": "Context: Pageviews daily 30d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/01-pageviews-daily-30d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-10",
+      "title": "Context: Pageviews hourly 7d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/02-pageviews-hourly-7d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-11",
+      "title": "Context: Pageviews duration percentiles 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/03-pageviews-duration-percentiles-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-12",
+      "title": "Context: Exceptions daily 30d top problems",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/05-exceptions-daily-30d-top-problems.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-13",
+      "title": "Context: Noise catalog breakdown 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/01-noise-catalog-breakdown-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-14",
+      "title": "Context: Top10 real problems 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/03-top10-real-problems-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-15",
+      "title": "Context: Exceptions signal vs noise 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/04-exceptions-signal-vs-noise-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - fno / dmf",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-dmf-monitoring.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "All export activities",
+      "viz": "table",
+      "queryFile": "01-all-export-activities.kql",
+      "observationFocus": "Recent DMF export runs"
+    },
+    {
+      "id": "tile-02",
+      "title": "All import activities",
+      "viz": "table",
+      "queryFile": "02-all-import-activities.kql",
+      "observationFocus": "Recent DMF import runs"
+    },
+    {
+      "id": "tile-03",
+      "title": "Import vs export count (completed)",
+      "viz": "piechart",
+      "queryFile": "03-import-vs-export-count-completed.kql",
+      "observationFocus": "Completed-run split between imports and exports"
+    },
+    {
+      "id": "tile-04",
+      "title": "All DMF events (Event ID 10000)",
+      "viz": "table",
+      "queryFile": "06-all-dmf-events-10000.kql",
+      "observationFocus": "Raw view of the DMF event source"
+    },
+    {
+      "id": "tile-05",
+      "title": "Completed executions per entity",
+      "viz": "barchart",
+      "queryFile": "04-completed-executions-per-entity.kql",
+      "observationFocus": "Which entities have the most completed executions"
+    },
+    {
+      "id": "tile-06",
+      "title": "Total records per entity",
+      "viz": "barchart",
+      "queryFile": "05-total-records-per-entity.kql",
+      "observationFocus": "Which entities have moved the most records"
+    },
+    {
+      "id": "tile-07",
+      "title": "Total duration (sec) per entity \u00d7 direction",
+      "viz": "table",
+      "queryFile": "08-total-duration-sec-per-entity-and-direction.kql",
+      "observationFocus": "Per-entity total elapsed time, import vs export"
+    },
+    {
+      "id": "tile-08",
+      "title": "Avg record-processing duration by project",
+      "viz": "table",
+      "queryFile": "13-avg-record-processing-duration-by-data-project.kql",
+      "observationFocus": "Avg ms per record per project \u2014 efficiency metric"
+    },
+    {
+      "id": "tile-09",
+      "title": "Data project execution timeline",
+      "viz": "timechart",
+      "queryFile": "09-data-project-execution-timeline.kql",
+      "observationFocus": "When did each project run, over time"
+    },
+    {
+      "id": "tile-10",
+      "title": "Total executions per data project",
+      "viz": "barchart",
+      "queryFile": "14-total-executions-per-data-project.kql",
+      "observationFocus": "Run count per project"
+    },
+    {
+      "id": "tile-11",
+      "title": "Total records per data project",
+      "viz": "barchart",
+      "queryFile": "15-total-records-per-data-project.kql",
+      "observationFocus": "Records moved per project"
+    },
+    {
+      "id": "tile-12",
+      "title": "Total duration (sec) per data project",
+      "viz": "barchart",
+      "queryFile": "16-total-duration-sec-per-data-project.kql",
+      "observationFocus": "Total elapsed time per project"
+    },
+    {
+      "id": "tile-13",
+      "title": "Avg #records per data project",
+      "viz": "barchart",
+      "queryFile": "19-avg-number-or-records-per-data-project.kql",
+      "observationFocus": "Average run size per project"
+    },
+    {
+      "id": "tile-14",
+      "title": "Executions by duration \u2014 top 100",
+      "viz": "table",
+      "queryFile": "07-executions-by-duration-top-100.kql",
+      "observationFocus": "100 longest DMF executions in window"
+    },
+    {
+      "id": "tile-15",
+      "title": "Unfinished runs",
+      "viz": "table",
+      "queryFile": "18-unfinished-runs.kql",
+      "observationFocus": "Runs that started but haven't reported completion \u2014 stuck imports"
+    }
+  ]
+}

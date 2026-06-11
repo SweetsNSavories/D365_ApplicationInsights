@@ -1,0 +1,87 @@
+{
+  "name": "Live Dashboard - resourcegraph",
+  "runtime": "resourcegraph",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-tenant-inventory.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Total Power Platform resource count",
+      "viz": "stat",
+      "queryFile": "01-total-count.kql",
+      "observationFocus": "Single number \u2014 how many PP assets exist in this tenant"
+    },
+    {
+      "id": "tile-02",
+      "title": "Breakdown by resource type",
+      "viz": "piechart",
+      "queryFile": "02-counts-by-type.kql",
+      "observationFocus": "Flows vs apps vs agents vs \u2026"
+    },
+    {
+      "id": "tile-03",
+      "title": "Per-environment counts",
+      "viz": "barchart",
+      "queryFile": "03-counts-by-environment.kql",
+      "observationFocus": "Asset count grouped by Dataverse environment"
+    },
+    {
+      "id": "tile-04",
+      "title": "Per-region counts",
+      "viz": "barchart",
+      "queryFile": "04-counts-by-region.kql",
+      "observationFocus": "Asset count grouped by region"
+    },
+    {
+      "id": "tile-05",
+      "title": "Top resource owners",
+      "viz": "barchart",
+      "queryFile": "05-top-owners.kql",
+      "observationFocus": "Who owns the most assets (governance / risk focus)"
+    },
+    {
+      "id": "tile-06",
+      "title": "Find a specific Copilot agent",
+      "viz": "table",
+      "queryFile": "06-find-agent.kql",
+      "observationFocus": "Locate an agent by name"
+    },
+    {
+      "id": "tile-07",
+      "title": "Items created in last 24 h",
+      "viz": "table",
+      "queryFile": "07-items-created-24h.kql",
+      "observationFocus": "Fresh creation activity feed"
+    },
+    {
+      "id": "tile-08",
+      "title": "Most-used connectors",
+      "viz": "barchart",
+      "queryFile": "08-top-connectors.kql",
+      "observationFocus": "Top connectors by usage count"
+    },
+    {
+      "id": "tile-09",
+      "title": "Connector-count distribution",
+      "viz": "columnchart",
+      "queryFile": "09-connector-count-distribution.kql",
+      "observationFocus": "Histogram of how many connectors each asset uses"
+    },
+    {
+      "id": "tile-10",
+      "title": "Find resources using a given connector",
+      "viz": "table",
+      "queryFile": "10-find-resources-by-connector.kql",
+      "observationFocus": "All flows/apps using `<connectorId>` (e.g. for an outage RCA)"
+    },
+    {
+      "id": "tile-11",
+      "title": "Connector usage per environment",
+      "viz": "table",
+      "queryFile": "11-connector-usage-by-env.kql",
+      "observationFocus": "Connector \u00d7 environment matrix"
+    }
+  ]
+}

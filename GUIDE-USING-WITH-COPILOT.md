@@ -1,6 +1,6 @@
 # Use this repo with VS Code + Akusto Explorer + GitHub Copilot
 
-A customer-facing guide for setting up VS Code, running the KQL query library, regenerating dashboards, and keeping troubleshooting evidence organized while GitHub Copilot helps with the investigation.
+A customer-facing guide for setting up VS Code, running the KQL query library, executing live dashboard runbooks, and keeping troubleshooting evidence organized while GitHub Copilot helps with the investigation.
 
 > Audience: anyone diagnosing a Dynamics 365 or Power Platform issue from Application Insights data — Dataverse admins, MDA / Power Pages devs, F&O technical consultants, Customer Service supervisors, and the partners who help them.
 
@@ -10,7 +10,13 @@ A customer-facing guide for setting up VS Code, running the KQL query library, r
 
 A library of **standalone KQL files** for Microsoft Dynamics 365 and Power Platform telemetry that lands in Azure Application Insights. Each `.kql` file is paste-and-run — no project setup, no shared lambdas you have to glue together. See [`README.md`](README.md) and [`kql/README.md`](kql/README.md) for the folder layout and provenance.
 
-Alongside the `.kql` files, every folder ships a **`DASHBOARD-*.md` file** that acts as a dashboard spec and troubleshooting runbook:
+Alongside the `.kql` files, every folder ships dashboard assets:
+
+- `DASHBOARD-*.md` — dashboard spec and troubleshooting runbook for people and Copilot.
+- `LIVE-DASHBOARD.json` — machine-readable manifest with 10-15 runnable tiles.
+- `LIVE-DASHBOARD.ipynb` — VS Code/Jupyter runbook that executes those tiles and writes local results and observations.
+
+The dashboard markdown explains:
 
 - What persona the dashboard is for
 - Which App Insights signal it reads
@@ -19,7 +25,7 @@ Alongside the `.kql` files, every folder ships a **`DASHBOARD-*.md` file** that 
 - Steps to (re)generate the dashboard in Azure Data Explorer dashboards
 - Copilot prompts to run the KQL, render results, and write observations from returned rows
 
-The dashboard markdown is **self-contained context for GitHub Copilot**. Drop one file into Copilot Chat, ask it to build a live dashboard in your App Insights context, and Copilot can run each linked query, inspect returned rows, and write observations.
+The dashboard markdown is **self-contained context for GitHub Copilot**. The notebook and JSON manifest give you a repeatable runner when you want the dashboard output saved as local HTML, Markdown, JSON, and CSV.
 
 ---
 
@@ -37,8 +43,8 @@ Before you start, gather:
 ### 1. Clone the repo
 
 ```pwsh
-git clone https://github.com/<your-org>/<this-repo>.git
-cd <this-repo>
+git clone https://github.com/SweetsNSavories/D365_ApplicationInsights.git
+cd D365_ApplicationInsights
 code .
 ```
 
@@ -55,6 +61,7 @@ Useful when available:
 
 | Extension / tool | Why |
 |---|---|
+| **Python** extension (`ms-python.python`) + Jupyter support | Run the per-folder `LIVE-DASHBOARD.ipynb` notebooks in VS Code. |
 | **Power Platform Tools** (`microsoft-IsvExpTools.powerplatform-vscode`) | Inspect Dataverse/Power Platform solution exports, use PAC CLI workflows, and compare solution components with telemetry findings. |
 | **Microsoft Learn docs from Copilot** | Ask Copilot to verify telemetry meaning, table names, and feature behavior against Microsoft Learn while you troubleshoot, when documentation tools are available in your environment. |
 
@@ -98,13 +105,14 @@ Useful commands and prompts:
 | Preview a markdown guide or dashboard | Open the `.md` file, then press `Ctrl+Shift+V` (`Markdown: Open Preview`) |
 | Open Copilot Chat | Command Palette → `GitHub Copilot: Open Chat` |
 | Build a live dashboard | `@workspace Use kql/<component>/DASHBOARD-<name>.md to build a live dashboard in my App Insights resource. Run every linked .kql through the Kusto extension, show returned results, and write observations for each tile.` |
+| Run packaged live dashboard output | Open `kql/<component>/LIVE-DASHBOARD.ipynb`, fill the resource ID/workspace/subscription values, then run all cells. |
 | Start troubleshooting from a symptom | `@workspace I am seeing <symptom>. Pick the right dashboard from AGENTS.md, run the broad health tiles first, then drill into raw rows and explain what is verified.` |
 
 ---
 
 ## How to use the dashboards
 
-Every folder under `kql/` has at least one `DASHBOARD-*.md` file. Open one — for example [`kql/dataverse/DASHBOARD-plugin-and-webapi-health.md`](kql/dataverse/DASHBOARD-plugin-and-webapi-health.md) — and you'll see:
+Every folder under `kql/` has at least one `DASHBOARD-*.md` file and a generated `LIVE-DASHBOARD.json` / `LIVE-DASHBOARD.ipynb` pair. Open one dashboard spec — for example [`kql/dataverse/DASHBOARD-plugin-and-webapi-health.md`](kql/dataverse/DASHBOARD-plugin-and-webapi-health.md) — and you'll see:
 
 - A short "What this tells you" section
 - A **Parameters** table (placeholders to fill before running — `_startTime`, user IDs, app modules, etc.)
@@ -115,6 +123,29 @@ Every folder under `kql/` has at least one `DASHBOARD-*.md` file. Open one — f
 - Links to **Related dashboards**
 
 Use `Ctrl+Shift+V` to preview the dashboard markdown in VS Code. The markdown is the blueprint; the live dashboard is created only after the linked KQL actually runs against a customer's App Insights resource. When viewing results, start from the broad health tiles, then drill into raw rows only after a trend, spike, error family, user, session, operation, or resource ID stands out. Treat a zero-row tile as a signal to verify instrumentation, time range, table naming, and filters before concluding that the problem is absent.
+
+### Run the packaged notebook / runner
+
+Install the live dashboard dependencies once:
+
+```pwsh
+python -m pip install -r requirements-live-dashboard.txt
+```
+
+Then either open a folder's `LIVE-DASHBOARD.ipynb` in VS Code and run the cells, or run the shared runner directly:
+
+```pwsh
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --dry-run
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --appinsights-resource-id "<resourceId>" --timespan-days 30
+```
+
+For `kql/resourcegraph/`, pass subscriptions instead of an App Insights resource:
+
+```pwsh
+python tools\live_dashboard_runner.py --manifest kql\resourcegraph\LIVE-DASHBOARD.json --output kql\resourcegraph\live-output --subscriptions "<subscriptionId1>,<subscriptionId2>"
+```
+
+The runner writes `live-output/index.html`, `live-output/observations.md`, `live-output/results.json`, and one CSV per tile. Those folders are ignored by Git so customer telemetry does not get pushed back to the public repo.
 
 ---
 

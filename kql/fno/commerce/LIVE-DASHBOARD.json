@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - fno / commerce",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-pos-and-csu-health.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "POS extension events inventory",
+      "viz": "table",
+      "queryFile": "01-pos-extension-events-inventory.kql",
+      "observationFocus": "What custom POS extension events are flowing (names + frequency)"
+    },
+    {
+      "id": "tile-02",
+      "title": "CRT extension traces inventory",
+      "viz": "table",
+      "queryFile": "02-crt-extension-traces-inventory.kql",
+      "observationFocus": "What CRT extension traces are flowing (names + frequency)"
+    },
+    {
+      "id": "tile-03",
+      "title": "Walk an AppSession end-to-end",
+      "viz": "table",
+      "queryFile": "03-walk-app-session.kql",
+      "observationFocus": "All telemetry for one POS terminal session chronologically"
+    },
+    {
+      "id": "tile-04",
+      "title": "CSU incoming requests \u2014 Event ID 5000",
+      "viz": "table",
+      "queryFile": "04-csu-incoming-requests-event-5000.kql",
+      "observationFocus": "Inbound CSU traffic with status / latency"
+    },
+    {
+      "id": "tile-05",
+      "title": "Async order processing batches",
+      "viz": "table",
+      "queryFile": "05-async-order-processing-batches.kql",
+      "observationFocus": "Async-uploaded order batches from POS to HQ"
+    },
+    {
+      "id": "tile-06",
+      "title": "RetailServer API latency \u2014 Event ID 5009",
+      "viz": "table",
+      "queryFile": "06-retail-api-latency-event-5009.kql",
+      "observationFocus": "RetailServer API call latency from CSU to HQ"
+    },
+    {
+      "id": "tile-07",
+      "title": "Context: All tables pulse 24h",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/06-all-tables-pulse-24h.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-08",
+      "title": "Context: Pageviews daily 30d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/01-pageviews-daily-30d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-09",
+      "title": "Context: Pageviews hourly 7d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/02-pageviews-hourly-7d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-10",
+      "title": "Context: Pageviews duration percentiles 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/03-pageviews-duration-percentiles-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-11",
+      "title": "Context: Exceptions daily 30d top problems",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/05-exceptions-daily-30d-top-problems.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-12",
+      "title": "Context: Noise catalog breakdown 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/01-noise-catalog-breakdown-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-13",
+      "title": "Context: Top10 real problems 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/03-top10-real-problems-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-14",
+      "title": "Context: Exceptions signal vs noise 30d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/04-exceptions-signal-vs-noise-30d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-15",
+      "title": "Context: Noise discovery candidates 7d",
+      "viz": "table",
+      "queryFile": "../../_shared/exceptions/06-noise-discovery-candidates-7d.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    }
+  ]
+}

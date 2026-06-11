@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - fno / batch",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-batch-monitoring.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Batch server configuration",
+      "viz": "table",
+      "queryFile": "01-batch-server-configuration.kql",
+      "observationFocus": "What `customMetrics` says about each batch server's max-threads / priority config"
+    },
+    {
+      "id": "tile-02",
+      "title": "Batch tasks \u2014 execution spread",
+      "viz": "columnchart",
+      "queryFile": "02-batch-server-tasks-execution-spread.kql",
+      "observationFocus": "How tasks distribute across batch servers (hotspots)"
+    },
+    {
+      "id": "tile-03",
+      "title": "Throttled batch tasks",
+      "viz": "table",
+      "queryFile": "03-throttled-batch-tasks.kql",
+      "observationFocus": "Tasks the batch framework throttled"
+    },
+    {
+      "id": "tile-04",
+      "title": "Task priority distribution",
+      "viz": "piechart",
+      "queryFile": "04-priority-distribution.kql",
+      "observationFocus": "Share of tasks by priority level"
+    },
+    {
+      "id": "tile-05",
+      "title": "Available batch threads",
+      "viz": "timechart",
+      "queryFile": "05-available-batch-threads.kql",
+      "observationFocus": "Thread headroom over time \u2014 capacity ceiling check"
+    },
+    {
+      "id": "tile-06",
+      "title": "Batch execution history",
+      "viz": "table",
+      "queryFile": "06-batch-execution-history.kql",
+      "observationFocus": "Recent batch task executions with status"
+    },
+    {
+      "id": "tile-07",
+      "title": "Throttled batch tasks (alt)",
+      "viz": "table",
+      "queryFile": "07-throttled-batch-tasks-2.kql",
+      "observationFocus": "Alternative throttle view (per-task)"
+    },
+    {
+      "id": "tile-08",
+      "title": "Throttled batch tasks (per-class)",
+      "viz": "table",
+      "queryFile": "08-throttled-batch-tasks-3.kql",
+      "observationFocus": "Throttle counts grouped by class"
+    },
+    {
+      "id": "tile-09",
+      "title": "Batch exceptions",
+      "viz": "table",
+      "queryFile": "09-batch-exceptions.kql",
+      "observationFocus": "`exceptions` filtered to `cloud_RoleName == \"BatchService\"`"
+    },
+    {
+      "id": "tile-10",
+      "title": "Batch infolog errors",
+      "viz": "table",
+      "queryFile": "10-batch-infolog-errors.kql",
+      "observationFocus": "X++ infolog errors raised from batch context"
+    },
+    {
+      "id": "tile-11",
+      "title": "Batch exceptions over time",
+      "viz": "timechart",
+      "queryFile": "11-batch-exceptions-over-time.kql",
+      "observationFocus": "Exception trend timeline"
+    },
+    {
+      "id": "tile-12",
+      "title": "Batch infolog errors (alt)",
+      "viz": "table",
+      "queryFile": "12-batch-infolog-errors-2.kql",
+      "observationFocus": "Alternative infolog view"
+    },
+    {
+      "id": "tile-13",
+      "title": "PBS queue sizes",
+      "viz": "timechart",
+      "queryFile": "13-pbs-queue-sizes.kql",
+      "observationFocus": "Priority-Based Scheduling queue depth over time"
+    },
+    {
+      "id": "tile-14",
+      "title": "Context: All tables pulse 24h",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/06-all-tables-pulse-24h.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    },
+    {
+      "id": "tile-15",
+      "title": "Context: Pageviews daily 30d by channel",
+      "viz": "table",
+      "queryFile": "../../_shared/timelines/01-pageviews-daily-30d-by-channel.kql",
+      "observationFocus": "Shared context tile used to baseline telemetry, noise, or ingestion before component drill-down."
+    }
+  ]
+}

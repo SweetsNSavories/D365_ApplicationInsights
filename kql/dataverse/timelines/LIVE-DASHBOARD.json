@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - dataverse / timelines",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "Requests daily 30d",
+      "viz": "table",
+      "queryFile": "01-requests-daily-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-02",
+      "title": "Requests failure rate 30d",
+      "viz": "table",
+      "queryFile": "02-requests-failure-rate-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-03",
+      "title": "Requests by resultcode 30d",
+      "viz": "table",
+      "queryFile": "03-requests-by-resultcode-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-04",
+      "title": "Dependencies daily 30d by type",
+      "viz": "table",
+      "queryFile": "04-dependencies-daily-30d-by-type.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-05",
+      "title": "Plugins daily 30d",
+      "viz": "table",
+      "queryFile": "05-plugins-daily-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-06",
+      "title": "Top10 operations percentiles table 30d",
+      "viz": "table",
+      "queryFile": "06-top10-operations-percentiles-table-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-07",
+      "title": "Top10 operations p95 timeline 30d",
+      "viz": "table",
+      "queryFile": "07-top10-operations-p95-timeline-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-08",
+      "title": "Top10 entity sdkop percentiles table 30d",
+      "viz": "table",
+      "queryFile": "08-top10-entity-sdkop-percentiles-table-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-09",
+      "title": "Top10 entity sdkop p95 timeline 30d",
+      "viz": "table",
+      "queryFile": "09-top10-entity-sdkop-p95-timeline-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-10",
+      "title": "Top10 plugins percentiles table 30d",
+      "viz": "table",
+      "queryFile": "10-top10-plugins-percentiles-table-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-11",
+      "title": "Top10 plugins p95 timeline 30d",
+      "viz": "table",
+      "queryFile": "11-top10-plugins-p95-timeline-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-12",
+      "title": "Anomaly traffic drop est business hours 30d",
+      "viz": "table",
+      "queryFile": "12-anomaly-traffic-drop-est-business-hours-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-13",
+      "title": "Anomaly traffic spike est business hours 30d",
+      "viz": "table",
+      "queryFile": "13-anomaly-traffic-spike-est-business-hours-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-14",
+      "title": "Anomaly traffic chart 30d",
+      "viz": "table",
+      "queryFile": "14-anomaly-traffic-chart-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    },
+    {
+      "id": "tile-15",
+      "title": "Anomaly 4xx spike 30d",
+      "viz": "table",
+      "queryFile": "15-anomaly-4xx-spike-30d.kql",
+      "observationFocus": "Run this query and inspect returned rows for spikes, top offenders, and zero-row surprises."
+    }
+  ]
+}

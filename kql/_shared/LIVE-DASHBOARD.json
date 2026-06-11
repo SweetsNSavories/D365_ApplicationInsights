@@ -1,0 +1,115 @@
+{
+  "name": "Live Dashboard - _shared",
+  "runtime": "appinsights",
+  "description": "Run these KQL tiles against a customer environment, render results, and capture observations.",
+  "sourceDashboard": "DASHBOARD-overview.md",
+  "minimumTargetTiles": 10,
+  "maximumTargetTiles": 15,
+  "tiles": [
+    {
+      "id": "tile-01",
+      "title": "All-tables pulse (24 h)",
+      "viz": "table",
+      "queryFile": "timelines/06-all-tables-pulse-24h.kql",
+      "observationFocus": "Per-table row counts in last 24 h \u2014 sanity check that data is flowing"
+    },
+    {
+      "id": "tile-02",
+      "title": "All-tables weekly (90 d)",
+      "viz": "timechart",
+      "queryFile": "timelines/07-all-tables-weekly-90d.kql",
+      "observationFocus": "Weekly per-table volume trend"
+    },
+    {
+      "id": "tile-03",
+      "title": "pageViews daily by channel (30 d)",
+      "viz": "columnchart (stacked)",
+      "queryFile": "timelines/01-pageviews-daily-30d-by-channel.kql",
+      "observationFocus": "MDA vs Power Pages vs Other share of `pageViews`"
+    },
+    {
+      "id": "tile-04",
+      "title": "pageViews hourly by channel (7 d)",
+      "viz": "timechart",
+      "queryFile": "timelines/02-pageviews-hourly-7d-by-channel.kql",
+      "observationFocus": "Hourly traffic shape per channel"
+    },
+    {
+      "id": "tile-05",
+      "title": "pageViews duration percentiles (30 d)",
+      "viz": "table",
+      "queryFile": "timelines/03-pageviews-duration-percentiles-30d.kql",
+      "observationFocus": "P50/P75/P90/P95/P99 of page load duration"
+    },
+    {
+      "id": "tile-06",
+      "title": "DAU by channel (30 d)",
+      "viz": "timechart",
+      "queryFile": "timelines/04-pageviews-dau-30d-by-channel.kql",
+      "observationFocus": "Daily distinct users per channel"
+    },
+    {
+      "id": "tile-07",
+      "title": "Top pageViews (single sample)",
+      "viz": "table",
+      "queryFile": "overview/01-pageviews-top100.kql",
+      "observationFocus": "First-look list of most recent pageviews"
+    },
+    {
+      "id": "tile-08",
+      "title": "Pull all telemetry for one `operation_Id`",
+      "viz": "table",
+      "queryFile": "overview/02-pageviews-by-operation-id.kql",
+      "observationFocus": "Walk a single correlated user action across tables"
+    },
+    {
+      "id": "tile-09",
+      "title": "Log Analytics output template",
+      "viz": "table",
+      "queryFile": "overview/03-loganalytics-azurediagnostics-output.kql",
+      "observationFocus": "Read App Insights data from a Log Analytics workspace (`App*` prefixes)"
+    },
+    {
+      "id": "tile-10",
+      "title": "Exceptions \u2014 daily top problems (30 d)",
+      "viz": "table",
+      "queryFile": "timelines/05-exceptions-daily-30d-top-problems.kql",
+      "observationFocus": "Top exception messages per day after noise filter"
+    },
+    {
+      "id": "tile-11",
+      "title": "Exception noise catalog (7 d)",
+      "viz": "table",
+      "queryFile": "exceptions/01-noise-catalog-breakdown-7d.kql",
+      "observationFocus": "Which exceptions are known baseline noise (`PrvRead` etc.)"
+    },
+    {
+      "id": "tile-12",
+      "title": "The `_IsNoise` lambda",
+      "viz": "(helper)",
+      "queryFile": "exceptions/02-known-noise-filter.kql",
+      "observationFocus": "Reusable noise filter inlined into 03\u201307 below"
+    },
+    {
+      "id": "tile-13",
+      "title": "Top 10 real problems (7 d)",
+      "viz": "barchart",
+      "queryFile": "exceptions/03-top10-real-problems-7d.kql",
+      "observationFocus": "Top 10 exceptions **after** noise removal \u2014 the actionable list"
+    },
+    {
+      "id": "tile-14",
+      "title": "Exceptions signal vs noise (30 d)",
+      "viz": "columnchart (stacked)",
+      "queryFile": "exceptions/04-exceptions-signal-vs-noise-30d.kql",
+      "observationFocus": "What % of your exception bill is documented noise"
+    },
+    {
+      "id": "tile-15",
+      "title": "Noise self-check (7 d)",
+      "viz": "table",
+      "queryFile": "exceptions/05-noise-self-check-7d.kql",
+      "observationFocus": "Confirm the filter still matches your environment's noise"
+    }
+  ]
+}
