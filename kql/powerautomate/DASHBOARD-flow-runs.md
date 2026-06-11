@@ -18,7 +18,7 @@ Run-level health for cloud flows — failure rate by flow, slowest runs, billabl
 | `_runId` | (deep-link template in 04) | `'08585…-…'` | A specific run for direct-link generation |
 | `ago(7d)` / `ago(30d)` | every tile | `ago(7d)` | Override per tile |
 
-## Tile catalog — top level (`./`)
+## Tile plan — top level (`./`)
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -37,7 +37,7 @@ Run-level health for cloud flows — failure rate by flow, slowest runs, billabl
 | 13 | Top 10 flows by runs | barchart | [`13-top10-flows-by-runs.kql`](13-top10-flows-by-runs.kql) | Tenant-wide run leaderboard |
 | 14 | Per-flow P95 duration timechart | timechart | [`14-flow-response-time-p95-timechart.kql`](14-flow-response-time-p95-timechart.kql) | P95 per flow, 10-min bins |
 
-## Tile catalog — timelines (`./timelines/`)
+## Tile plan — timelines (`./timelines/`)
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -66,7 +66,7 @@ The triage accelerator. Drop this on the same page as 01/03/08; click any row's 
 
 The license/cost angle. If a single flow dominates billable actions, it's either (a) doing useful work for the org, or (b) running a hidden loop — pair with tile 11 for that flow to see whether the volume is steady or spiking.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `Power Automate cloud flow runs`.
 2. Add your App Insights resource as a data source.
@@ -76,9 +76,11 @@ The license/cost angle. If a single flow dominates billable actions, it's either
    - **Cost** — 09, 11, 12, 13, 14
 4. Add `_startTime`, `_endTime`, `_flowId` (default empty), `_environmentId` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-flow-runs.md`](./DASHBOARD-flow-runs.md). Regenerate the **Triage** page (01, 03, 04, 06, 08, timelines/01) in my App Insights — cluster URI `<...>`, database `<...>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-flow-runs.md`](./DASHBOARD-flow-runs.md). Build a live dashboard for the **Triage** page (01, 03, 04, 06, 08, timelines/01) in my App Insights — cluster URI `<...>`, database `<...>`."*
 
 Symptom-driven:
 

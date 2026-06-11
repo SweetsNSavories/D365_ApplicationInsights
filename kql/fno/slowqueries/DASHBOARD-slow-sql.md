@@ -18,7 +18,7 @@ The slowest X++/SQL queries the AOS reported in the window — top 100 over the 
 | `_queryType` | 03 | `''` (= All) | Pass-through when empty |
 | `_country` / `_city` | 04 | `''` (= All) | Pass-through when empty |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -45,16 +45,18 @@ The "did something regress?" view. A sudden step-up usually corresponds to (a) a
 
 The actionable list. Sort by count first (frequent + slow = highest ROI to fix), then by max duration (rare + extremely slow = often deadlock / locking).
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `F&O slow queries`.
 2. Add your F&O App Insights resource as a data source.
 3. Single page with the 5 dashboard tiles (skip tile 00 — that's a reference / instrumentation note, not a tile).
 4. Expose `_startTime`, `_endTime`, `_queryType`, `_country`, `_city` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-slow-sql.md`](./DASHBOARD-slow-sql.md). Regenerate tiles 01-05 in my F&O App Insights — cluster URI `<...>`, database `<...>`. Skip tile 00; that's a reference, not a dashboard tile."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-slow-sql.md`](./DASHBOARD-slow-sql.md). Build a live dashboard for tiles 01-05 in my F&O App Insights — cluster URI `<...>`, database `<...>`. Skip tile 00; that's a reference, not a dashboard tile."*
 
 Symptom-driven:
 

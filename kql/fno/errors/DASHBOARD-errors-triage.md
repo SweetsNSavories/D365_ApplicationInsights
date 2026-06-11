@@ -21,7 +21,7 @@ This is the most-used dashboard in F&O ops when an incident lands. Open it first
 | `_legalEntity` | several | `''` (= All) | Pass-through when empty |
 | `_userId` | 05 | `''` (= All) | Pass-through when empty |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -48,16 +48,18 @@ The single fastest "where do I drill?" answer. A pie slice >70% on `Batch` → j
 
 The headline list. Sort by count desc; the top 5 messages usually represent >80% of error volume. Skim the message text — if you see `SqlDatabaseException` / "deadlock" / "lock timeout" terms, jump to [`../slowqueries/DASHBOARD-slow-sql.md`](../slowqueries/DASHBOARD-slow-sql.md).
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `F&O exception triage`.
 2. Add your F&O App Insights resource as a data source.
 3. Single page with all 6 tiles is fine.
 4. Expose `_startTime`, `_endTime`, `_executionMode`, `_legalEntity`, `_userId` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-errors-triage.md`](./DASHBOARD-errors-triage.md). Regenerate all 6 tiles in my F&O App Insights — cluster URI `<...>`, database `<...>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-errors-triage.md`](./DASHBOARD-errors-triage.md). Build a live dashboard for all 6 tiles in my F&O App Insights — cluster URI `<...>`, database `<...>`."*
 
 Symptom-driven:
 

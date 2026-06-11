@@ -19,7 +19,7 @@ Use this dashboard before drilling into a specific component dashboard.
 | `ago(24h)` / `ago(7d)` / `ago(30d)` | every tile | `ago(7d)` | Default windows; override per tile |
 | (none) | most tiles | — | Cross-component overview tiles are parameter-free by design |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -59,7 +59,7 @@ The single fastest way to confirm "is data even flowing, and from which tables?"
 
 This is the canonical disambiguator for shared App Insights resources. `pageViews` is emitted by **MDA**, **Power Pages**, **F&O**, **Canvas**, and any custom JS SDK — without this split a "slow form load" investigation can land in the wrong folder.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Open [Azure Data Explorer dashboards](https://dataexplorer.azure.com/dashboards) and create a new dashboard `Cross-component overview`.
 2. **Data sources** → add your App Insights resource using the cluster URI:
@@ -67,13 +67,15 @@ This is the canonical disambiguator for shared App Insights resources. `pageView
    https://ade.applicationinsights.io/subscriptions/<subscriptionId>/resourcegroups/<rg>/providers/microsoft.insights/components/<appInsightsName>
    ```
    Database name is `<appInsightsName>`.
-3. For each row in the **Tile catalog**, **+ Add tile** → paste the contents of the linked `.kql` → in **Visual** pick the value from the **Viz** column.
+3. For each row in the **Tile plan**, **+ Add tile** → paste the contents of the linked `.kql` → in **Visual** pick the value from the **Viz** column.
 4. Group tiles into two pages: *Pulse & channels* (1–9) and *Exceptions & cost* (10–19).
 5. Save.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-overview.md`](./DASHBOARD-overview.md) to regenerate the 19 tiles in my App Insights resource. Cluster URI is `<my-uri>`, database is `<my-db>`. For each tile in the catalog, run the linked `.kql` via the Kusto extension, render the suggested visual, and flag tiles that return zero rows."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-overview.md`](./DASHBOARD-overview.md) to build a live dashboard for the 19 tiles in my App Insights resource. Cluster URI is `<my-uri>`, database is `<my-db>`. For each tile in the tile plan, run the linked `.kql` via the Kusto extension, render the suggested visual, write observations from returned rows, and flag tiles that return zero rows."*
 
 For symptom-driven walks:
 

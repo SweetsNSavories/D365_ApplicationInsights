@@ -23,7 +23,7 @@ This is the **App Insights** path for conversation routing diagnostics, not the 
 | `agentids` (dynamic array) | 09 | `dynamic(['<id1>','<id2>'])` | A shortlist of reps to compare |
 | `ago(1d)` / `ago(7d)` / `ago(30d)` | every tile | `ago(7d)` | Override per tile |
 
-## Tile catalog
+## Tile plan
 
 ### Lifecycle & end-to-end
 
@@ -92,7 +92,7 @@ Always run this first when investigating a single bad conversation. Substitute t
 
 The "rep state at the moment of decision" tile. Drill here after tile 01 shows a conversation hit `CSRRejected` repeatedly or landed on fallback. Each row is one rep on the queue at `<pointInTime>` with their presence, unit capacity, profile capacity, skills — so you can see exactly who was eligible and why the orchestrator picked (or didn't pick) them.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 Two paths:
 
@@ -102,13 +102,15 @@ Two paths:
 
 1. Create dashboard `Conversation routing diagnostics`.
 2. Add your App Insights resource as a data source ([`../../GUIDE-USING-WITH-COPILOT.md`](../../GUIDE-USING-WITH-COPILOT.md)).
-3. Five pages aligned to the catalog sections: **Lifecycle**, **Routing failures**, **Assignment & rejections**, **Point-in-time state**, **Audit**.
+3. Five pages aligned to the tile plan sections: **Lifecycle**, **Routing failures**, **Assignment & rejections**, **Point-in-time state**, **Audit**.
 4. For each tile, **+ Add tile** → paste the linked `.kql` → pick the **Viz** column value.
 5. Expose `<lwiid>`, `<agentId>`, `<queueId>`, `<pointInTime>`, `agentids` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-conversation-routing.md`](./DASHBOARD-conversation-routing.md). Regenerate the **Routing failures** + **Assignment & rejections** pages (tiles 02, 03, 05, 06, 07, 15, 18) in my App Insights. Cluster URI `<...>`, database `<...>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-conversation-routing.md`](./DASHBOARD-conversation-routing.md). Build a live dashboard for the **Routing failures** + **Assignment & rejections** pages (tiles 02, 03, 05, 06, 07, 15, 18) in my App Insights. Cluster URI `<...>`, database `<...>`."*
 
 Symptom-driven (most common shape):
 

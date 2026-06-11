@@ -19,7 +19,7 @@ A tenant-level inventory of every Power Platform asset — flows, agents, apps, 
 | `<connectorId>` | 10 | `'shared_office365'` | ARG `connectorName` value |
 | (none) | most tiles | — | Tenant-wide aggregates are parameter-free by design |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ The single fastest "what does this tenant look like?" answer. A tenant heavily s
 
 The blast-radius tile. Used most often when an underlying connector has a service incident (e.g. SharePoint, SQL) — substitute `<connectorId>` to enumerate every flow / app that may be impacted.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 ARG queries are **not** ADX queries, so the standard ADX dashboards experience doesn't apply directly. Three options:
 
@@ -59,7 +59,7 @@ ARG queries are **not** ADX queries, so the standard ADX dashboards experience d
 
 1. Portal → search **Resource Graph Explorer**.
 2. Paste each `.kql` into the editor → **Run query**.
-3. **Save query** with the tile name from the catalog.
+3. **Save query** with the tile name from the tile plan.
 4. Saved queries are accessible from the **Saved queries** pane on the left.
 
 **Option B — Azure Workbook over Resource Graph.**
@@ -77,7 +77,9 @@ az graph query -q "$(Get-Content kql\resourcegraph\02-counts-by-type.kql -Raw)"
 
 Useful for nightly snapshots / CoE reporting.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
+
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
 
 > *"@workspace Use [`DASHBOARD-tenant-inventory.md`](./DASHBOARD-tenant-inventory.md). Run all 11 tiles in **Azure Resource Graph Explorer** (NOT App Insights) and summarize: total assets (tile 01), top type (tile 02), top owner (tile 05), top connector (tile 08), assets created in the last 24 h (tile 07)."*
 

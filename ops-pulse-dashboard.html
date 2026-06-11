@@ -147,6 +147,7 @@
     border: 1px solid var(--border); border-radius: 5px;
     padding: 4px 10px; font-size: 11px; cursor: pointer;
     font-family: inherit;
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
   }
   button.copy:hover  { color: var(--text); border-color: var(--accent); }
@@ -170,7 +171,7 @@
 
 <nav>
   <div class="brand">Power Platform — Ops Pulse</div>
-  <div class="sub">App Insights · 14 KQL queries</div>
+  <div class="sub">Static query pack · 14 KQL queries</div>
 
   <h2>Pulse &amp; Health</h2>
   <ol>
@@ -203,22 +204,23 @@
   </ol>
 
   <div class="footer">
-    Paste any block into <code>App Insights → Logs</code>.<br>
+    Static query pack: paste any block into <code>App Insights → Logs</code>.<br>
     Time windows are baked in; toolbar override ignored for those that set <code>ago()</code>.
   </div>
 </nav>
 
 <main>
   <header class="page">
-    <h1>Power Platform — Ops Pulse Dashboard</h1>
+    <h1>Power Platform — Ops Pulse Query Pack</h1>
     <p>
       <span class="pill">App Insights</span>
       <span class="pill">KQL</span>
       <span class="pill">Power Pages + MDA</span>
       A focused set of 14 queries to triage event-day pressure: traffic shape, error
       class, latency tail, channel split, exception signal, plus portal pressure,
-      bot/scripted UA detection, heaviest users, and 429 throttling. Each block is
-      standalone — copy, paste, run.
+      bot/scripted UA detection, heaviest users, and 429 throttling. This static page
+      does not execute KQL by itself; use the queries in App Insights Logs or ADX
+      dashboards to show live results and capture observations.
     </p>
   </header>
 

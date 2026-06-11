@@ -104,7 +104,7 @@ Headline reliability number. A dip on a specific date usually pairs with a serve
 
 The "why is sync slow?" tile. Joins the client-side `Offline.SyncDatabase` rows with their server-side `SDKRetrieveMultiple` dependencies via trimmed `operation_Id`, then ranks tables by P95 server time. A table near the top with high P95 = a candidate for offline-filter pruning or table-column-selection (covered in the [Best Practices for Offline Mode in the Field Service mobile app](https://www.microsoft.com/dynamics-365/blog/administrator/2023/11/06/best-practices-for-offline-mode-in-the-field-service-mobile-app-part-1/) blog series).
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 This dashboard is shipped as **importable JSON** by Microsoft. The fastest path:
 
@@ -117,12 +117,14 @@ If you'd rather build from scratch (e.g. to keep dashboard schema in source cont
 
 1. Create dashboard `Field Service Mobile — Offline analytics`.
 2. Five pages matching the sub-dashboards above (Sync summary / Sync errors / Sync performance / Sync payload / Sync details).
-3. For each tile in the catalog, **+ Add tile**, paste the linked `.kql`, pick the **Viz** column value.
+3. For each tile in the tile plan, **+ Add tile**, paste the linked `.kql`, pick the **Viz** column value.
 4. Add `_startTime`, `_endTime`, `dataSyncMode`, `userId`, `tableName`, `externalCorrelationId`, `errorMessage` as dashboard parameters (defaults per the table above).
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-fs-mobile-offline.md`](./DASHBOARD-fs-mobile-offline.md). Regenerate the **Sync summary** sub-dashboard (tiles 05, 06, 07, 08, 09) in my App Insights resource. Cluster URI `<...>`, database `<...>`. Default time window is 30 days."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-fs-mobile-offline.md`](./DASHBOARD-fs-mobile-offline.md). Build a live dashboard for the **Sync summary** sub-dashboard (tiles 05, 06, 07, 08, 09) in my App Insights resource. Cluster URI `<...>`, database `<...>`. Default time window is 30 days."*
 
 Symptom-driven:
 

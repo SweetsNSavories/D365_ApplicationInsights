@@ -20,7 +20,7 @@ The cross-tier health of a D365 Commerce deployment — from POS terminal (Cloud
 | `<extensionName>` | 01, 02 | `'Contoso.Commerce.POS.Extension'` | Optional filter to a specific extension assembly |
 | `ago(1d)` / `ago(7d)` | every tile | `ago(1d)` | Override per tile |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -47,7 +47,7 @@ The single most useful tile when a cashier or store manager reports "the termina
 
 The "is HQ the slow link?" tile. When tile 03 shows a POS session waiting on RetailServer calls, this aggregates by API operation to find which RetailServer endpoint is the bottleneck for the period.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `D365 Commerce — POS & CSU health`.
 2. Add your Commerce App Insights resource as a data source.
@@ -56,9 +56,11 @@ The "is HQ the slow link?" tile. When tile 03 shows a POS session waiting on Ret
    - **CSU / RetailServer / Async** — 04, 05, 06
 4. Expose `_startTime`, `_endTime`, `<AppSessionID>` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-pos-and-csu-health.md`](./DASHBOARD-pos-and-csu-health.md). Regenerate all 6 tiles in my Commerce App Insights — cluster URI `<...>`, database `<...>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-pos-and-csu-health.md`](./DASHBOARD-pos-and-csu-health.md). Build a live dashboard for all 6 tiles in my Commerce App Insights — cluster URI `<...>`, database `<...>`."*
 
 Symptom-driven:
 

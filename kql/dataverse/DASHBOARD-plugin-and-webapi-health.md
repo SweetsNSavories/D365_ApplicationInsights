@@ -21,7 +21,7 @@ This is where ~80% of actionable App Insights data lives for any Dataverse-backe
 | `<x-ms-service-request-id>` | 10 | `'b3b1f1a2-…-…'` | Pull from a failed request header |
 | `ago(7d)` / `ago(30d)` | every tile | `ago(30d)` | Override per tile |
 
-## Tile catalog — top level (`./`)
+## Tile plan — top level (`./`)
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -41,7 +41,7 @@ This is where ~80% of actionable App Insights data lives for any Dataverse-backe
 | 14 | Most-failed plug-ins by `pluginType` | barchart | [`14-most-failed-plugins-by-plugintype.kql`](14-most-failed-plugins-by-plugintype.kql) | Failures grouped by .NET type, not SDK step name |
 | 15 | Plug-ins firing at depth > 2 | table | [`15-plugins-depth-gt-2-weekly.kql`](15-plugins-depth-gt-2-weekly.kql) | Nested plug-in chains with high P95 |
 
-## Tile catalog — timelines (`./timelines/`)
+## Tile plan — timelines (`./timelines/`)
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -80,7 +80,7 @@ Run this first when an "errors" call comes in. **Always pair with** the noise fi
 
 This is the canonical "where is the latency coming from" leaderboard. Pair with tile **07** (timeline) for the same data binned per day — if the P95 jumped on a specific date, that's where to start.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create a new dashboard `Dataverse plug-in & Web API health`.
 2. Add your App Insights resource as a data source (see [`../../GUIDE-USING-WITH-COPILOT.md`](../../GUIDE-USING-WITH-COPILOT.md) for the URI).
@@ -92,9 +92,11 @@ This is the canonical "where is the latency coming from" leaderboard. Pair with 
 5. Expose `_startTime` / `_endTime` as dashboard parameters; default to last 30 days.
 6. Save.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-plugin-and-webapi-health.md`](./DASHBOARD-plugin-and-webapi-health.md). Regenerate the **Health** page tiles (01, 04, 08, timelines 01/02/03/17) in my App Insights — cluster URI `<...>`, database `<...>`. Apply the noise filter from `../_shared/exceptions/02-known-noise-filter.kql` to tile 04."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-plugin-and-webapi-health.md`](./DASHBOARD-plugin-and-webapi-health.md). Build a live dashboard for the **Health** page tiles (01, 04, 08, timelines 01/02/03/17) in my App Insights — cluster URI `<...>`, database `<...>`. Apply the noise filter from `../_shared/exceptions/02-known-noise-filter.kql` to tile 04."*
 
 For a hot-path investigation:
 

@@ -21,7 +21,7 @@ Which F&O forms are opened most often, which take the longest on average, and ho
 | `_legalEntity` | 04 | `''` (= All) | Pass-through when empty |
 | `_userId` | several | `''` (= All) | Pass-through when empty |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -49,16 +49,18 @@ The single best "where should I focus performance work?" view. Cross-reference w
 
 The "did it regress?" tile. A sudden step-up on one form usually corresponds to a release / customization import — pair with [`../slowqueries/DASHBOARD-slow-sql.md`](../slowqueries/DASHBOARD-slow-sql.md) tile 02 to see if a slow query showed up at the same time.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `F&O form performance`.
 2. Add your F&O App Insights resource as a data source.
 3. Single page with all 7 tiles is fine.
 4. Expose `_startTime`, `_endTime`, `_formName`, `_legalEntity`, `_userId` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-form-perf.md`](./DASHBOARD-form-perf.md). Regenerate all 7 tiles in my F&O App Insights — cluster URI `<...>`, database `<...>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-form-perf.md`](./DASHBOARD-form-perf.md). Build a live dashboard for all 7 tiles in my F&O App Insights — cluster URI `<...>`, database `<...>`."*
 
 Symptom-driven:
 

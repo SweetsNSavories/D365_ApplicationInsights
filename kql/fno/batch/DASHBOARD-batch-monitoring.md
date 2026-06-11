@@ -21,7 +21,7 @@ The Batch framework's heartbeat — configuration, available threads, task execu
 | `_environmentId` | several | `''` (= All) | Pass-through when empty |
 | `_cloudRoleInstance` | several | `''` (= All) | Filter to one AOS instance |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -55,7 +55,7 @@ The capacity-ceiling check. When available threads sit at zero for hours, every 
 
 The "things are queuing" tile. A monotonically rising queue means producers > consumers — either bump batch threads (capacity) or fix the consuming class.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `F&O Batch monitoring`.
 2. Add your F&O-owned App Insights resource as a data source.
@@ -65,9 +65,11 @@ The "things are queuing" tile. A monotonically rising queue means producers > co
    - **Failures** — 06, 09, 10, 11, 12
 4. Expose `_startTime`, `_endTime`, `_legalEntity`, `_environmentId`, `_cloudRoleInstance` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-batch-monitoring.md`](./DASHBOARD-batch-monitoring.md). Regenerate all 13 tiles in my F&O App Insights resource — cluster URI `<...>`, database `<...>`. Default `_legalEntity` and `_environmentId` to empty (= All)."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-batch-monitoring.md`](./DASHBOARD-batch-monitoring.md). Build a live dashboard for all 13 tiles in my F&O App Insights resource — cluster URI `<...>`, database `<...>`. Default `_legalEntity` and `_environmentId` to empty (= All)."*
 
 Symptom-driven:
 

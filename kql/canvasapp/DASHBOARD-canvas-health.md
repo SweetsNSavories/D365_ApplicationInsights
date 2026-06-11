@@ -18,7 +18,7 @@ The minimal "is the app healthy?" view for canvas apps — which app instance is
 | `<ms-appid>` | (filter) | the app's GUID | From the app's URL or `01` results |
 | `ago(7d)` | every tile | `ago(7d)` | Override per tile |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -43,16 +43,18 @@ The fastest "what should I optimize first?" answer. A pie-slice >50% on one scre
 
 When a user reports a specific bad experience and gives you their session ID (visible in the in-app diagnostic overlay), this query walks every telemetry surface — page navigations, trace calls, connector dependencies, exceptions — in order.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `Canvas app health`.
 2. Add your App Insights resource as a data source.
 3. Single page with all 4 tiles is fine.
 4. Add `_startTime`, `_endTime`, optional `_msAppId`, `_sessionId` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-canvas-health.md`](./DASHBOARD-canvas-health.md). Regenerate all four tiles in my App Insights resource — cluster URI `<...>`, database `<...>`. Filter to ms-appid `<...>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-canvas-health.md`](./DASHBOARD-canvas-health.md). Build a live dashboard for all four tiles in my App Insights resource — cluster URI `<...>`, database `<...>`. Filter to ms-appid `<...>`."*
 
 Symptom-driven:
 

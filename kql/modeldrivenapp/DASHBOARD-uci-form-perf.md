@@ -22,7 +22,7 @@ Everything the **UCI client** reports — form load duration, browser/OS/geo dis
 | `appModule` | several | `'CaseManagement'` | Filter to a specific app module |
 | `ago(7d)` / `ago(30d)` | every tile | `ago(30d)` | Override per tile |
 
-## Tile catalog — top level (`./`)
+## Tile plan — top level (`./`)
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -50,7 +50,7 @@ Everything the **UCI client** reports — form load duration, browser/OS/geo dis
 | 22 | Form load cold vs warm by entity | table | [`22-form-load-cold-warm-by-entity.kql`](22-form-load-cold-warm-by-entity.kql) | EditForm cold/warm split with P50/P90/Avg/Max |
 | 23 | Network perf per user × country | table | [`23-network-perf-by-user-country.kql`](23-network-perf-by-user-country.kql) | `warmThroughput` min/max/avg by user and country |
 
-## Tile catalog — timelines (`./timelines/`)
+## Tile plan — timelines (`./timelines/`)
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -79,7 +79,7 @@ When the symptom is "only some users are slow", start here. Pair with **23** (ne
 
 The "did something regress?" question for forms. A jump on a specific day usually corresponds to a release or solution import — pair with [`../dataverse/timelines/07-top10-operations-p95-timeline-30d.kql`](../dataverse/timelines/07-top10-operations-p95-timeline-30d.kql) to see if server-side endpoints jumped at the same time.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `MDA UCI form performance`.
 2. Add your App Insights resource as a data source.
@@ -90,9 +90,11 @@ The "did something regress?" question for forms. A jump on a specific day usuall
 4. Add `_startTime`, `_endTime`, `appModule`, optional `_userId` as dashboard parameters.
 5. Save.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-uci-form-perf.md`](./DASHBOARD-uci-form-perf.md). Regenerate the **Form health** page (14, 22, timelines/01, 04, 05) in my App Insights — cluster URI `<...>`, database `<...>`. Filter by appModule `<CaseManagement>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-uci-form-perf.md`](./DASHBOARD-uci-form-perf.md). Build a live dashboard for the **Form health** page (14, 22, timelines/01, 04, 05) in my App Insights — cluster URI `<...>`, database `<...>`. Filter by appModule `<CaseManagement>`."*
 
 Symptom-driven:
 

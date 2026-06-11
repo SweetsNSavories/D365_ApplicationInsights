@@ -22,7 +22,7 @@ Everything happening in F&O's Data Management Framework — imports vs exports, 
 
 > Numbers 17, 21, 22 are intentionally skipped — they're spacer placeholders carried over from the upstream MS Learn / FastTrack source.
 
-## Tile catalog
+## Tile plan
 
 ### Activity & inventory
 
@@ -84,7 +84,7 @@ The single best "did the import run on schedule?" view. Each project gets a seri
 
 The "did something regress today?" view. A step-up usually pairs with a release or an upstream-data change — drill via tile 10 (errors per project) and tile 11 (raw errors).
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `F&O Data Management Framework monitoring`.
 2. Add your F&O App Insights resource as a data source.
@@ -95,9 +95,11 @@ The "did something regress today?" view. A step-up usually pairs with a release 
    - **Outliers & errors** — 07, 10, 11, 12, 18, 20
 4. Expose `_startTime`, `_endTime`, `_dataProjectName`, `_entityName`, `_legalEntity`, `_environmentId` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-dmf-monitoring.md`](./DASHBOARD-dmf-monitoring.md). Regenerate the **Activity & inventory** and **Outliers & errors** pages in my F&O App Insights — cluster URI `<...>`, database `<...>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-dmf-monitoring.md`](./DASHBOARD-dmf-monitoring.md). Build a live dashboard for the **Activity & inventory** and **Outliers & errors** pages in my F&O App Insights — cluster URI `<...>`, database `<...>`."*
 
 Symptom-driven:
 

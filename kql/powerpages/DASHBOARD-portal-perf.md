@@ -19,7 +19,7 @@ Page load latency per route on your portal, anonymous vs authenticated split (wh
 | `<PortalId>` | (when adding multi-portal filters) | `'01aaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'` | Pull from `customDimensions.PortalId` on a sample row |
 | `ago(7d)` / `ago(30d)` | every tile | `ago(7d)` | Override per tile |
 
-## Tile catalog
+## Tile plan
 
 | # | Title | Viz | Source file | What it answers |
 |---|---|---|---|---|
@@ -27,7 +27,7 @@ Page load latency per route on your portal, anonymous vs authenticated split (wh
 
 ## Recommended additions (not yet in repo)
 
-These tiles round out a portal-perf dashboard; drop new `.kql` files here as you write them and update this catalog:
+These tiles round out a portal-perf dashboard; drop new `.kql` files here as you write them and update this tile plan:
 
 | Title (suggested) | Viz | KQL skeleton |
 |---|---|---|
@@ -47,16 +47,18 @@ These tiles round out a portal-perf dashboard; drop new `.kql` files here as you
 
 The single most useful tile for "the site has been slow". Hourly P95 reveals daily peak windows (lunchtime, post-marketing-email surges) the daily averages flatten out.
 
-## How to (re)generate in Azure Data Explorer dashboards
+## Build in Azure Data Explorer dashboards
 
 1. Create dashboard `Power Pages portal performance`.
 2. Add your App Insights resource as a data source.
 3. Single page to start; add tiles as you author them.
 4. Add `_startTime`, `_endTime`, optional `_portalId` as dashboard parameters.
 
-## Regenerate with GitHub Copilot
+## Build live dashboard with GitHub Copilot
 
-> *"@workspace Use [`DASHBOARD-portal-perf.md`](./DASHBOARD-portal-perf.md). Regenerate the existing tile and use the **Recommended additions** table to scaffold the missing `.kql` files in `kql/powerpages/` — name them following the repo's numeric-prefix convention. Cluster URI `<...>`, database `<...>`."*
+Ask Copilot to run the linked KQL through the Kusto / Akusto Explorer extension, render the returned result or chart, and write observations from the rows. Do not stop at listing query files.
+
+> *"@workspace Use [`DASHBOARD-portal-perf.md`](./DASHBOARD-portal-perf.md). Run the existing tile and capture observations and use the **Recommended additions** table to scaffold the missing `.kql` files in `kql/powerpages/` — name them following the repo's numeric-prefix convention. Cluster URI `<...>`, database `<...>`."*
 
 Symptom-driven:
 

@@ -10,16 +10,16 @@ A customer-facing guide for setting up VS Code, running the KQL query library, r
 
 A library of **standalone KQL files** for Microsoft Dynamics 365 and Power Platform telemetry that lands in Azure Application Insights. Each `.kql` file is paste-and-run — no project setup, no shared lambdas you have to glue together. See [`README.md`](README.md) and [`kql/README.md`](kql/README.md) for the folder layout and provenance.
 
-Alongside the `.kql` files, every folder ships a **`DASHBOARD-*.md` file** that catalogs the related queries as a single dashboard:
+Alongside the `.kql` files, every folder ships a **`DASHBOARD-*.md` file** that acts as a dashboard spec and troubleshooting runbook:
 
 - What persona the dashboard is for
 - Which App Insights signal it reads
-- The list of tiles, each with **viz type** (table / timechart / piechart / barchart / scatterchart / columnchart / stat)
+- The tile plan, each with **viz type** (table / timechart / piechart / barchart / scatterchart / columnchart / stat)
 - The flagship "paste-and-run" tile inlined as KQL
 - Steps to (re)generate the dashboard in Azure Data Explorer dashboards
-- Copilot prompts to drive the whole thing from chat
+- Copilot prompts to run the KQL, render results, and write observations from returned rows
 
-The dashboard markdown is **self-contained context for GitHub Copilot**. Drop one file into Copilot Chat, ask "regenerate this in my App Insights", and Copilot can walk every tile.
+The dashboard markdown is **self-contained context for GitHub Copilot**. Drop one file into Copilot Chat, ask it to build a live dashboard in your App Insights context, and Copilot can run each linked query, inspect returned rows, and write observations.
 
 ---
 
@@ -97,7 +97,7 @@ Useful commands and prompts:
 | Run the active query | Select KQL, then **Run Query** / `Ctrl+Shift+E` |
 | Preview a markdown guide or dashboard | Open the `.md` file, then press `Ctrl+Shift+V` (`Markdown: Open Preview`) |
 | Open Copilot Chat | Command Palette → `GitHub Copilot: Open Chat` |
-| Regenerate a dashboard | `@workspace Use kql/<component>/DASHBOARD-<name>.md to regenerate this dashboard in my App Insights resource. Use the Kusto extension to run every linked .kql and tell me the suggested visualization for each tile.` |
+| Build a live dashboard | `@workspace Use kql/<component>/DASHBOARD-<name>.md to build a live dashboard in my App Insights resource. Run every linked .kql through the Kusto extension, show returned results, and write observations for each tile.` |
 | Start troubleshooting from a symptom | `@workspace I am seeing <symptom>. Pick the right dashboard from AGENTS.md, run the broad health tiles first, then drill into raw rows and explain what is verified.` |
 
 ---
@@ -108,33 +108,34 @@ Every folder under `kql/` has at least one `DASHBOARD-*.md` file. Open one — f
 
 - A short "What this tells you" section
 - A **Parameters** table (placeholders to fill before running — `_startTime`, user IDs, app modules, etc.)
-- A **Tile catalog** table — every query in the folder, with the viz the tile should render and a one-line "what it answers"
+- A **Tile plan** table — every query in the folder, with the viz the tile should render and a one-line "what it answers"
 - A **Flagship tile** with the query inlined for instant paste-and-run
 - **(Re)generate in Azure Data Explorer dashboards** steps
 - **Copilot prompts** for chat-driven regeneration and troubleshooting
 - Links to **Related dashboards**
 
-Use `Ctrl+Shift+V` to preview the dashboard markdown in VS Code. You can read it as a tutorial, or hand it to Copilot Chat as context. When viewing results, start from the broad health tiles, then drill into raw rows only after a trend, spike, error family, user, session, operation, or resource ID stands out. Treat a zero-row tile as a signal to verify instrumentation, time range, table naming, and filters before concluding that the problem is absent.
+Use `Ctrl+Shift+V` to preview the dashboard markdown in VS Code. The markdown is the blueprint; the live dashboard is created only after the linked KQL actually runs against a customer's App Insights resource. When viewing results, start from the broad health tiles, then drill into raw rows only after a trend, spike, error family, user, session, operation, or resource ID stands out. Treat a zero-row tile as a signal to verify instrumentation, time range, table naming, and filters before concluding that the problem is absent.
 
 ---
 
 ## Core Copilot workflows
 
-### Workflow A — "Regenerate this dashboard in my App Insights"
+### Workflow A — "Build a live dashboard in my App Insights"
 
-The dashboard markdown describes everything Copilot needs.
+The dashboard markdown describes the tiles; Copilot must still run the KQL and summarize the data that comes back.
 
 1. In VS Code, open the dashboard markdown (e.g. `kql/mobile/DASHBOARD-fs-mobile-offline.md`).
 2. Open Copilot Chat (Ctrl+Alt+I).
 3. Type:
 
-   > `@workspace Use this dashboard markdown to regenerate the tiles in my App Insights resource. My cluster URI is <...>, database is <...>. For each tile in the catalog, run the linked .kql, tell me which viz to pick, and flag any tile that returns zero rows so I know what's not instrumented.`
+   > `@workspace Use this DASHBOARD markdown to build a live dashboard in my App Insights resource. My cluster URI is <...>, database is <...>. Do not stop at listing .kql files. For each tile, open the linked .kql, run it through the Kusto / Akusto Explorer extension, show the returned result or chart shape, write 1-3 observations from the data, and flag zero-row tiles as instrumentation, time-window, table-name, or filter questions.`
 
 4. Copilot will:
    - Open each linked `.kql` file via `@workspace`
    - Substitute the parameters you've put in the **Parameters** section
    - Run the query through the Kusto extension
-   - Suggest the viz from the catalog's **Viz** column
+   - Suggest the viz from the tile plan's **Viz** column
+   - Capture observations from returned rows, not assumptions
 
 You can also ask Copilot to **export the whole thing as an Azure Data Explorer dashboard JSON** that you import via the ADX dashboards UI — the tile metadata is all there in the markdown.
 
@@ -142,9 +143,17 @@ For hands-on execution, be explicit that Copilot should use the VS Code Kusto / 
 
 > `@workspace Open the linked .kql files from this DASHBOARD markdown, use the Kusto / Akusto Explorer extension to run each query against my selected App Insights connection, capture which rows came back, and tell me how to configure the chart for each tile.`
 
+Definition of done for a live dashboard:
+
+1. Every included tile has been run against the selected App Insights resource.
+2. Each tile has a visible result: chart, table, or explicit zero-row note.
+3. Each tile has observations written from returned rows.
+4. Exception and trace tiles show the noise filters or baselines used.
+5. The dashboard identifies the next drill-down key, such as `operation_Id`, `session_Id`, user, request, dependency, exception message, trace prefix, flow run, or conversation ID.
+
 ### Workflow B — "I'm seeing X — walk me through diagnosing it"
 
-The dashboards are also a self-learning troubleshooting corpus. Use the dashboard markdown as a map.
+The dashboard specs are also a self-learning troubleshooting corpus. Use the dashboard markdown as a map, but require Copilot to run queries and base the explanation on returned rows.
 
 1. Pick the most likely component folder ([`kql/README.md`](kql/README.md) is the routing index — also see [`AGENTS.md`](AGENTS.md)).
 2. Open that folder's dashboard markdown.
@@ -152,7 +161,7 @@ The dashboards are also a self-learning troubleshooting corpus. Use the dashboar
 
    > `@workspace I'm seeing <symptom — e.g. "slow case form loads only for users in Brazil since Tuesday">. Use #DASHBOARD-uci-form-perf.md to pick the right tiles in order, run them, and explain the findings.`
 
-4. Copilot will walk the catalog from the most general tile (volume / health) to the most specific (slowest pages / users / geos), running each query and summarizing.
+4. Copilot will walk the tile plan from the most general tile (volume / health) to the most specific (slowest pages / users / geos), running each query and summarizing observations from the result.
 
 ### Workflow C — "Start a local case folder"
 
@@ -270,7 +279,7 @@ When you discover a new query that's broadly useful:
 1. Drop the `.kql` into the right folder (see [`AGENTS.md`](AGENTS.md) — "Repository layout" + "Editing rules").
 2. Preserve the `// Source:` header.
 3. Add a row to that folder's `README.md` table.
-4. Add a row to the matching `DASHBOARD-*.md` **Tile catalog** (or open a new one for a fresh category).
+4. Add a row to the matching `DASHBOARD-*.md` **Tile plan** (or open a new one for a fresh category).
 5. Open a PR — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 Copilot is great at scaffolding new dashboards too:
@@ -297,7 +306,7 @@ Copilot is great at scaffolding new dashboards too:
 ## What's intentionally not in this repo
 
 - **Provisioning code** — no Bicep / ARM / Terraform for Application Insights. Use the upstream Microsoft docs.
-- **Workbooks / Grafana JSON** — out of scope. The dashboards here are markdown catalogs that you (or Copilot) wire into Azure Data Explorer dashboards.
+- **Workbooks / Grafana JSON** — out of scope. The dashboards here are markdown specs that you (or Copilot) use to build live Azure Data Explorer dashboards that run KQL and show customer-specific results.
 - **Customer-specific data** — every query uses placeholders; never commit real org IDs / user IDs / subscription IDs. See the placeholder convention in [`kql/README.md`](kql/README.md#placeholder-convention).
 - **Live executable agents** — this is a knowledge corpus. The Copilot prompts are examples that guide your own GitHub Copilot Chat session.
 

@@ -41,7 +41,7 @@ Every `.kql` file is **standalone** — no project-wide setup, no `let` imports,
 
 The repo is designed to be driven from VS Code with two extensions: **Kusto** (a.k.a. "Akusto Explorer") for running queries inline, and **GitHub Copilot Chat** for guided troubleshooting.
 
-**[Read the setup + usage guide → `GUIDE-USING-WITH-COPILOT.md`](GUIDE-USING-WITH-COPILOT.md)** — covers extension install, connecting Kusto to your App Insights resource, the two main Copilot workflows (regenerate a dashboard / walk through a symptom), and how to extend the corpus.
+**[Read the setup + usage guide → `GUIDE-USING-WITH-COPILOT.md`](GUIDE-USING-WITH-COPILOT.md)** — covers extension install, connecting Kusto to your App Insights resource, building live dashboards that run KQL and show observations, walking through symptoms, and extending the corpus.
 
 Then ask Copilot questions like:
 
@@ -49,13 +49,15 @@ Then ask Copilot questions like:
 >
 > *"@workspace Show me how to detect a sudden 5xx error spike during business hours using `kql/dataverse/`."*
 >
-> *"@workspace Regenerate `kql/conversationdiagnostics/DASHBOARD-conversation-routing.md` in my App Insights resource."*
+> *"@workspace Build a live dashboard from `kql/conversationdiagnostics/DASHBOARD-conversation-routing.md`: run each linked KQL file, show the result, and write observations for the returned rows."*
 
-Copilot follows the layout in [AGENTS.md](AGENTS.md) and the per-folder `DASHBOARD-*.md` files (see below) to pick the right `.kql` and walk you through it.
+Copilot follows the layout in [AGENTS.md](AGENTS.md) and the per-folder `DASHBOARD-*.md` specs (see below) to pick the right `.kql`, run it through Akusto/Kusto, and write observations from the returned data.
 
 ## Dashboards
 
-Every folder under `kql/` ships at least one **`DASHBOARD-*.md`** — a self-contained markdown catalog of related queries with tile titles, visualisation types, source `.kql` links, and Copilot prompts to (re)generate or troubleshoot.
+Every folder under `kql/` ships at least one **`DASHBOARD-*.md`**. These files are **dashboard specs and troubleshooting runbooks**, not the final live dashboard. The live dashboard is created in the customer's Application Insights / Azure Data Explorer context by running the linked KQL, rendering the returned rows or chart, and writing observations.
+
+See [LIVE-DASHBOARDS.md](LIVE-DASHBOARDS.md) for the exact workflow and Copilot prompts.
 
 | Component | Dashboard | What it covers |
 |---|---|---|
@@ -81,7 +83,7 @@ Every folder under `kql/` ships at least one **`DASHBOARD-*.md`** — a self-con
 | ✅ Included | ❌ Not included |
 |---|---|
 | KQL for App Insights data emitted by Power Platform components | Bicep / ARM / Terraform for Application Insights provisioning |
-| Markdown **`DASHBOARD-*.md`** catalogs per folder — paste into Copilot Chat to regenerate or walk through symptoms | Pre-built Azure Workbooks JSON / Grafana panels |
+| Markdown **`DASHBOARD-*.md`** specs per folder — use with Copilot/Akusto to run KQL, render results, and capture observations | Pre-built Azure Workbooks JSON / Grafana panels |
 | Reusable noise-filter and anomaly-detection patterns | A configured App Insights resource (you bring your own) |
 | Time-series, ranking, percentile, and anomaly queries | Customer-specific data — every query is generic |
 | Azure Resource Graph tenant inventory queries | An LLM — you bring your own GitHub Copilot subscription |
