@@ -1,0 +1,10 @@
+// Source: https://github.com/SinghAmreek/PowerAutomateTelemetry/blob/main/QueryPackTemplate/template.json (query: "Top 10 flows by Billable Actions")
+// Tenant-wide billable-action leaderboard. Excludes skipped actions (which aren't billed).
+dependencies
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| where customDimensions['error'] !contains "skipped"
+| extend cd = parse_json(tostring(customDimensions["Data"]))
+| extend flowname = tostring(cd.FlowDisplayName)
+| summarize BillableActions = count() by flowname
+| top 10 by BillableActions desc
+| render barchart

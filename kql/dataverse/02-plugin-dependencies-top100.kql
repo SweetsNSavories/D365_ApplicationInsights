@@ -1,0 +1,5 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// First 100 plug-in execution dependency rows. Use to inspect Name/Target/Duration/customDimensions.
+dependencies
+| where type == "Plugin"
+| take 100

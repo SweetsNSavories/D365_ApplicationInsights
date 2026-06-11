@@ -1,0 +1,8 @@
+// Source: https://github.com/SinghAmreek/PowerAutomateTelemetry/blob/main/QueryPackTemplate/template.json (query: "Flow response time-95percentile")
+// P95 flow-run duration per FlowName, binned 10-min. SLA trend chart per flow.
+requests
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| extend cd = parse_json(tostring(customDimensions["Data"]))
+| extend FlowName = tostring(cd.FlowDisplayName)
+| summarize FlowExecution_95 = percentile(duration, 95) by bin(timestamp, 10m), FlowName
+| render timechart

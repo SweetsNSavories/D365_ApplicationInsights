@@ -1,0 +1,15 @@
+// Source: aliyoussefi/D365-Monitoring/KustoQueries.CustomEvents.txt
+// Parsing and converting client perf custom measurements
+customEvents
+| extend cd = parse_json(customDimensions)
+| extend cm = parse_json(customMeasurements)
+| project
+    timestamp,
+    cd.client,
+    name,
+    cd.userName,
+    toint(cm.DomContentLoadTime),
+    toint(cm.RequestResponseTime),
+    toint(cm.PageRenderTime),
+    toint(cm.NetworkLatency),
+    toint(cm.RedirectCount)

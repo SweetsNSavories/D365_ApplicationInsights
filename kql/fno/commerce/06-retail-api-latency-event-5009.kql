@@ -1,0 +1,26 @@
+// Source: https://raw.githubusercontent.com/YAD365/d365-commerce-telemetry/main/Kusto/Sample/RetailAPILatency.md
+// RetailServerRequestFinished (Event ID 5009) latency percentiles binned every 5 min, by API
+// controller\action. Different from `04-csu-incoming-requests-event-5000.kql` — Event 5000 is
+// the request *start* envelope; Event 5009 is the *finished* event that carries the latency
+// metric in customDimensions.executionTimeMilliseconds.
+//
+// Optional filters:
+//   _environmentId — TenantId from LCS (empty = all environments)
+//   _scaleUnitId   — specific scale unit (empty = all scale units)
+//   _retailAPI     — exact "Controller\Action" string (empty = all APIs)
+let _lookback       = 1h;
+let _environmentId  = '';
+let _scaleUnitId    = '';
+let _retailAPI      = '';
+traces
+| where timestamp > ago(_lookback)
+| where isempty(_environmentId) or customDimensions.TenantId    == _environmentId
+| where isempty(_scaleUnitId)   or customDimensions.ScaleUnitId == _scaleUnitId
+| where customDimensions.EventId == 5009
+| extend latency       = toint(customDimensions.executionTimeMilliseconds)
+| extend apiAction     = tostring(customDimensions.apiAction)
+| extend apiController = tostring(customDimensions.apiController)
+| extend api           = strcat(apiController, "\\", apiAction)
+| where isempty(_retailAPI) or api == _retailAPI
+| summarize percentiles(latency, 50, 75, 90, 99) by bin(timestamp, 5m), api
+| order by timestamp desc, api asc

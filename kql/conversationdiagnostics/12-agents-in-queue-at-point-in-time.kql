@@ -1,0 +1,50 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#individual-queries-for-quick-diagnosis
+// List every representative who belonged to a given queue at a given point in time. Useful for
+// "the queue was empty at 14:02 — was anyone supposed to be on it?" investigations.
+let assignmentAttemptTime = now();                                       // fill in timestamp
+let lwiQueueId            = '<insert queue id of the work item>';
+let agentConfigs =
+    traces
+    | extend customDim   = parse_json(customDimensions)
+    | extend agentid     = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | extend agentQueues = tostring(customDim["omnichannel.queue.ids"])
+    | where subscenario in ("AgentConfiguration", "CSRConfigurationDetails")
+    | where agentQueues contains lwiQueueId
+    | where timestamp < assignmentAttemptTime
+    | project agentConfigRecordedTime = timestamp, agentid, subscenario, agentConfig = customDim
+    | order by agentConfigRecordedTime desc
+    | summarize arg_max(agentConfigRecordedTime, *) by agentid;
+let agentids = agentConfigs | project agentid;
+let latestagentConfig =
+    traces
+    | extend customDim     = parse_json(customDimensions)
+    | extend agentid       = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario   = tostring(customDim["powerplatform.analytics.subscenario"])
+    | extend agentQueues   = tostring(customDim["omnichannel.queue.ids"])
+    | extend agentProfiles = tostring(customDim["omnichannel.capacity_profile.ids"])
+    | where subscenario in ("AgentConfiguration", "CSRConfigurationDetails")
+    | where timestamp < assignmentAttemptTime
+    | where agentid in (agentids)
+    | project agentConfigRecordedTime = timestamp, agentid, subscenario,
+              agentConfig = customDim, agentQueues, agentProfiles
+    | order by agentConfigRecordedTime desc
+    | summarize arg_max(agentConfigRecordedTime, *) by agentid;
+let agentNames =
+    traces
+    | where timestamp > ago(2d)
+    | extend customDim   = parse_json(customDimensions)
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario == "AgentNameConfig"
+    | extend agentInfo       = tostring(customDim["omnichannel.data"])
+    | extend agentInfoParsed = parse_json(agentInfo)
+    | mv-expand keyValue = bag_keys(agentInfoParsed)
+    | project agentid = tostring(keyValue),
+              agentName = tostring(agentInfoParsed[tostring(keyValue)]), timestamp
+    | summarize arg_max(timestamp, *) by agentid;
+let latestagentConfigInQueue =
+    latestagentConfig
+    | join kind = leftouter agentNames on agentid
+    | where agentQueues contains lwiQueueId
+    | project agentConfigRecordedTime, agentid, agentName;
+latestagentConfigInQueue

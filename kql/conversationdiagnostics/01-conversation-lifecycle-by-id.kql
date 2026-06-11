@@ -1,0 +1,12 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#why-a-conversation-wasnt-assigned-to-any-representative-until-now
+// Conversation lifecycle: replay every diagnostic event for one work item / conversation in
+// chronological order. The starting point for "why didn't this assign / route / end as expected".
+// `lwiid` = LiveWorkItem ID = Resource.id = the conversation id.
+let _lwiid = '<insert conversation id>';
+traces
+| extend customDim = parse_json(customDimensions)
+| extend lwiid       = tostring(customDim["powerplatform.analytics.resource.id"])
+| extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+| where lwiid == _lwiid
+| project timestamp, lwiid, subscenario, customDim
+| order by timestamp asc

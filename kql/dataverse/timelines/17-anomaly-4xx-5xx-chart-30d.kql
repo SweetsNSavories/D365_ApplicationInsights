@@ -1,0 +1,18 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// ANOMALY chart — 4xx and 5xx hourly volume with baseline + anomaly markers, 30d.
+// Render as anomalychart and pin to a workbook for an at-a-glance error-spike dashboard.
+let _start = ago(30d);
+let _end   = now();
+let _step  = 1h;
+let _http  =
+    requests
+    | where timestamp between (_start .. _end)
+    | extend rc = toint(resultCode)
+    | extend Bucket = case(rc between (400 .. 499), "4xx",
+                           rc between (500 .. 599), "5xx",
+                           "other")
+    | where Bucket in ("4xx", "5xx");
+_http
+| make-series Errors = count() default = 0 on timestamp from _start to _end step _step by Bucket
+| extend (anomalies, score, baseline) = series_decompose_anomalies(Errors, 2.5, +1, 'linefit')
+| render anomalychart with (anomalycolumns = anomalies, series = Bucket)

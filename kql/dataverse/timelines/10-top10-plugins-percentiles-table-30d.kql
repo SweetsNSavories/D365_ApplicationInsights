@@ -1,0 +1,14 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// TOP 10 plug-ins by p95 latency (last 30 days) — table.
+dependencies
+| where timestamp > ago(30d)
+| where type == "Plugin"
+| summarize Calls = count(),
+            p50   = percentile(duration, 50),
+            p95   = percentile(duration, 95),
+            p99   = percentile(duration, 99),
+            Max   = max(duration),
+            Failed = countif(success == false)
+        by PluginName = name
+| where Calls > 50
+| top 10 by p95 desc

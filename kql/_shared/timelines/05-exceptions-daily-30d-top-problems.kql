@@ -1,0 +1,12 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily exception volume for the last 30 days, top 10 problem types.
+let _top = exceptions
+    | where timestamp > ago(30d)
+    | summarize n = count() by problemId
+    | top 10 by n
+    | project problemId;
+exceptions
+| where timestamp > ago(30d)
+| where problemId in (_top)
+| summarize Errors = count() by bin(timestamp, 1d), problemId
+| render timechart

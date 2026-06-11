@@ -1,0 +1,20 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// ANOMALY — sudden SPIKE in HTTP 4xx errors (last 30 days), hourly bins.
+let _start = ago(30d);
+let _end   = now();
+let _step  = 1h;
+requests
+| where timestamp between (_start .. _end)
+| extend rc = toint(resultCode)
+| where rc between (400 .. 499)
+| make-series Errors4xx = count() default = 0 on timestamp from _start to _end step _step
+| extend (anomalies, score, baseline) = series_decompose_anomalies(Errors4xx, 2.5, +1, 'linefit')
+| mv-expand timestamp to typeof(datetime),
+            Errors4xx to typeof(long),
+            baseline  to typeof(long),
+            anomalies to typeof(int),
+            score     to typeof(double)
+| extend tsLocalET = datetime_utc_to_local(timestamp, 'US/Eastern')
+| where anomalies == 1
+| project timestamp, tsLocalET, Errors4xx, Baseline = baseline, AnomalyScore = score
+| order by AnomalyScore desc

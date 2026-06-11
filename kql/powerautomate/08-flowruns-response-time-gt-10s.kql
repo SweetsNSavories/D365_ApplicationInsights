@@ -1,0 +1,10 @@
+// Source: https://github.com/SinghAmreek/PowerAutomateTelemetry/blob/main/QueryPackTemplate/template.json (query: "FlowRuns with response time gt10sec")
+// All flow runs with response time > 10 seconds. Outlier detector — pair with the deep-link
+// query (04) to jump straight to the slow run in make.powerautomate.com.
+requests
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| extend cd = parse_json(tostring(customDimensions["Data"]))
+| extend FlowName = tostring(cd.FlowDisplayName)
+| where duration > 10000
+| project timestamp, FlowName, name, duration, performanceBucket, success, operation_Id
+| order by duration desc

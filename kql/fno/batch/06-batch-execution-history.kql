@@ -1,0 +1,42 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Batch/ADE-Dashboard-D365FO-Monitoring-Batch.json
+// Tile: Batch execution history
+//
+// Parameters - adjust before running, or accept the defaults.
+let _batchJobId    = "";        // empty = all batch jobs
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+
+customEvents
+| where     timestamp between (_startTime .. _endTime)
+| where     name in ("BatchTaskStart","BatchTaskFinished","BatchTaskFailure")
+| extend    customDimensionsParsed = parse_json(customDimensions)
+| extend    InfoMessageParsed   = parse_json(tostring(customDimensionsParsed.InfoMessage))
+| where     isempty(_environmentId) or tostring(customDimensionsParsed.EnvironmentId) == _environmentId
+| extend    ActivityId          = tostring(customDimensionsParsed.activityId)
+| extend    ClassName           = tostring(customDimensionsParsed.ClassName)
+| extend    BatchJobId          = tostring(customDimensionsParsed.BatchJobId)
+| extend    BatchJobTaskId1      = tostring(customDimensionsParsed.BatchJobTaskId)
+| extend    BatchJobTaskId2      = tostring(customDimensionsParsed.BatchTaskId)
+| extend    BatchJobTaskId      = iif(isnotempty(BatchJobTaskId1), BatchJobTaskId1, BatchJobTaskId2) // Temporary trick until the batch team synchronizes the field names across events
+//| where isempty(_batchAOS) or cloud_RoleInstance in(_batchAOS)
+| extend    StartTime           = iff(name == "BatchTaskStart"    , timestamp, datetime(null))
+| extend    EndTime             = iff(name == "BatchTaskFinished"   , timestamp, datetime(null))
+| extend    ErrorTime           = iff(name == "BatchTaskFailure"   , timestamp, datetime(null))
+| extend    RetryCount          = iff(name == "BatchTaskStart"    , InfoMessageParsed.RetryCount, "")
+| project   StartTime, EndTime,ErrorTime,RetryCount, ActivityId, ClassName, BatchJobId, RoleInstance = cloud_RoleInstance, BatchJobTaskId
+| where     isempty(_batchJobId) or tostring(BatchJobId) in (_batchJobId)
+| summarize   StartTime         = min(StartTime),
+              CompletionTime    = max(EndTime),
+              ErrorTime         = max(ErrorTime),
+              RetryCount        = take_any(RetryCount),
+              ClassName         = any(ClassName), 
+              BatchJobId        = any(BatchJobId),
+              BatchJobTaskId    = any(BatchJobTaskId),
+              RoleInstance      = any(RoleInstance)
+by ActivityId
+| where isnotempty(StartTime)
+| extend BatchAOS = strcat(split(RoleInstance, "-")[0])
+| extend ElapsedTime = iif(isnotempty(CompletionTime), CompletionTime, now()) - StartTime
+| project ActivityId, BatchAOS, BatchJobId, BatchJobTaskId, ClassName, StartTime, CompletionTime, ElapsedTime, RetryCount

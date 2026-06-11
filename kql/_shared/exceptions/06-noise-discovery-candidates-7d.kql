@@ -1,0 +1,26 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// DISCOVERY - identifies *new* candidate noise patterns we may want to add to the filter.
+// Strategy: any exception that is (a) high volume, (b) hits many users, and (c) does NOT
+// already match the filter, is a candidate to investigate.
+let _IsNoise = (msg:string, ent:string) {
+       (msg has "PrvRead" or msg has "prvRead" or msg has "0x80040220")
+    or  msg has "SecLib::"
+    or  msg has "PrincipalPrivilegeDenied"
+    or ((ent startswith "msdyn"     or ent startswith "adx_"
+      or ent startswith "msdyncrm_" or ent startswith "msdyn365_"
+      or ent startswith "mscrm_")
+        and (msg has "Principal"   or msg has "privilege"
+          or msg has "Access"      or msg has "denied"))
+    or  msg has "was cancelled"
+    or  msg has "OperationCanceled"
+    or  msg has "TooManyRequests"
+};
+exceptions
+| where timestamp > ago(7d)
+| extend cd       = parse_json(customDimensions)
+| extend entityNm = tostring(cd.entityName)
+| where not (_IsNoise(outerMessage, entityNm))
+| summarize Count = count(), Users = dcount(user_Id), Sample = any(outerMessage)
+        by problemId, entityNm
+| where Count > 500 and Users > 50           // tune these thresholds to your environment's baseline
+| order by Count desc

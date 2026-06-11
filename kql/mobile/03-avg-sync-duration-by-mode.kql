@@ -1,0 +1,11 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-mobile.md
+// p50 sync duration by client type and sync mode.
+dependencies
+| where name == "Offline.SyncDatabase"
+| extend cd = parse_json(customDimensions)
+| extend ActiveDuration     = toint(tostring(cd.ActiveDuration))
+| extend WithBackgroundTime = duration
+| extend DataSyncMode       = tostring(cd.DataSyncMode)
+| summarize percentile(ActiveDuration, 50),
+            percentile(WithBackgroundTime, 50)
+        by client_Type, DataSyncMode

@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// User agent breakdown for incoming Dataverse API requests.
+requests
+| summarize count() by tostring(customDimensions.userAgent)

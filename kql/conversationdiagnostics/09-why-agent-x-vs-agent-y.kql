@@ -1,0 +1,125 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#why-is-the-work-item-assigned-to-service-representative-x-instead-of-service-representative-y
+// Resource-intensive. Compare a small SHORTLIST of representatives (e.g. the one who got the
+// work item vs the ones a supervisor expected to get it) at a specific assignment timestamp.
+// Returns the unit capacity, presence, capacity profiles, skills and queues for each of them
+// as of that moment — making the rule outcome explainable.
+let assignmentAttemptTime = now();                                  // fill in CSRAssignment timestamp
+let agentids              = dynamic([
+    '<insert system user id of representative X>',
+    '<insert system user id of representative Y>'
+    // add more as needed
+]);
+let latestagentConfig =
+    traces
+    | extend customDim     = parse_json(customDimensions)
+    | extend agentid       = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario   = tostring(customDim["powerplatform.analytics.subscenario"])
+    | extend agentQueues   = tostring(customDim["omnichannel.queue.ids"])
+    | extend agentProfiles = tostring(customDim["omnichannel.capacity_profile.ids"])
+    | where subscenario in ("AgentConfiguration", "CSRConfigurationDetails")
+    | where timestamp < assignmentAttemptTime
+    | where agentid in (agentids)
+    | project agentConfigRecordedTime = timestamp, agentid, subscenario,
+              agentConfig = customDim, agentQueues, agentProfiles
+    | order by agentConfigRecordedTime desc
+    | summarize arg_max(agentConfigRecordedTime, *) by agentid;
+let agentConfigs =
+    traces
+    | extend customDim     = parse_json(customDimensions)
+    | extend agentid       = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario   = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario in ("AgentConfiguration", "CSRConfigurationDetails")
+    | join kind = inner latestagentConfig on agentid
+    | extend agentProfiles = tostring(customDim["omnichannel.capacity_profile.ids"])
+    | mv-expand profileIds = parse_json(agentProfiles)
+    | where timestamp < assignmentAttemptTime
+    | project agentConfigRecordedTime = timestamp, profileIds, agentProfiles, agentid,
+              subscenario, agentConfig = customDim
+    | order by agentConfigRecordedTime desc
+    | summarize arg_max(agentConfigRecordedTime, *) by agentid;
+let capacityprofiles1 =
+    agentConfigs
+    | mv-expand profileIds = parse_json(agentProfiles)
+    | project agentid, capacityProfileId = tostring(profileIds);
+let statusCapacityHistoryRecords =
+    traces
+    | extend customDim = parse_json(customDimensions)
+    | where timestamp < assignmentAttemptTime
+    | extend agentid           = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario       = tostring(customDim["powerplatform.analytics.subscenario"])
+    | extend cpparsed          = parse_json(tostring(customDim["omnichannel.capacity_profile"]))
+    | extend capacityProfileId = tostring(cpparsed["CapacityProfileId"])
+    | where subscenario in ("AgentStatusAndCapacity", "CSRStatusandCapacityDetails")
+    | project timestamp, agentid, capacityProfileId, subscenario, customDim, cpparsed
+    | join kind = inner (capacityprofiles1) on agentid, capacityProfileId
+    | project statusCapacityHistoryRecordedTime = timestamp, agentid, subscenario,
+              agentStatusAndCapacity = customDim, capacityProfileId, cpparsed
+    | order by statusCapacityHistoryRecordedTime desc
+    | summarize arg_max(statusCapacityHistoryRecordedTime, *) by agentid, capacityProfileId;
+let unitbasedTable =
+    traces
+    | where timestamp < assignmentAttemptTime
+    | extend customDim   = parse_json(customDimensions)
+    | extend agentid     = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario in ("AgentStatusAndCapacity", "CSRStatusandCapacityDetails")
+    | extend cpparsed = parse_json(tostring(customDim["omnichannel.capacity_profile"]))
+    | where cpparsed == ""
+    | extend UnitAvailableCapacity = tostring(customDim["omnichannel.available_capacity.units"])
+    | join kind = inner latestagentConfig on agentid
+    | project statusCapacityHistoryRecordedTime = timestamp, agentid, subscenario,
+              agentConfig = customDim, UnitAvailableCapacity
+    | summarize arg_max(statusCapacityHistoryRecordedTime, *) by agentid
+    | order by statusCapacityHistoryRecordedTime desc;
+let presenceTable =
+    traces
+    | where timestamp < assignmentAttemptTime
+    | extend customDim   = parse_json(customDimensions)
+    | extend agentid     = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario in ("AgentStatusAndCapacity", "CSRStatusandCapacityDetails")
+    | extend cpparsed = parse_json(tostring(customDim["omnichannel.capacity_profile"]))
+    | where cpparsed == ""
+    | extend BasePresenceStatus = tostring(customDim["omnichannel.current_base_presence"])
+    | extend PresenceId         = tostring(customDim["omnichannel.current_presence_id"])
+    | join kind = inner latestagentConfig on agentid
+    | project statusCapacityHistoryRecordedTime = timestamp, agentid, subscenario,
+              agentConfig = customDim, BasePresenceStatus, PresenceId
+    | summarize arg_max(statusCapacityHistoryRecordedTime, *) by agentid
+    | order by statusCapacityHistoryRecordedTime desc;
+let agentQueuesAndSkills =
+    traces
+    | extend customDim   = parse_json(customDimensions)
+    | extend agentid     = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | extend skillData   = parse_json(tostring(customDim["omnichannel.associated_skills"]))
+    | extend agentQueues = tostring(customDim["omnichannel.queue.ids"])
+    | where subscenario in ("AgentConfiguration", "CSRConfigurationDetails")
+    | join kind = inner latestagentConfig on agentid
+    | where timestamp < assignmentAttemptTime
+    | project agentConfigRecordedTime = timestamp, agentid, subscenario,
+              agentConfig = customDim, skillData, agentQueues
+    | order by agentConfigRecordedTime desc
+    | summarize arg_max(agentConfigRecordedTime, *) by agentid;
+let agentNames =
+    traces
+    | where timestamp > ago(2d)
+    | extend customDim   = parse_json(customDimensions)
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario in ("AgentNameConfig", "CSRConfigurationDetails")
+    | extend agentInfo       = tostring(customDim["omnichannel.data"])
+    | extend agentInfoParsed = parse_json(agentInfo)
+    | mv-expand keyValue = bag_keys(agentInfoParsed)
+    | project agentid = tostring(keyValue),
+              agentName = tostring(agentInfoParsed[tostring(keyValue)]), timestamp
+    | summarize arg_max(timestamp, *) by agentid;
+let cpListTable =
+    statusCapacityHistoryRecords
+    | summarize capacitprofiles = make_list(cpparsed) by agentid;
+cpListTable
+| join kind = leftouter agentNames           on agentid
+| join kind = inner     unitbasedTable       on agentid
+| join kind = inner     presenceTable        on agentid
+| join kind = inner     agentQueuesAndSkills on agentid
+| project agentid, agentName, UnitAvailableCapacity, BasePresenceStatus, PresenceId,
+          capacitprofiles, skillData, agentQueues

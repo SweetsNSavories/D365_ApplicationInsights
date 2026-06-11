@@ -1,0 +1,36 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/commerce/dev-itpro/commerce-application-insights
+// (CRT extension TraceTelemetry shape: TerminalId on CustomDimensionColumn1,
+//  free-form description on CustomDimensionColumn2)
+//
+// Server-side traces from Commerce Runtime (CRT) extensions running inside
+// Commerce Scale Unit. The doc-recommended pattern populates two custom-dimension
+// columns; this query pivots by them so you can see which terminal is generating
+// which extension trace.
+
+let _lookback = 7d;
+let _csuRole  = '';   // e.g. 'RetailServer' - leave empty to include all
+let _sev = (n:int) {
+    case(n == 0, 'Verbose',
+         n == 1, 'Information',
+         n == 2, 'Warning',
+         n == 3, 'Error',
+         n == 4, 'Critical',
+                  strcat('Other(', n, ')'))
+};
+traces
+| where timestamp > ago(_lookback)
+| where isempty(_csuRole) or cloud_RoleName == _csuRole
+| extend cd         = parse_json(tostring(customDimensions))
+| extend TerminalId = tostring(cd.CustomDimensionColumn1)
+| extend Tag        = tostring(cd.CustomDimensionColumn2)
+// Keep only rows where the documented extension columns are populated.
+// Drop this where-clause if you want to see every trace from the role.
+| where isnotempty(TerminalId) or isnotempty(Tag)
+| summarize Traces    = count(),
+            Terminals = dcount(TerminalId),
+            FirstSeen = min(timestamp),
+            LastSeen  = max(timestamp),
+            SampleMsg = any(message)
+        by Severity = _sev(toint(severityLevel)), Tag
+| order by Traces desc
+| take 100

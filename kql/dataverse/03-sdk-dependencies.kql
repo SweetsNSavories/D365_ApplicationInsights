@@ -1,0 +1,5 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// SDK operations (Retrieve, RetrieveMultiple, FetchXmlToQueryExpression, WhoAmI, etc.)
+dependencies
+| where type startswith "SDK"
+| take 10

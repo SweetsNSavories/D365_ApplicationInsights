@@ -1,0 +1,40 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-understanding-and-controlling-cost
+// Top noisiest individual signals to consider for sampling or suppression.
+//
+// Two passes, one per table:
+//   - customEvents grouped by name
+//   - traces grouped by message (truncated to 200 chars to collapse param-only variants)
+//
+// Watch:
+//   - Any single signal accounting for > 10% of its table's rows is a strong
+//     sampling / suppression candidate. The Azure Monitor cost guidance
+//     specifically recommends sampling these (see Source link).
+//   - The Users column tells you whether the noise comes from a single user
+//     (likely RPA / integration) or is broadcast across the population.
+
+let _lookback = 7d;
+//
+// --- customEvents top noise ---
+//
+let _ce_total = toscalar(customEvents | where timestamp > ago(_lookback) | count);
+let _ce_top =
+    customEvents
+    | where timestamp > ago(_lookback)
+    | summarize Rows = count(), Users = dcount(user_Id) by Signal = name
+    | extend Table = 'customEvents', PctOfTable = round(100.0 * Rows / _ce_total, 2)
+    | top 25 by Rows desc;
+//
+// --- traces top noise ---
+//
+let _tr_total = toscalar(traces | where timestamp > ago(_lookback) | count);
+let _tr_top =
+    traces
+    | where timestamp > ago(_lookback)
+    | extend Signal = substring(message, 0, 200)
+    | summarize Rows = count(), Users = dcount(user_Id) by Signal
+    | extend Table = 'traces', PctOfTable = round(100.0 * Rows / _tr_total, 2)
+    | top 25 by Rows desc;
+//
+union _ce_top, _tr_top
+| project Table, Signal, Rows, PctOfTable, Users
+| order by PctOfTable desc

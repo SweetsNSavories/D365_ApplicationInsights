@@ -1,0 +1,11 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-mobile.md
+// Distinct sync failures by error code, message and failure type per day.
+dependencies
+| where name == "Offline.SyncDatabase"
+| where success == false
+| extend cd = parse_json(customDimensions)
+| extend AppVersion   = tostring(cd.AppInfo_Version)
+| extend ErrorCode    = tostring(cd.ErrorCode)
+| extend ErrorMessage = tostring(cd.ErrorMessage)
+| extend FailureType  = tostring(cd.FailureType)
+| summarize dcount(user_Id), count() by ErrorCode, ErrorMessage, FailureType, bin(timestamp, 1d)

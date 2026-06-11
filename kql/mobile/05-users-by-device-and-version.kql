@@ -1,0 +1,7 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-mobile.md
+// Distinct users by app version and client type (iOS vs Android etc.).
+dependencies
+| where name == "Offline.SyncDatabase"
+| extend cd = parse_json(customDimensions)
+| extend AppVersion = tostring(cd.AppInfo_Version)
+| summarize dcount(user_Id) by AppVersion, client_Type

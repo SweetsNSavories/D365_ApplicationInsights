@@ -1,0 +1,17 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Model-Driven App forms — top 10 slowest forms, daily p95 over the last 30 days.
+let _top = pageViews
+    | where timestamp > ago(30d)
+    | extend cd = parse_json(customDimensions)
+    | where isnotempty(tostring(cd.appModule))
+    | summarize p95 = percentile(duration, 95), Loads = count() by name
+    | where Loads > 100
+    | top 10 by p95
+    | project name;
+pageViews
+| where timestamp > ago(30d)
+| extend cd = parse_json(customDimensions)
+| where isnotempty(tostring(cd.appModule))
+| where name in (_top)
+| summarize p95 = percentile(duration, 95) by bin(timestamp, 1d), name
+| render timechart

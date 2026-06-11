@@ -1,0 +1,41 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/commerce/dev-itpro/retail-component-events-diagnostics-troubleshooting
+// ("The Commerce Scale Unit logs an event for the incoming request (Event ID 5000)"
+//  ... "Every event ... has the same ActivityID as the initial Event 5000")
+//
+// Incoming request health on Commerce Scale Unit. Combines the standard
+// `requests` table with a fall-back filter on Event ID 5000 in case the
+// instrumentation surfaces it as a customEvent instead. Faceted by
+// resultCode + operation_Name to spot 4xx/5xx hotspots.
+
+let _lookback = 24h;
+let _csuRole  = '';   // e.g. 'RetailServer' - leave empty to include all
+let _reqs =
+    requests
+    | where timestamp > ago(_lookback)
+    | where isempty(_csuRole) or cloud_RoleName == _csuRole
+    | project timestamp, Role = cloud_RoleName, Name = name,
+              OperationName = operation_Name, ResultCode = resultCode,
+              DurationMs = duration, Success = success,
+              cd = parse_json(tostring(customDimensions));
+let _event5000 =
+    customEvents
+    | where timestamp > ago(_lookback)
+    | extend cd = parse_json(tostring(customDimensions))
+    | where tostring(cd.EventId) == '5000' or name == 'CommerceScaleUnit.IncomingRequest'
+    | project timestamp, Role = cloud_RoleName, Name = name,
+              OperationName = tostring(cd.OperationName),
+              ResultCode    = tostring(cd.HttpStatusCode),
+              DurationMs    = todouble(cd.DurationMs),
+              Success       = (toint(cd.HttpStatusCode) < 400),
+              cd;
+union _reqs, _event5000
+| summarize Calls   = count(),
+            Errors  = countif(Success == false),
+            P50     = percentile(DurationMs, 50),
+            P95     = percentile(DurationMs, 95),
+            P99     = percentile(DurationMs, 99),
+            MaxMs   = max(DurationMs)
+        by OperationName, ResultCode
+| extend ErrorPct = round(100.0 * Errors / Calls, 2)
+| order by Calls desc
+| take 100

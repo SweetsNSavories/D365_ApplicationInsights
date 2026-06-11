@@ -1,0 +1,12 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily unique users for the last 30 days, split by channel.
+// PowerPages typically = external/anonymous users, ModelDrivenApp = internal/licensed users.
+pageViews
+| where timestamp > ago(30d)
+| extend cd      = parse_json(customDimensions)
+| extend channel = case(
+        isnotempty(tostring(cd.PortalId)),  "PowerPages",
+        isnotempty(tostring(cd.appModule)), "ModelDrivenApp",
+        "Other")
+| summarize Users = dcount(user_Id) by bin(timestamp, 1d), channel
+| render timechart

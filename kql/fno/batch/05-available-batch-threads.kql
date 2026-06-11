@@ -1,0 +1,20 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Batch/ADE-Dashboard-D365FO-Monitoring-Batch.json
+// Tile: Available batch threads
+//
+// Parameters - adjust before running, or accept the defaults.
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+
+customEvents
+| where     timestamp between (_startTime .. _endTime)
+| where     name == "BatchThreadInfo"
+| extend    customDimensionsParsed  = parse_json(customDimensions)
+| where     isempty(_environmentId) or tostring(customDimensionsParsed.EnvironmentId) == _environmentId
+| extend    infoMessageParsed       = parse_json(tostring(customDimensionsParsed.InfoMessage))
+| extend    CurrentBatchTasks       = infoMessageParsed.CurrentBatchTasks
+| extend    TaskQueueCount          = infoMessageParsed.TaskQueueCount
+| extend    MaxThreadCount          = infoMessageParsed.MaxThreadCount
+| extend    ReservedNumberOfThreads = infoMessageParsed.ReservedNumberOfThreads
+| project   timestamp, Batch = tostring(split(cloud_RoleInstance, "-")[0]), AvailableThreads = todecimal(MaxThreadCount) - todecimal(CurrentBatchTasks) - todecimal(ReservedNumberOfThreads)

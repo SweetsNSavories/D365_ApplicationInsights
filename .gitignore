@@ -1,0 +1,5 @@
+# Local customer troubleshooting evidence. Keep screenshots, exports, and case notes out of commits.
+cases/
+
+# Local VS Code/browser automation traces.
+.playwright-mcp/

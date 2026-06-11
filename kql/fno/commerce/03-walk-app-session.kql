@@ -1,0 +1,40 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/commerce/dev-itpro/retail-component-events-diagnostics-troubleshooting
+// ("Correlating events" - AppSessionID, UserSessionID, ActivityID are POS-side
+//  correlation IDs forwarded as headers to Commerce Scale Unit. Every CSU event
+//  for a request carries the same ActivityID; Event ID 5000 is the incoming
+//  request on CSU.)
+//
+// Given one AppSessionID, walk every signal it produced across the four
+// standard App Insights tables. Drop in the captured AppSessionID from the
+// POS Event Viewer (Commerce-ModernPos source, Details tab) or from LCS Log Search.
+//
+// The POS side normally stamps the ID on customDimensions.AppSessionID; the CSU
+// side carries it across via header. Property capitalisation has varied across
+// Commerce releases - we coalesce three common spellings.
+
+let _lookback     = 24h;
+let _appSessionId = '<paste-AppSessionID-here>';
+let _events =
+    union isfuzzy=true
+        (customEvents | extend Tbl = 'customEvents'),
+        (traces       | extend Tbl = 'traces'),
+        (exceptions   | extend Tbl = 'exceptions'),
+        (requests     | extend Tbl = 'requests')
+    | where timestamp > ago(_lookback)
+    | extend cd            = parse_json(tostring(customDimensions))
+    | extend AppSessionID  = coalesce(tostring(cd.AppSessionID),
+                                       tostring(cd.appSessionId),
+                                       tostring(cd['App Session ID']))
+    | extend UserSessionID = coalesce(tostring(cd.UserSessionID),
+                                       tostring(cd.userSessionId),
+                                       tostring(cd['User Session ID']))
+    | extend ActivityID    = coalesce(tostring(cd.ActivityID),
+                                       tostring(cd.activityId),
+                                       operation_Id)
+    | where AppSessionID == _appSessionId;
+_events
+| project timestamp, Tbl, Role = cloud_RoleName, UserSessionID, ActivityID,
+          Name = coalesce(tostring(name), tostring(message), tostring(type)),
+          OperationName = operation_Name,
+          ResultCode    = tostring(coalesce(tostring(resultCode), tostring(severityLevel)))
+| order by timestamp asc

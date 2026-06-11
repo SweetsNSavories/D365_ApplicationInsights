@@ -1,0 +1,26 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-developer-add-custom-signals
+// Inventory of every custom event name your F&O environment is currently emitting,
+// with volume, distinct users, and the property keys carried by each event.
+//
+// Use this first when onboarding a new F&O telemetry resource - it answers
+// "what custom signals do we actually have?" before you write narrower queries.
+//
+// Pivot suggestions:
+//   - sort by Calls desc to see the noisiest signals (candidates for sampling, see
+//     https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-understanding-and-controlling-cost)
+//   - the PropertyKeys column shows which extra dimensions are usable in drill-downs
+
+let _lookback = 7d;
+customEvents
+| where timestamp > ago(_lookback)
+| extend cd = parse_json(customDimensions)
+| extend roleName = tostring(cloud_RoleName)  // AOSService / BatchService / DIXFService / Web
+| summarize Calls         = count(),
+            Users         = dcount(user_Id),
+            Sessions      = dcount(session_Id),
+            FirstSeen     = min(timestamp),
+            LastSeen      = max(timestamp),
+            PropertyKeys  = make_set(bag_keys(cd), 50),
+            RolesEmitting = make_set(roleName, 10)
+        by EventName = name
+| order by Calls desc

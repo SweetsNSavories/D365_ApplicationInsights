@@ -1,0 +1,18 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Customer%20Service/ComponentLibrary/AppInsights-Telemetry/Dataverse/dashboard-CSAppInsights.json
+// Also: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/cs-dataverse-appinsights#plugins-with-depth-greater-than-two
+// Custom plug-ins firing at execution depth > 2 (i.e. nested plug-in invocations triggered by
+// another plug-in). High depth + P95 latency is a strong anti-pattern signal — one user-facing
+// SDK call fans out into a long synchronous chain.
+dependencies
+| where type == 'Plugin'
+| extend cd = parse_json(customDimensions)
+| extend depth = toint(cd.depth)
+| where name !startswith "Microsoft"
+| where depth > 2
+| summarize count(),
+            P95 = percentile(duration, 95)
+        by depth, name, bin(timestamp, 7d)
+| where isnotempty(P95)
+| project name, depth, timestamp, count_, P95
+| summarize MaxDepth = max(depth) by name
+| order by MaxDepth desc

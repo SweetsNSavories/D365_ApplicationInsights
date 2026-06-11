@@ -1,0 +1,23 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Field%20Service/Analytics/dashboard-Field%20Service%20Mobile%20Offline.json
+// Per-table offline-filter cost. Joins `Offline.SyncDatabase` parent operations to the
+// `SDKRetrieveMultiple` dependency rows they spawned (operation_Id correlation, with the
+// per-table suffix trimmed). Surfaces P50/P95 RetrieveMultiple latency by target entity.
+// Optional: `_externalCorrelationId` pins to one sync operation.
+let _externalCorrelationId = '';
+dependencies
+| where name startswith "Offline.SyncDatabase"
+| extend cd = parse_json(customDimensions)
+| extend eventContext  = parse_json(tostring(cd.EventContext))
+| extend currentSyncId = tostring(eventContext["CurrentSyncId"])
+| project operation_Id, currentSyncId
+| where isempty(_externalCorrelationId) or operation_Id == _externalCorrelationId
+| join (
+    dependencies
+    | where type == "SDKRetrieveMultiple"
+    | extend requestId = trim_end("_([a-z0-9-]*)", operation_Id)
+  ) on $left.operation_Id == $right.requestId
+| summarize percentiles(duration, 50, 95) by target
+| project ['Table']                = target,
+          ['P50 Duration (ms)']    = round(percentile_duration_50, 0),
+          ['P95 Duration (ms)']    = round(percentile_duration_95, 0)
+| order by ['P95 Duration (ms)'] desc

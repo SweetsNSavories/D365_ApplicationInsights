@@ -1,0 +1,8 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily plug-in execution volume and average duration for the last 30 days.
+// Highlights the heaviest custom plug-ins and catches post-deploy regressions.
+dependencies
+| where timestamp > ago(30d)
+| where type == "Plugin"
+| summarize Calls = count(), AvgMs = avg(duration) by bin(timestamp, 1d), name
+| render timechart

@@ -1,0 +1,20 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Customer%20Service/ComponentLibrary/AppInsights-Telemetry/Dataverse/dashboard-CSAppInsights.json
+// Also: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/cs-dataverse-appinsights#network-performance-by-locations-query
+// Per-user × country network throughput (warmThroughput) min/max/avg from pageViews
+// customDimensions. Surfaces users in WAN-distant geographies whose client perf is dominated by
+// network, not server. `take 10` is a sampling guard — increase when running for real analysis.
+pageViews
+| where timestamp >= ago(180d)
+| take 10
+| extend dimensions = parse_json(customDimensions)
+| project USERID     = user_Id,
+          COUNTRY    = client_CountryOrRegion,
+          APPMODULE  = dimensions.appModule,
+          PAGENAME   = dimensions.pageName,
+          ENTITYNAME = dimensions.entityName,
+          LATENCY    = dimensions.warmLatency,
+          THROUGHPUT = dimensions.warmThroughput
+| summarize min(todouble(THROUGHPUT)),
+            max(todouble(THROUGHPUT)),
+            avg(todouble(THROUGHPUT))
+        by USERID, COUNTRY

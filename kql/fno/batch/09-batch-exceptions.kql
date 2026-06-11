@@ -1,0 +1,28 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Batch/ADE-Dashboard-D365FO-Monitoring-Batch.json
+// Tile: Batch exceptions
+//
+// Parameters - adjust before running, or accept the defaults.
+let _batchJobId    = "";        // empty = all batch jobs
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+
+// BatchTaskFailure is providing Exceptions in the batch execution. 
+// These events are providing exception information that is often not covered by infolog errors, but exceptions that are thrown during batch processing and batch scheduling.
+customEvents
+| where     timestamp between (_startTime .. _endTime)
+| where     name in ("BatchTaskFailure")
+| extend    customDimensionsParsed = parse_json(customDimensions)
+| extend    BatchJobCaption     = tostring(customDimensionsParsed.BatchJobCaption)
+| extend    ActivityId          = tostring(customDimensionsParsed.activityId)
+| extend    ClassName           = iif((tostring(customDimensionsParsed.ClassName) == "<empty>"), "", tostring(customDimensionsParsed.ClassName))
+| extend    BatchJobId          = tostring(customDimensionsParsed.BatchJobId)
+| extend    BatchTaskId         = tostring(customDimensionsParsed.BatchTaskId)
+| extend    EventMessage        = tostring(customDimensionsParsed.EventMessage)
+| extend    ExceptionType       = tostring(customDimensionsParsed.ExceptionType)
+| extend    ExceptionMessage    = tostring(customDimensionsParsed.ExceptionMessage)
+| extend    CallStack           = tostring(customDimensionsParsed.CallStack)
+| where     isempty(_batchJobId) or tostring(BatchJobId) in (_batchJobId)
+| where     isempty(_environmentId) or tostring(customDimensionsParsed.EnvironmentId) == _environmentId
+| project   TimeStamp = timestamp, RoleInstance = cloud_RoleInstance, ActivityId, BatchJobCaption, ClassName, BatchJobId, BatchTaskId, EventMessage, ExceptionType, ExceptionMessage, CallStack

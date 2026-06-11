@@ -1,0 +1,65 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/DMF/dashboard-D365FO-Monitoring-DMF.json
+// Tile: Errors per per project
+//
+// Parameters - adjust before running, or accept the defaults.
+let _activityId    = "";        // empty = all; paste an activity id to scope
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+let dataProject    = "";        // empty = all data projects
+let entityName     = "";        // empty = all entities
+let executionId    = "";        // empty = all executions
+
+// Shared base-query lets (inlined from the dashboard catalog so this file is standalone).
+let allDMFEvents = view () {
+    let rx = '-[({]?[a-fA-F0-9]{8}[-]?([a-fA-F0-9]{4}[-]?){3}[a-fA-F0-9]{12}[})]?';
+    customEvents
+    | where name startswith "DMF"
+    | where timestamp between (_startTime .. _endTime )
+    | extend cd = parse_json(customDimensions)
+    | extend BatchJobCaption = tostring( cd.BatchJobCaption)
+    | extend BatchJobId = tostring(cd.BatchJobId)
+    | extend DataProjectName =  replace(rx, '',  tostring( cd.DataProjectName))
+    | extend EntityName = tostring( cd.EntityName)
+    | extend ErrorCategory = tostring(cd.ErrorCategory)
+    | extend ErrorCategory = tostring(cd.ErrorCategory)
+    | extend ErrorMessage = tostring(cd.ErrorMessage)
+    | extend ExecutionId = tostring( cd.ExecutionId)
+    | extend ExecutionMode = tostring(cd.ExecutionMode)
+    | extend LegalEntity = tostring(cd.LegalEntity)
+    | extend NumOfStagingNew = tolong(cd.NumOfStagingNew)
+    | extend NumOfTargetNew = tolong(cd.NumOfTargetNew)
+    | extend NumOfTargetUpdated = tolong(cd.NumOfTargetUpdated)
+    | extend SourceOrTarget = cd.SourceOrTarget
+    | extend StagingColumnName = tostring(cd.StagingColumnName)
+    | extend StagingErrorCount = toint(cd.StagingErrorCount)
+    | extend StagingRecId = tolong(cd.StagingRecId)
+    | extend StagingStatus = tostring(cd.StagingStatus)
+    | extend TargetErrorCount = toint(cd.TargetErrorCount)
+    | extend TargetStatus = tostring(cd.TargetStatus)
+    | extend TotalNumberOfRecords = tolong( cd.TotalNumberOfRecords)
+    | extend aadTenantId = tostring(cd.aadTenantId)
+    | extend activityId = tostring(cd.activityId)
+    | extend environmentId = tostring(cd.environmentId)
+    | extend eventId = tostring(cd.eventId)
+    | extend direction = iff(name startswith "DMFExport", "Export",
+                         iff(name startswith "DMFImpot", "Import", 
+                         iff(ExecutionId has "Import" or ExecutionId has "import", "Import", "Export")))
+    | where isempty( _environmentId) or environmentId == _environmentId
+    | where isempty( entityName ) or EntityName == entityName
+    | where isempty( executionId ) or ExecutionId == executionId
+    | where isempty( dataProject ) or DataProjectName == dataProject
+    | where isempty( _activityId ) or activityId == _activityId
+    | project timestamp, name, user_Id, cloud_RoleInstance, 
+               BatchJobCaption, BatchJobId, DataProjectName,EntityName, ExecutionId, ExecutionMode,
+            LegalEntity, NumOfStagingNew, NumOfTargetNew, NumOfTargetUpdated, SourceOrTarget, StagingColumnName,
+            StagingErrorCount,StagingRecId,StagingStatus,TargetErrorCount,TargetStatus,TotalNumberOfRecords, ErrorMessage,
+             aadTenantId,activityId,environmentId,eventId,direction
+};
+
+allDMFEvents
+| where name == 'DMFError'
+| summarize count() by DataProjectName, direction
+| order by count_ desc
+| limit 20

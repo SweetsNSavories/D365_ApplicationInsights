@@ -1,0 +1,14 @@
+// Source: aliyoussefi/D365-Monitoring/KustoQueries.CustomEvents.txt
+// Focusing on Web Resource / Client Events showing client information
+customEvents
+| extend cd = parse_json(customDimensions)
+| extend cm = parse_json(customMeasurements)
+| project
+    timestamp,
+    name,
+    cd,
+    cm,
+    client_Type,
+    client_OS,
+    client_StateOrProvince,
+    client_Browser

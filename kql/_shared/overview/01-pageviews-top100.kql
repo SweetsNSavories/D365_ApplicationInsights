@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/overview-integration-application-insights.md
+// Top 100 form loads in the pageViews table — quick health check.
+pageViews
+| take 100

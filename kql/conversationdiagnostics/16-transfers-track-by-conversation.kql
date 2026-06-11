@@ -1,0 +1,12 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#transfer-attempts-and-transfers-with-other-assignment-attempts
+// Transfer-attempt audit: every event on one conversation, ordered by timestamp. Pair with
+// `01-conversation-lifecycle-by-id.kql` — this is the same shape; use this one when the
+// investigation is specifically about transfers between representatives.
+let _lwiid = '<insert conversation id>';
+traces
+| extend customDim = parse_json(customDimensions)
+| extend lwiid       = tostring(customDim["powerplatform.analytics.resource.id"])
+| extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+| where lwiid == _lwiid
+| project timestamp, lwiid, subscenario, customDim
+| order by timestamp asc

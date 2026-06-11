@@ -1,0 +1,8 @@
+// Source: aliyoussefi/MonitoringPowerPlatform/docs/02.04 - Monitoring Canvas Apps - Getting Started with Application Insights.md
+// What are the 3 slowest pages, and how slow are they?
+pageViews
+| where notempty(duration) and client_Type == 'Browser'
+| extend total_duration = duration * itemCount
+| summarize avg_duration = (sum(total_duration) / sum(itemCount)) by operation_Name
+| top 3 by avg_duration desc
+| render piechart

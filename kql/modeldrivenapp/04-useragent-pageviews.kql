@@ -1,0 +1,7 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// Which userAgents (i.e. access paths — Browser, Power Automate, Office, etc.) are hitting the system, per user.
+pageViews
+| summarize count() by tostring(customDimensions.userAgent), user_Id
+
+dependencies
+| where ['type'] == "UCI REQUEST"

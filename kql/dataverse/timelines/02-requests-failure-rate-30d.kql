@@ -1,0 +1,9 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily success vs failure request counts for the last 30 days — error-rate trend.
+requests
+| where timestamp > ago(30d)
+| summarize Total   = count(),
+            Failed  = countif(success == false),
+            FailPct = round(100.0 * countif(success == false) / count(), 2)
+        by bin(timestamp, 1d)
+| render timechart

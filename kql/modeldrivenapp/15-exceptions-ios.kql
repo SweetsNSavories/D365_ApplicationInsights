@@ -1,0 +1,4 @@
+// Source: aliyoussefi/D365-Monitoring/KustoQueries.Exceptions.txt
+// Exceptions from iOS
+exceptions
+| where client_Browser == "Mobile Safari UI/WKWebView 12.0"

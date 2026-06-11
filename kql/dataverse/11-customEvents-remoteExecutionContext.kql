@@ -1,0 +1,7 @@
+// Source: aliyoussefi/D365-Monitoring/KustoQueries.CustomEvents.txt
+// Parsing the RemoteExecutionContext serialized from a D365 plug-in
+customEvents
+| extend context = parse_json(customDimensions)
+| extend rmc    = parse_json(context)
+| order by timestamp desc
+| project context.RemoteExecutionContext, rmc.BusinessUnitId

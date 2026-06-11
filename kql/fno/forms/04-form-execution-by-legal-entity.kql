@@ -1,0 +1,12 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Forms/ADE-Dashboard-D365FO-Monitoring-Forms.json
+// Tile: Form execution by Legal Entity
+//
+// Parameters - adjust before running, or accept the defaults.
+let _endTime       = now();     // dashboard window end
+let _startTime     = ago(7d);   // dashboard window start
+
+pageViews
+| where timestamp between (_startTime .. _endTime)
+| extend ['Legal entity'] = toupper((customDimensions.LegalEntity))
+| summarize count() by ['Legal entity']

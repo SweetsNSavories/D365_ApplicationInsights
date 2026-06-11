@@ -1,0 +1,16 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Field%20Service/Analytics/dashboard-Field%20Service%20Mobile%20Offline.json
+// Average sync payload size (KB) by DataSyncMode. Big payloads on DELTA_SYNC are a sign that
+// the offline profile is over-broad; on FIRST_SYNC they're the natural cost of a fresh install.
+dependencies
+| where name startswith "Offline"
+| extend cd = parse_json(customDimensions)
+| extend eventContext = parse_json(tostring(cd.EventContext))
+| extend entityName   = tostring(eventContext.EntityName)
+| extend syncMode     = tostring(cd.DataSyncMode)
+| extend responseSize = toint(eventContext.ResponseSize)
+| where isnotempty(syncMode)
+| where responseSize > 0
+| extend responseSizeKb = responseSize / 1024
+| summarize ['Average Response Size (KB)'] = round(avg(responseSizeKb)) by syncMode
+| project-rename ['Data sync mode'] = syncMode
+| order by ['Average Response Size (KB)'] desc

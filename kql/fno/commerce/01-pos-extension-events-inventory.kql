@@ -1,0 +1,32 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/commerce/dev-itpro/commerce-application-insights
+// (POS extension trackEvent shape: name + properties + measurements)
+//
+// First-pass inventory of every custom event raised by POS / CRT / Commerce
+// extensions. Modern POS and Cloud POS use applicationinsights-web's
+// trackEvent({ name, properties, measurements }) which lands in:
+//   customEvents.name           = the event name (e.g. "extensionTest")
+//   customEvents.customDimensions = the JS "properties" bag
+//   customEvents.customMeasurements = the JS "measurements" bag (numeric)
+//
+// Pin _posRole / _csuRole after running this once to scope future queries.
+
+let _lookback = 7d;
+let _posRole  = '';   // e.g. 'CloudPOS', 'ModernPOS' - leave empty to include all
+let _csuRole  = '';   // e.g. 'RetailServer'           - leave empty to include all
+customEvents
+| where timestamp > ago(_lookback)
+| where (isempty(_posRole) or cloud_RoleName == _posRole)
+     or (isempty(_csuRole) or cloud_RoleName == _csuRole)
+| extend cd = parse_json(tostring(customDimensions))
+| extend cm = parse_json(tostring(customMeasurements))
+| summarize Calls        = count(),
+            Users        = dcount(user_Id),
+            Sessions     = dcount(session_Id),
+            Roles        = make_set(cloud_RoleName, 10),
+            FirstSeen    = min(timestamp),
+            LastSeen     = max(timestamp),
+            PropertyKeys = make_set(bag_keys(cd), 50),
+            MeasureKeys  = make_set(bag_keys(cm), 50)
+        by EventName = name
+| order by Calls desc
+| take 200

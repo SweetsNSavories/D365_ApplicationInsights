@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// All UCI outbound network requests (calls from Unified Interface to render a page).
+dependencies
+| where type == "UCI REQUEST"

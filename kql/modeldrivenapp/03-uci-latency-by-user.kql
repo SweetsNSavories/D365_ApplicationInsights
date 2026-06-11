@@ -1,0 +1,14 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// Per-user warm/cold latency + throughput across UCI requests and pageViews.
+dependencies
+| where ['type'] == "UCI REQUEST"
+| summarize avg(toint(customDimensions.warmLatency)),
+            avg(toint(customDimensions.coldLatency)),
+            avg(toint(customDimensions.warmThroughput))
+        by user_Id
+
+pageViews
+| summarize avg(toint(customDimensions.warmLatency)),
+            avg(toint(customDimensions.coldLatency)),
+            avg(toint(customDimensions.warmThroughput))
+        by user_Id

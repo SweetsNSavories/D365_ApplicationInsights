@@ -1,0 +1,10 @@
+// Source: https://github.com/SinghAmreek/PowerAutomateTelemetry/blob/main/QueryPackTemplate/template.json (query: "Top 10 Flows by Runs")
+// Tenant-wide flow-run leaderboard. Pairs with query 12 (billable actions) to see which flows
+// fire often but only do a few actions vs. the opposite.
+requests
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| extend cd = parse_json(tostring(customDimensions["Data"]))
+| extend flowname = tostring(cd.FlowDisplayName)
+| summarize FlowRuns = count() by flowname
+| top 10 by FlowRuns desc
+| render barchart

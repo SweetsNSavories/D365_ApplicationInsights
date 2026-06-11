@@ -1,0 +1,7 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily request volume for the last 30 days, broken out by HTTP result code (200, 401, 403, 429, 500, 503, ...).
+// Useful for spotting a spike of 429 throttling or 5xx outages.
+requests
+| where timestamp > ago(30d)
+| summarize Calls = count() by bin(timestamp, 1d), resultCode
+| render timechart

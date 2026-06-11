@@ -1,0 +1,21 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Field%20Service/Analytics/dashboard-Field%20Service%20Mobile%20Offline.json
+// ActiveDuration (foreground sync time) vs duration (wall-clock incl. backgrounded sync) per
+// client_Type x device make x model x DataSyncMode. Useful for spotting devices that finish in
+// background long after the user moved on (large delta between the two P95 values).
+dependencies
+| where name == "Offline.SyncDatabase"
+| extend cd = parse_json(customDimensions)
+| extend ActiveDuration      = toint(tostring(cd.ActiveDuration))
+| extend WithBackgroundTime  = duration
+| extend DataSyncMode        = tostring(cd.DataSyncMode)
+| extend DeviceInfo_OsName   = tostring(cd.DeviceInfo_OsName)
+| extend DeviceInfo_Make     = tostring(cd.DeviceInfo_make)
+| extend DeviceInfo_Model    = tostring(cd.DeviceInfo_model)
+| where isnotempty(DataSyncMode)
+| summarize ['P95 Active (s)']           = round(percentile(ActiveDuration, 95) / 1000.0, 0),
+            ['P95 With Background (s)']  = round(percentile(WithBackgroundTime, 95) / 1000.0, 0)
+        by ['Data sync mode'] = DataSyncMode,
+           ['Client type']    = client_Type,
+           ['Device Make']    = DeviceInfo_Make,
+           ['Model']          = DeviceInfo_Model
+| order by ['Data sync mode'] asc, ['Client type'] asc, ['Device Make'] asc, ['Model'] asc

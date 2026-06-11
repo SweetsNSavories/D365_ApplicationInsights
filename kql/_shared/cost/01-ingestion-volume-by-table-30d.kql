@@ -1,0 +1,25 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-understanding-and-controlling-cost
+// and the Azure Monitor ingestion-cost guidance it links to.
+//
+// Daily ingestion volume per table over the last 30 days, so you can see which
+// telemetry stream is driving your bill. Works on a workspace-based Application
+// Insights resource (which is the default for new resources since 2021).
+//
+// Watch:
+//   - traces and customEvents are the usual top spenders when somebody has
+//     left verbose tracing on, or a single custom event is firing per record
+//     instead of per batch.
+//   - A sudden multi-GB spike on requests / dependencies often correlates with
+//     a noisy retry loop in client code - look for the same client_IP / cloud_RoleName
+//     hammering one endpoint.
+//   - Pair with the strategies in the Microsoft docs above: sampling, daily caps,
+//     basic-tier logs, and selective telemetry collection.
+
+let _lookback = 30d;
+Usage
+| where TimeGenerated > ago(_lookback)
+| where IsBillable == true
+| summarize GBIngested = sum(Quantity) / 1024.0   // Usage.Quantity is in MB
+        by bin(TimeGenerated, 1d), DataType
+| order by TimeGenerated asc, GBIngested desc
+| render columnchart with (kind = stacked, title = 'Billable ingestion (GB/day) by table - 30d')

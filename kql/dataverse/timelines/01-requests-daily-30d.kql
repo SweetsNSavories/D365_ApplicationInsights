@@ -1,0 +1,6 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily Dataverse API request volume + average duration for the last 30 days.
+requests
+| where timestamp > ago(30d)
+| summarize Calls = count(), AvgMs = avg(duration) by bin(timestamp, 1d)
+| render timechart

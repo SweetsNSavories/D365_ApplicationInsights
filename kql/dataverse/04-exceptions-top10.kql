@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// All attributes from the exceptions table (Failures panel data source).
+exceptions
+| take 10

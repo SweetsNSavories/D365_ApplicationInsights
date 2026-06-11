@@ -1,0 +1,20 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#representatives-who-reject-new-assignments
+// Conversations that were rejected by more than one representative (CSRRejected subscenario).
+// Returns per-conversation rejection count + a list of (agentId, rejectionCount) pairs.
+let _startTime = ago(60d);
+let _endTime   = now();
+traces
+| where timestamp between (_startTime .. _endTime)
+| extend customDim = parse_json(customDimensions)
+| extend conversationId = tostring(customDim["powerplatform.analytics.resource.id"]),
+         subscenario    = tostring(customDim["powerplatform.analytics.subscenario"]),
+         agentId        = tostring(customDim["omnichannel.target_agent.id"])
+| extend scenario = tostring(customDim["powerplatform.analytics.scenario"])
+| where scenario == "ConversationDiagnosticsScenario"
+| where subscenario == "CSRRejected"
+| summarize agentRejectionCount = count() by conversationId, agentId
+| summarize rejectionCount         = sum(agentRejectionCount),
+            agentRejectionDetails  = make_list(pack('agentId', agentId, 'rejectionCount', agentRejectionCount))
+        by conversationId
+| where rejectionCount > 1
+| project conversationId, rejectionCount, agentRejectionDetails

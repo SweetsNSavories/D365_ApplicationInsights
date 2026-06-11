@@ -1,0 +1,38 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/commerce/customer-orders-overview
+// ("Asynchronous transaction flow for customer orders" - schedule the
+//  RetailDocumentOperationMonitorBatch and RetailDocumentOperationProcessingBatch
+//  classes to drive async order creation / cancellation. See also CDX P-job
+//  P-0001 (Channel transactions) and the Synchronize orders job.)
+//
+// Daily success/failure counts for the two named batch classes plus a fall-back
+// pattern for any *RetailDocumentOperation* class. Run alongside the generic
+// batch jobs query in `../batch/` for cross-reference.
+
+let _lookback = 14d;
+let _classes  = dynamic([
+    'RetailDocumentOperationMonitorBatch',
+    'RetailDocumentOperationProcessingBatch'
+]);
+let _emitters =
+    union isfuzzy=true
+        (customEvents | extend Tbl = 'customEvents'),
+        (traces       | extend Tbl = 'traces'),
+        (exceptions   | extend Tbl = 'exceptions')
+    | where timestamp > ago(_lookback)
+    | where cloud_RoleName == 'BatchService'
+    | extend cd        = parse_json(tostring(customDimensions))
+    | extend ClassName = coalesce(tostring(cd.ClassName),
+                                   tostring(cd.className),
+                                   tostring(cd['Class name']))
+    | extend MethodName = coalesce(tostring(cd.MethodName),
+                                    tostring(cd.methodName),
+                                    tostring(cd['Method name']))
+    | where ClassName in (_classes) or ClassName has 'RetailDocumentOperation';
+_emitters
+| summarize Events     = countif(Tbl == 'customEvents'),
+            Traces     = countif(Tbl == 'traces'),
+            Exceptions = countif(Tbl == 'exceptions'),
+            LegalEnts  = dcount(tostring(cd.LegalEntity)),
+            SampleMsg  = any(coalesce(tostring(message), tostring(name), tostring(type)))
+        by bin(timestamp, 1d), ClassName
+| order by timestamp desc, Exceptions desc

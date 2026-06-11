@@ -1,0 +1,6 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// API endpoint perf trend over time vs request volume.
+requests
+| where url == "https://<URLHere>"
+| summarize avg(duration), count() by bin(timestamp, 1h)
+| render timechart

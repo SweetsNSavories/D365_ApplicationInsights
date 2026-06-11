@@ -1,0 +1,14 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-mobile.md
+// Per-user sync overview: last sync date, last error, sync duration, failure rate.
+dependencies
+| where name == "Offline.SyncDatabase"
+| extend cd = parse_json(customDimensions)
+| extend ActiveDuration     = toint(tostring(cd.ActiveDuration))
+| extend WithBackgroundTime = duration
+| extend DataSyncMode       = tostring(cd.DataSyncMode)
+| extend ErrorMessage       = tostring(cd.ErrorMessage)
+| summarize percentile(ActiveDuration, 50),
+            percentile(WithBackgroundTime, 50),
+            arg_max(timestamp, ErrorMessage),
+            countif(success == false)
+        by user_Id, DataSyncMode

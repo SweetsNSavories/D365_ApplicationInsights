@@ -1,0 +1,25 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Errors/dashboard-D365FO-Monitoring-Errors.json
+// Tile: Sum of errors per Execution Mode
+//
+// Parameters - adjust before running, or accept the defaults.
+let _endTime       = now();     // dashboard window end
+let _startTime     = ago(7d);   // dashboard window start
+
+exceptions
+| where timestamp  between (_startTime .. _endTime)
+| extend LegalEntity            = customDimensions.LegalEntity
+    ,   ExecutionMode           = customDimensions.ExecutionMode
+    ,   BatchJobId              = customDimensions.BatchJobId
+    ,   CallStack               = customDimensions.CallStack
+| project ["Timestamp"]             = timestamp
+        , ["outerMessage"]          = outerMessage
+        , ["Session ID"]            = session_Id
+        , ["User ID"]               = user_Id
+        , ["Legal Entity"]          = LegalEntity
+        , ["Execution Mode"]        = tostring(ExecutionMode)
+        , CallStack 
+        , ["Client Type"]        = client_Type
+        , ["Client City"]           = client_City
+        , ["Client Country"]        = client_CountryOrRegion
+| summarize ["Errors"] = count() by ["Execution Mode"]//, bin(["Timestamp"],1h)

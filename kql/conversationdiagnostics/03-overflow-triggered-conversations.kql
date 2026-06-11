@@ -1,0 +1,12 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#overflow-handling
+// Conversations where overflow was triggered (i.e. queue threshold met → overflow action fired).
+// `omnichannel.additional_info` carries the OverflowTrigger keyword on the RouteToQueue row.
+traces
+| extend customDim = parse_json(customDimensions)
+| extend conversationId         = tostring(customDim["powerplatform.analytics.resource.id"]),
+         subscenario            = tostring(customDim["powerplatform.analytics.subscenario"]),
+         omnichannelAdditional  = tostring(customDim["omnichannel.additional_info"])
+| extend scenario = tostring(customDim["powerplatform.analytics.scenario"])
+| where scenario == "ConversationDiagnosticsScenario"
+| where omnichannelAdditional contains "OverflowTrigger"
+| project timestamp, conversationId, subscenario, omnichannelAdditional

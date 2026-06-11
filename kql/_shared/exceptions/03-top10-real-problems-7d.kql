@@ -1,0 +1,31 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// TOP 10 REAL exception problems (noise filtered) - last 7 days.
+// Use this instead of `exceptions | summarize count() by problemId | top 10` which is dominated
+// by PrvRead/msdyn_ noise.
+let _IsNoise = (msg:string, ent:string) {
+       (msg has "PrvRead" or msg has "prvRead" or msg has "0x80040220")
+    or  msg has "SecLib::"
+    or  msg has "PrincipalPrivilegeDenied"
+    or ((ent startswith "msdyn"     or ent startswith "adx_"
+      or ent startswith "msdyncrm_" or ent startswith "msdyn365_"
+      or ent startswith "mscrm_")
+        and (msg has "Principal"   or msg has "privilege"
+          or msg has "Access"      or msg has "denied"))
+    or  msg has "was cancelled"
+    or  msg has "OperationCanceled"
+    or  msg has "TooManyRequests"
+};
+exceptions
+| where timestamp > ago(7d)
+| extend cd       = parse_json(customDimensions)
+| extend entityNm = tostring(cd.entityName)
+| extend pluginNm = tostring(cd.pluginName)
+| extend src      = tostring(cd.exceptionSource)
+| where not (_IsNoise(outerMessage, entityNm))
+| summarize Count       = count(),
+            Users       = dcount(user_Id),
+            FirstSeen   = min(timestamp),
+            LastSeen    = max(timestamp),
+            SampleMsg   = any(outerMessage)
+        by problemId, type, src, pluginNm, entityNm
+| top 10 by Count desc

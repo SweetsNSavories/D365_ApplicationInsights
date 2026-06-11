@@ -1,0 +1,7 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/inventory-sample-queries.md
+// Azure Resource Graph.
+PowerPlatformResources
+| extend properties = parse_json(properties)
+| extend environmentId = tostring(properties.environmentId)
+| summarize resourceCount = count() by environmentId
+| order by resourceCount desc

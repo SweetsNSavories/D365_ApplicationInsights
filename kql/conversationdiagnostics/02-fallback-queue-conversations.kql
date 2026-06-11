@@ -1,0 +1,16 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#fallback-queues
+// Conversations whose RouteToQueue stage landed them on the fallback queue (i.e. nothing in the
+// configured route-to-queue rulesets matched). High counts here = misconfigured workstreams.
+let _startTime    = ago(60d);
+let _endTime      = now();
+let _fallbackName = '<insert your fallback queue name>';
+traces
+| where timestamp between (_startTime .. _endTime)
+| extend customDim = parse_json(customDimensions)
+| extend conversationId = tostring(customDim["powerplatform.analytics.resource.id"]),
+         subscenario    = tostring(customDim["powerplatform.analytics.subscenario"]),
+         queueResult    = tostring(parse_json(tostring(customDim["omnichannel.result"])).DisplayName)
+| extend scenario = tostring(customDim["powerplatform.analytics.scenario"])
+| where scenario == "ConversationDiagnosticsScenario"
+| where subscenario == "RouteToQueue" and queueResult == _fallbackName
+| project timestamp, conversationId, queueResult

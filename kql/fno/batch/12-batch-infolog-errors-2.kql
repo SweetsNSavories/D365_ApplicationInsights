@@ -1,0 +1,19 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Batch/ADE-Dashboard-D365FO-Monitoring-Batch.json
+// Tile: Batch Infolog Errors
+//
+// Parameters - adjust before running, or accept the defaults.
+let _batchJobId    = "";        // empty = all batch jobs
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+
+exceptions
+| where     timestamp between (_startTime .. _endTime)
+| extend    customDimensionsParsed = parse_json(customDimensions)
+| extend    ExecutionMode   = tostring(customDimensionsParsed.ExecutionMode)
+| extend    BatchJobId      = tostring(customDimensionsParsed.BatchJobId)
+| where     ExecutionMode   == "Batch"
+| where     isempty(_batchJobId) or tostring(BatchJobId) in (_batchJobId)
+| where     isempty(_environmentId) or tostring(customDimensionsParsed.EnvironmentId) == _environmentId
+| summarize TotalErrors = count() by bin(timestamp, 10m)

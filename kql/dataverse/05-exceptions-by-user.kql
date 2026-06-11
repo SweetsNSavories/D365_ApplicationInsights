@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// Drill into a specific user's exceptions by Microsoft Entra ID object id.
+exceptions
+| where user_Id == '00aa00aa-bb11-cc22-dd33-44ee44ee44ee'

@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// Form load performance by name and geography.
+pageViews
+| summarize avg(duration) by name, client_City, client_CountryOrRegion

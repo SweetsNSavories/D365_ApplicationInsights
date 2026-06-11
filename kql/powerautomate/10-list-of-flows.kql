@@ -1,0 +1,9 @@
+// Source: https://github.com/SinghAmreek/PowerAutomateTelemetry/blob/main/QueryPackTemplate/template.json (query: "ListOfFlows")
+// Distinct (FlowDisplayName, FlowId) inventory from the requests stream. Useful for finding
+// the flow GUID that goes into the deep-link or per-flow billable queries.
+requests
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| extend cd = parse_json(tostring(customDimensions["Data"]))
+| distinct FlowDisplayName = tostring(cd.FlowDisplayName),
+           FlowId          = tostring(customDimensions['resourceId'])
+| order by FlowDisplayName asc

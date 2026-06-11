@@ -1,0 +1,23 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Batch/ADE-Dashboard-D365FO-Monitoring-Batch.json
+// Tile: PBS Queue sizes
+//
+// Parameters - adjust before running, or accept the defaults.
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+
+customEvents
+| where     timestamp between (_startTime .. _endTime)
+| where     name == "BatchQueuesDetails"
+| extend    customDimensionsParsed = parse_json(customDimensions)
+| extend    InfoMessageParsed = parse_json(tostring(customDimensionsParsed.InfoMessage))
+| where     isempty(_environmentId) or tostring(customDimensionsParsed.EnvironmentId) == _environmentId
+| extend    BatchLowSchedulingQueue                 = toint(InfoMessageParsed.BatchLowSchedulingQueue)
+| extend    BatchNormalSchedulingQueue              = toint(InfoMessageParsed.BatchNormalSchedulingQueue)
+| extend    BatchHighSchedulingQueue                = toint(InfoMessageParsed.BatchHighSchedulingQueue)
+| extend    BatchCriticalSchedulingQueue            = toint(InfoMessageParsed.BatchCriticalSchedulingQueue)
+| extend    BatchReservedCapacitySchedulingQueue    = toint(InfoMessageParsed.BatchReservedCapacitySchedulingQueue)
+| extend    ReadyTasksBuffer                        = toint(InfoMessageParsed.ReadyTasksBuffer)
+| extend    ReadyTasksBufferWithPriorities          = toint(InfoMessageParsed.ReadyTasksBufferWithPriorities)
+| project timestamp, BatchLowSchedulingQueue, BatchNormalSchedulingQueue, BatchHighSchedulingQueue, BatchReservedCapacitySchedulingQueue, ReadyTasksBuffer, ReadyTasksBufferWithPriorities

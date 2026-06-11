@@ -1,0 +1,18 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// TOP 10 entity + SDK-operation pairs by p95 latency (last 30 days) — table.
+// Entity name is on dependencies of type "SDK *" via customDimensions.EntityName
+// (per telemetry-events-dataverse.md / SDK logs section).
+dependencies
+| where timestamp > ago(30d)
+| where type startswith "SDK"
+| extend EntityName = tostring(customDimensions.EntityName)
+| where isnotempty(EntityName)
+| summarize Calls = count(),
+            p50   = percentile(duration, 50),
+            p95   = percentile(duration, 95),
+            p99   = percentile(duration, 99),
+            Max   = max(duration),
+            Failed = countif(success == false)
+        by EntityName, SdkOperation = type
+| where Calls > 100
+| top 10 by p95 desc

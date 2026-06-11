@@ -1,0 +1,14 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#end-to-end-conversation-tracing
+// Full event walk for one conversation, with the call id and channel type projected next to
+// each row so you can see the channel transitions and per-call segments. This is the
+// "give me everything" trace — combine with the customDimensions column to drill any row.
+let _conversationId = '<insert work item id>';
+traces
+| extend customDim = parse_json(customDimensions)
+| extend conversationId = tostring(customDim["powerplatform.analytics.resource.id"])
+| extend routingStage   = tostring(customDim["powerplatform.analytics.subscenario"])
+| extend channelType    = coalesce(tostring(customDim["omnichannel.channel.type"]), tostring(customDim["ChannelType"]))
+| extend callId         = tostring(customDim["omnichannel.call.id"])
+| where conversationId == _conversationId
+| project timestamp, conversationId, callId, routingStage, channelType, customDimensions
+| order by timestamp asc

@@ -1,0 +1,17 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#representatives-who-reject-new-assignments
+// Top 20 representatives by total rejection count (CSRRejected subscenario). Use this to flag
+// representatives whose reject rate is hurting routing latency / queue health.
+let _startTime = ago(60d);
+let _endTime   = now();
+traces
+| where timestamp between (_startTime .. _endTime)
+| extend customDim = parse_json(customDimensions)
+| extend agentId     = tostring(customDim["omnichannel.target_agent.id"]),
+         subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+| extend scenario = tostring(customDim["powerplatform.analytics.scenario"])
+| where scenario == "ConversationDiagnosticsScenario"
+| where subscenario == "CSRRejected"
+| summarize totalRejections = count() by agentId
+| sort by totalRejections desc
+| top 20 by totalRejections
+| project agentId, totalRejections

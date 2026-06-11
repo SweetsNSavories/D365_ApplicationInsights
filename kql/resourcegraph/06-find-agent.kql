@@ -1,0 +1,5 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/inventory-sample-queries.md
+// Azure Resource Graph — locate one Copilot Studio agent by ID.
+PowerPlatformResources
+| where type == "microsoft.copilotstudio/agents"
+| where name == "[Enter the agent's ID]"

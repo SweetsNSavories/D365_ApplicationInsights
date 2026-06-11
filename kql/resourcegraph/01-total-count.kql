@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/inventory-sample-queries.md
+// Runs against Azure Resource Graph (PowerPlatformResources table) — NOT Application Insights.
+PowerPlatformResources
+| count

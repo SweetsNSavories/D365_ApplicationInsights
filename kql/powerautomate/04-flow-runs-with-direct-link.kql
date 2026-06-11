@@ -1,0 +1,20 @@
+// Source: https://github.com/microsoft/AzureMonitorCommunity/blob/master/Azure%20Services/Power%20Platform/Power%20Automate/Queries/Analytics/Cloud%20flow%20runs%20with%20direct%20link%20to%20flow%20run.kql
+// All cloud-flow runs with a deep link back to make.powerautomate.com for one-click triage.
+// `name` on the requests row is the flow GUID, `operation_Id` is the run id.
+requests
+| where customDimensions.resourceProvider == 'Cloud Flow'
+| extend data = todynamic(tostring(customDimensions.Data))
+| project timestamp,
+          operation_Id,
+          operation_ParentId,
+          success,
+          duration,
+          customDimensions.signalCategory,
+          name,
+          data.FlowDisplayName,
+          data.tags.xrmWorkflowId,
+          data.tags.createdBy,
+          data,
+          customDimensions,
+          directlink = strcat("https://make.powerautomate.com/environments/", data.tags.environmentName,
+                              "/flows/", name, "/runs/", operation_Id)

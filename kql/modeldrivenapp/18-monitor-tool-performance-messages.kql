@@ -1,0 +1,6 @@
+// Source: aliyoussefi/MonitoringPowerPlatform/docs/02.03 - The Monitor Tool Part 2- Session Consumption and Analytics.md
+// Review Monitor-Tool performance messages funneled into customEvents
+customEvents
+| extend cd = parse_json(customDimensions)
+| where cd.messageCategory == "Performance"
+| project session_Id, name, cd.dataSource

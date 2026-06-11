@@ -1,0 +1,20 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Field%20Service/Analytics/dashboard-Field%20Service%20Mobile%20Offline.json
+// Records-synced timeline at 1-minute resolution. RecordCount lives in eventContext nested JSON.
+// Optional filters: `_userId`, `_tableName`, `_dataSyncMode` — empty = pass-through.
+let _userId        = '';
+let _tableName     = '';
+let _dataSyncMode  = '';
+dependencies
+| where name startswith "Offline"
+| where isempty(_userId) or user_Id == _userId
+| extend cd = parse_json(customDimensions)
+| extend eventContext = parse_json(tostring(cd.EventContext))
+| extend entityName    = tostring(eventContext.EntityName)
+| extend dataSyncMode  = tostring(cd.DataSyncMode)
+| extend recordCount   = toint(eventContext.RecordCount)
+| where isempty(_tableName)    or entityName == _tableName
+| where isempty(_dataSyncMode) or dataSyncMode == _dataSyncMode
+| where recordCount > 0
+| where isnotempty(entityName)
+| summarize ['Total Syncs'] = sum(recordCount) by bin(timestamp, 1min)
+| order by timestamp asc

@@ -1,0 +1,9 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Last 24h at 5-minute granularity across the four core tables — fast "what's happening right now" pulse.
+union
+    (requests     | where timestamp > ago(24h) | extend Table = "requests"),
+    (dependencies | where timestamp > ago(24h) | extend Table = "dependencies"),
+    (pageViews    | where timestamp > ago(24h) | extend Table = "pageViews"),
+    (exceptions   | where timestamp > ago(24h) | extend Table = "exceptions")
+| summarize Events = count() by bin(timestamp, 5m), Table
+| render timechart

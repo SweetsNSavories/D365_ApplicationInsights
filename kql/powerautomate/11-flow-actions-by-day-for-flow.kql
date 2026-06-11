@@ -1,0 +1,9 @@
+// Source: https://github.com/SinghAmreek/PowerAutomateTelemetry/blob/main/QueryPackTemplate/template.json (query: "Flow actions by day for a specific flow")
+// Billable-actions per day for one specific flow. Pinpoint billable-spike days for that flow.
+// Replace `_myFlowId` with your flow GUID (use query 10 to list them).
+let _myFlowId = '51f7bacf-3220-c315-5c7f-fe9fd06078ee';
+dependencies
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| where customDimensions['resourceId'] == _myFlowId
+| summarize ['BillableActions'] = count() by bin(timestamp, 1d)
+| order by timestamp asc

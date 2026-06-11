@@ -1,0 +1,7 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/inventory-sample-queries.md
+// Azure Resource Graph — top owners by number of resources.
+PowerPlatformResources
+| extend properties = parse_json(properties)
+| extend ownerId = tostring(properties.ownerId)
+| summarize resourceCount = count() by ownerId
+| order by resourceCount desc

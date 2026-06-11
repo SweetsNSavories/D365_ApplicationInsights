@@ -1,0 +1,12 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// ANOMALY — combined view: hourly Calls + Baseline + Anomalies for EST business hours, last 30d.
+// Run this if you want a chart instead of a table (good for a workbook tile).
+// Render as anomalychart.
+let _start = ago(30d);
+let _end   = now();
+let _step  = 1h;
+requests
+| where timestamp between (_start .. _end)
+| make-series Calls = count() default = 0 on timestamp from _start to _end step _step
+| extend (anomalies, score, baseline) = series_decompose_anomalies(Calls, 2.5, 0, 'linefit')
+| render anomalychart with (anomalycolumns = anomalies)

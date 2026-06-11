@@ -1,0 +1,34 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-developer-add-custom-signals
+// Custom metrics emitted through SysApplicationInsightsTelemetryLogger.trackMetric
+// and trackMetricWithDimensions are pre-aggregated by the AOS for a 1-minute window
+// and arrive in the customMetrics table.
+//
+// trackMetricWithDimensions stores its dimension key/values inside customDimensions,
+// so this query pivots a chosen metric by its dimensions for charting.
+//
+// Watch:
+//   - For posting / pricing / batch metrics the interesting view is usually
+//     percentile (P50/P95) of value over time, sliced by LegalEntity or
+//     ExecutionMode.
+//   - itemCount > 1 means the AOS rolled up multiple raw samples into the row;
+//     valueSum / itemCount is the per-sample mean. min / max / stdev are also
+//     populated for free.
+
+let _lookback   = 7d;
+let _metricName = '';                                // Replace with a metric from query 01 (e.g. 'InvoicePostingDurationMs')
+let _dimensionKey = 'LegalEntity';                   // Pick a customDimensions key emitted by the AOS that's relevant to slice
+customMetrics
+| where timestamp > ago(_lookback)
+| where isempty(_metricName) or name == _metricName
+| extend cd  = parse_json(customDimensions)
+| extend dim = tostring(cd[_dimensionKey])
+| summarize Samples = sum(itemCount),
+            Mean    = sum(valueSum) / todouble(sum(itemCount)),
+            ValMin  = min(valueMin),
+            ValMax  = max(valueMax)
+        by bin(timestamp, 1h), MetricName = name, dim
+| order by timestamp asc, MetricName asc, dim asc
+// For a quick timechart of a single metric uncomment:
+// | where MetricName == _metricName
+// | project timestamp, dim, Mean
+// | render timechart with (title = strcat('Mean ', _metricName, ' by ', _dimensionKey))

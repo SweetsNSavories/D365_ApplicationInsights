@@ -1,0 +1,11 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/app-insights-cloud-flow.md
+// Custom alert — failures for a specific cloud-flow action.
+let myEnvironmentId = 'Insert your environment ID here';
+let myActionName    = 'Delete a row';
+dependencies
+| where timestamp > ago(1d)
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| where customDimensions['signalCategory']  == 'Cloud flow actions'
+| where customDimensions['environmentId']   == myEnvironmentId
+| where name == myActionName
+| where success == false

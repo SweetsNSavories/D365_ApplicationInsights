@@ -1,0 +1,10 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// 90 days of weekly volume across requests / pageViews / dependencies / exceptions.
+// 90d is the default App Insights retention — shorten the window if your resource retains less.
+union
+    (requests     | where timestamp > ago(90d) | extend Table = "requests"),
+    (dependencies | where timestamp > ago(90d) | extend Table = "dependencies"),
+    (pageViews    | where timestamp > ago(90d) | extend Table = "pageViews"),
+    (exceptions   | where timestamp > ago(90d) | extend Table = "exceptions")
+| summarize Events = count() by bin(timestamp, 7d), Table
+| render timechart

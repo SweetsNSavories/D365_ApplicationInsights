@@ -1,0 +1,11 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Hourly page-load volume for the last 7 days — surfaces business-hours patterns and weekend dips.
+pageViews
+| where timestamp > ago(7d)
+| extend cd        = parse_json(customDimensions)
+| extend channel   = case(
+        isnotempty(tostring(cd.PortalId)),  "PowerPages",
+        isnotempty(tostring(cd.appModule)), "ModelDrivenApp",
+        "Other")
+| summarize Loads = count() by bin(timestamp, 1h), channel
+| render timechart

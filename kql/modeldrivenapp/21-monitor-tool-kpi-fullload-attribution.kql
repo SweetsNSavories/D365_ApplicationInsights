@@ -1,0 +1,10 @@
+// Source: aliyoussefi/MonitoringPowerPlatform/docs/02.03 - The Monitor Tool Part 2- Session Consumption and Analytics.md
+// Key Performance Indicators — FullLoad with Attribution
+pageViews
+| extend cd          = parse_json(customDimensions)
+| extend cm          = parse_json(customMeasurements)
+| extend data        = parse_json(tostring(cd.data))
+| extend attribution = parse_json(tostring(data.Attribution))
+| where name == "FullLoad"
+| order by tostring(data.FirstInteractionTime), toint(cm.duration)
+| project session_Id, name, data.FirstInteractionTime, cm.duration, attribution

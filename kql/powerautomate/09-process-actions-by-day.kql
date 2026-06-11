@@ -1,0 +1,14 @@
+// Source: https://github.com/SinghAmreek/PowerAutomateTelemetry/blob/main/QueryPackTemplate/template.json (query: "Process actions by day")
+// Billable-actions per day across a hand-picked cohort of flow IDs. Use for tracking the
+// shared Process-license allotment across the flows in one business process.
+// Replace `_processFlows` with your flow GUIDs.
+let _processFlows = dynamic([
+    '51f7bacf-3220-c315-5c7f-fe9fd06078ee',
+    'c799065a-917f-6324-c3a7-e5d3db415801',
+    '7ff5b11c-5e84-ead3-cbe8-3a0ba1f0e774'
+]);
+dependencies
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| where customDimensions['resourceId'] in (_processFlows)
+| summarize ['BillableActions'] = count() by bin(timestamp, 1d)
+| order by timestamp asc

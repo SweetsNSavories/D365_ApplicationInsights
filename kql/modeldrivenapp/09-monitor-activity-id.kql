@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// Cross-reference an Activity ID from the Azure Monitor "Monitor" debugging tool.
+union *
+| where operation_Id contains "[ActivityIdHere]"

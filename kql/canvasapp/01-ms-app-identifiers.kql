@@ -1,0 +1,15 @@
+// Source: aliyoussefi/MonitoringPowerPlatform/docs/02.04 - Monitoring Canvas Apps - Getting Started with Application Insights.md
+// Parse customDimensions for the ms-app* identifiers across all native Canvas App tables
+traces
+| union pageViews, customEvents, browserTimings
+| extend cd = parse_json(customDimensions)
+| project
+    timestamp,
+    itemId,                          // changes per call
+    itemType,
+    operation_Id, operation_ParentId,// does NOT change per call
+    operation_Name, session_Id, user_Id,
+    message,
+    cd.['ms-appSessionId'],
+    cd.['ms-appName'],
+    cd.['ms-appId']

@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/overview-integration-application-insights.md
+// All pageViews for a given operation_Id (links related events for a single interaction).
+pageViews
+| where operation_Id == "[insert id here]"

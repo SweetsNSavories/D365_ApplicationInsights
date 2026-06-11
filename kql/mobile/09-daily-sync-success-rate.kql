@@ -1,0 +1,16 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Field%20Service/Analytics/dashboard-Field%20Service%20Mobile%20Offline.json
+// Daily offline-sync success rate (%) computed from customDimensions.ScenarioResult enum
+// (SUCCESS vs FAILURE). More precise than success==true because it includes only completed
+// scenarios — partial / aborted runs are excluded.
+dependencies
+| where name endswith "Offline.SyncDatabase"
+| extend cd = parse_json(customDimensions)
+| extend ScenarioResult = tostring(cd.ScenarioResult)
+| where isnotempty(ScenarioResult)
+| summarize Success = todouble(countif(ScenarioResult == "SUCCESS")),
+            All     = countif(ScenarioResult in ("SUCCESS","FAILURE"))
+        by bin(timestamp, 1d)
+| extend SuccessRate = round(Success / All * 100.0, 2)
+| project timestamp, SuccessRate
+| order by timestamp asc
+| render timechart

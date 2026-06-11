@@ -1,0 +1,23 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// ANOMALY — sudden SPIKE in request traffic during EST business hours (last 30 days).
+// Up-direction (+1) anomaly detection, hourly bins, filtered to ET Mon-Fri 09:00-17:00.
+let _start = ago(30d);
+let _end   = now();
+let _step  = 1h;
+requests
+| where timestamp between (_start .. _end)
+| make-series Calls = count() default = 0 on timestamp from _start to _end step _step
+| extend (anomalies, score, baseline) = series_decompose_anomalies(Calls, 2.5, +1, 'linefit')
+| mv-expand timestamp to typeof(datetime),
+            Calls     to typeof(long),
+            baseline  to typeof(long),
+            anomalies to typeof(int),
+            score     to typeof(double)
+| extend tsLocal   = datetime_utc_to_local(timestamp, 'US/Eastern')
+| extend hourLocal = hourofday(tsLocal),
+         dowLocal  = dayofweek(tsLocal)
+| where dowLocal between (1d .. 5d)
+| where hourLocal between (9 .. 17)
+| where anomalies == 1
+| project timestamp, tsLocalET = tsLocal, Calls, Baseline = baseline, AnomalyScore = score
+| order by AnomalyScore desc

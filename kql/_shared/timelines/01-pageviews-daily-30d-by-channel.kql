@@ -1,0 +1,14 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily page-load volume for the last 30 days, split into Model-Driven App forms vs Power Pages portal pages.
+// Anything with neither PortalId nor appModule is bucketed as "Other" (custom JS SDK trackPageView etc.).
+pageViews
+| where timestamp > ago(30d)
+| extend cd        = parse_json(customDimensions)
+| extend portalId  = tostring(cd.PortalId)
+| extend appModule = tostring(cd.appModule)
+| extend channel   = case(
+        isnotempty(portalId),  "PowerPages",
+        isnotempty(appModule), "ModelDrivenApp",
+        "Other")
+| summarize Loads = count() by bin(timestamp, 1d), channel
+| render timechart

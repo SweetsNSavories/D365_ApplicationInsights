@@ -1,0 +1,19 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Field%20Service/Analytics/dashboard-Field%20Service%20Mobile%20Offline.json
+// Network throughput / latency / online-vs-offline counts by state + country for the native
+// Power Apps Mobile host. Uses pageViews because the mobile host emits client-side perf signals
+// there (warmThroughput, warmLatency, coldLatency, networkConnectivityState).
+pageViews
+| where tostring(customDimensions.hostType) == "MobileApplication"
+| extend cd = parse_json(customDimensions)
+| extend networkConnectivityState = tostring(cd.networkConnectivityState)
+| extend warmThroughput = toint(cd.warmThroughput)
+| extend warmLatency    = toint(cd.warmLatency)
+| extend coldLatency    = toint(cd.coldLatency)
+| summarize ['Throughput Kbs'] = percentile(warmThroughput, 95),
+            ['Latency ms']     = percentile(warmLatency, 95),
+            ['Online Count']   = countif(networkConnectivityState == "online"),
+            ['Offline Count']  = countif(networkConnectivityState == "offline")
+        by ['State']   = client_StateOrProvince,
+           ['Country'] = client_CountryOrRegion
+| order by ['Latency ms'] desc
+| take 100

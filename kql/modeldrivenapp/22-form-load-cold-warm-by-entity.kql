@@ -1,0 +1,21 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Customer%20Service/ComponentLibrary/AppInsights-Telemetry/Dataverse/dashboard-CSAppInsights.json
+// Also: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/cs-dataverse-appinsights#form-load-times-query
+// EditForm load times by entity, split into cold (first load) vs warm (subsequent) loads.
+// Returns counts + P50/P90/Avg/Max for each variant — the canonical UCI form-perf rollup.
+pageViews
+| extend cd = parse_json(customDimensions)
+| where cd.pageName == "EditForm"
+| extend LoadTypeSimple = iif(toint(cd.loadType) == 0, 0, 1)
+| extend entityName     = tostring(cd.entityName)
+| project LoadTypeSimple, duration, entityName
+| summarize ColdCount      = countif(LoadTypeSimple == 0),
+            WarmCount      = countif(LoadTypeSimple == 1),
+            TotalCount     = count(),
+            AvgColdLoad    = round(avgif(duration, LoadTypeSimple == 0)),
+            AvgWarmLoad    = round(avgif(duration, LoadTypeSimple == 1)),
+            MaxColdLoad    = maxif(duration, LoadTypeSimple == 0),
+            MaxWarmLoad    = maxif(duration, LoadTypeSimple == 1),
+            P50FormLoad    = percentile(duration, 50),
+            P90FormLoad    = percentile(duration, 90)
+        by entityName
+| order by TotalCount desc

@@ -1,0 +1,12 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#consults-with-other-assignment-attempts
+// Consult-attempt audit: every event on one conversation, ordered by timestamp. Same shape as
+// the lifecycle query; use this one when the investigation is specifically about consults
+// (representative reached out to another representative for advice during the conversation).
+let _lwiid = '<insert conversation id>';
+traces
+| extend customDim = parse_json(customDimensions)
+| extend lwiid       = tostring(customDim["powerplatform.analytics.resource.id"])
+| extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+| where lwiid == _lwiid
+| project timestamp, lwiid, subscenario, customDim
+| order by timestamp asc

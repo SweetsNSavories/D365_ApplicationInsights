@@ -1,0 +1,36 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-developer-add-custom-signals
+// User logon activity via the documented 'Admin001' / 'UserLogOn' custom event
+// emitted by SysApplicationInsightsGlobalTelemetry when SysIntParameters.CaptureUserSessions
+// is enabled. Each event row carries UserId, UserObjectId (Entra oid), BuildNum,
+// SessionId, ComputerName.
+//
+// Watch:
+//   - Single UserId logging in from many ComputerName values = shared account or
+//     misconfigured kiosk. Investigate before chasing a perf issue blamed on that account.
+//   - Distinct BuildNum > 1 = environment was upgraded mid-window; useful when
+//     correlating to a perf regression.
+//   - Logins/hour curve should follow business hours; off-hours spikes are
+//     usually batch users or RPA bots.
+
+let _lookback  = 7d;
+let _eventName = 'UserLogOn';   // Replace if your tenant uses a different name
+let _eventId   = 'Admin001';
+customEvents
+| where timestamp > ago(_lookback)
+| where name == _eventName
+| extend cd = parse_json(customDimensions)
+| where tostring(cd.eventId) == _eventId or isempty(_eventId)
+| extend UserId       = tostring(cd.UserId),
+         UserObjectId = tostring(cd.UserObjectId),
+         BuildNum     = tostring(cd.BuildNum),
+         SessionId    = tostring(cd.SessionId),
+         Computer     = tostring(cd.Computername)
+| summarize Logons      = count(),
+            Sessions    = dcount(SessionId),
+            Computers   = dcount(Computer),
+            Builds      = make_set(BuildNum, 5),
+            FirstSeen   = min(timestamp),
+            LastSeen    = max(timestamp)
+        by UserId, UserObjectId
+| order by Logons desc
+| take 100

@@ -1,0 +1,23 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// DAILY exception trend, last 30d - shown as Noise vs Signal so you can validate
+// the filter is doing its job (signal line should be a small, relatively stable band).
+let _IsNoise = (msg:string, ent:string) {
+       (msg has "PrvRead" or msg has "prvRead" or msg has "0x80040220")
+    or  msg has "SecLib::"
+    or  msg has "PrincipalPrivilegeDenied"
+    or ((ent startswith "msdyn"     or ent startswith "adx_"
+      or ent startswith "msdyncrm_" or ent startswith "msdyn365_"
+      or ent startswith "mscrm_")
+        and (msg has "Principal"   or msg has "privilege"
+          or msg has "Access"      or msg has "denied"))
+    or  msg has "was cancelled"
+    or  msg has "OperationCanceled"
+    or  msg has "TooManyRequests"
+};
+exceptions
+| where timestamp > ago(30d)
+| extend cd       = parse_json(customDimensions)
+| extend entityNm = tostring(cd.entityName)
+| extend Bucket   = iff(_IsNoise(outerMessage, entityNm), "Noise", "Signal")
+| summarize Count = count() by bin(timestamp, 1d), Bucket
+| render timechart

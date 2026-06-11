@@ -1,0 +1,5 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/inventory-sample-queries.md
+// Azure Resource Graph.
+PowerPlatformResources
+| summarize resourceCount = count() by type
+| order by resourceCount

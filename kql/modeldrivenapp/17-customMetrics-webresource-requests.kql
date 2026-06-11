@@ -1,0 +1,15 @@
+// Source: aliyoussefi/D365-Monitoring/KustoQueries.CustomMetrics.txt
+// Web Resource request durations / record counts / rate-limit headers
+customMetrics
+| extend cd = parse_json(customDimensions)
+| where cd.Source == "WebResource"
+| order by timestamp desc
+| project
+    timestamp,
+    cd.Verb,
+    cd.URL,
+    requestDurationMS = value,
+    countOfRecords   = valueCount,
+    cd.RequestLimits,
+    name,
+    cd

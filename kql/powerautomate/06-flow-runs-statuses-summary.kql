@@ -1,0 +1,11 @@
+// Source: https://github.com/microsoft/AzureMonitorCommunity/blob/master/Azure%20Services/Power%20Platform/Power%20Automate/Queries/Analytics/Summary%20of%20flow%20runs%20statuses.kql
+// Per-flow totals: runs / successes / failures. Quick leaderboard for reliability triage.
+requests
+| extend cd = parse_json(customDimensions)
+| where cd.resourceProvider has "Cloud Flow"
+| extend data = parse_json(tostring(cd.Data))
+| extend FlowName = tostring(data.FlowDisplayName)
+| summarize nRun = count(), nFailed = countif(success == false) by FlowName
+| extend nSuccess = nRun - toint(nFailed)
+| project FlowName, nRun, nSuccess, nFailed
+| order by toint(nRun) desc

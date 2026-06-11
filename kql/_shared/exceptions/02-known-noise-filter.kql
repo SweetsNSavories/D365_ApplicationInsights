@@ -1,0 +1,42 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// REUSABLE NOISE FILTER for the `exceptions` table.
+//
+// Copy the `let _IsNoise = ...` block into any of your own queries and use as:
+//     exceptions | where not (_IsNoise(outerMessage, tostring(parse_json(customDimensions).entityName)))
+//
+// Update the patterns here as you discover new noise classes specific to your environment.
+// Keep this single source of truth - other queries reference it by copy.
+//
+// What it filters out (see 01-noise-catalog-breakdown-7d.kql for the rationale):
+//   * PrvRead / 0x80040220 privilege checks (any entity)
+//   * SecLib::* security stack messages
+//   * Any exception whose entityName starts with msdyn_, adx_, msdyncrm_, msdyn365_, mscrm_
+//     AND is a PrvRead/privilege class
+//   * Operation cancelled (user navigated away)
+//   * Standalone 429 / TooManyRequests that the SDK retried successfully
+//
+// THIS FILE - shows the actual filter in action: counts BEFORE vs AFTER noise removal.
+let _IsNoise = (msg:string, ent:string) {
+       (msg has "PrvRead" or msg has "prvRead" or msg has "0x80040220")
+    or  msg has "SecLib::"
+    or  msg has "PrincipalPrivilegeDenied"
+    or ((ent startswith "msdyn"     or ent startswith "adx_"
+      or ent startswith "msdyncrm_" or ent startswith "msdyn365_"
+      or ent startswith "mscrm_")
+        and (msg has "Principal"   or msg has "privilege"
+          or msg has "Access"      or msg has "denied"))
+    or  msg has "was cancelled"
+    or  msg has "OperationCanceled"
+    or  msg has "TooManyRequests"
+};
+let _ex = exceptions
+    | where timestamp > ago(7d)
+    | extend cd       = parse_json(customDimensions)
+    | extend entityNm = tostring(cd.entityName)
+    | extend noise    = _IsNoise(outerMessage, entityNm);
+union
+    (_ex | summarize Total = count() | extend View = "0. ALL (raw)"),
+    (_ex | where noise        | summarize Total = count() | extend View = "1. Noise (filtered out)"),
+    (_ex | where not (noise)  | summarize Total = count() | extend View = "2. Signal (kept)")
+| project View, Total
+| order by View asc

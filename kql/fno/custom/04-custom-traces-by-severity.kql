@@ -1,0 +1,30 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-developer-add-custom-signals
+// Custom traces emitted by SysApplicationInsightsTraceTelemetry, bucketed by
+// SeverityLevel as a daily stacked area. AppInsights stores severity as 0..4
+// matching Microsoft.ApplicationInsights.DataContracts.SeverityLevel
+// (Verbose=0, Information=1, Warning=2, Error=3, Critical=4).
+//
+// Watch:
+//   - Critical / Error rising = real new fault.
+//   - Verbose volume blowing up = a developer left debug tracing on in prod;
+//     also the most common source of unexpected ingestion cost.
+//   - The bottom 'Top messages' summary helps you click straight to the noisy
+//     trace message and turn it off at the source.
+
+let _lookback = 14d;
+let _sev = (n:int) {
+    case(n == 0, 'Verbose',
+         n == 1, 'Information',
+         n == 2, 'Warning',
+         n == 3, 'Error',
+         n == 4, 'Critical',
+                 strcat('Other(', n, ')'))
+};
+traces
+| where timestamp > ago(_lookback)
+| extend Severity = _sev(toint(severityLevel))
+| summarize Count = count() by bin(timestamp, 1d), Severity
+| render areachart with (kind = stacked, title = 'Custom traces by SeverityLevel - 14d')
+// To find the loudest individual trace messages, swap render for:
+// | summarize Count = count() by message, Severity
+// | top 25 by Count desc

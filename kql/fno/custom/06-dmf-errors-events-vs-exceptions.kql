@@ -1,0 +1,44 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-available-telemetry#dmf-errors
+// DMF logs errors in TWO places: every error lands in customEvents with an
+// associated error code, AND if the error bubbles up to the X++ layer it ALSO
+// lands in the exceptions table. This query reconciles both views and ranks
+// error codes by frequency.
+//
+// Error code descriptions: https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/data-entities/dm-error-descriptions
+//
+// Watch:
+//   - High Events / low Exceptions = handled errors (the DMF caught them and
+//     surfaced a friendly status). Still worth attention if a single code
+//     dominates - it's a data-quality / mapping issue waiting to be fixed.
+//   - High Exceptions = the error escaped into the X++ layer; integration is
+//     not robust against this code.
+
+let _lookback = 14d;
+let _events =
+    customEvents
+    | where timestamp > ago(_lookback)
+    | where cloud_RoleName == 'DIXFService' or name startswith 'DMF' or name has 'DataManagement'
+    | extend cd = parse_json(customDimensions)
+    | extend ErrorCode = coalesce(tostring(cd.ErrorCode),
+                                  tostring(cd.errorCode),
+                                  tostring(cd['Error code']))
+    | where isnotempty(ErrorCode)
+    | summarize Events = count(), SampleEventName = any(name) by ErrorCode;
+let _exceptions =
+    exceptions
+    | where timestamp > ago(_lookback)
+    | extend cd = parse_json(customDimensions)
+    | extend ErrorCode = coalesce(tostring(cd.ErrorCode),
+                                  tostring(cd.errorCode),
+                                  tostring(cd['Error code']))
+    | where isnotempty(ErrorCode)
+    | summarize Exceptions = count(), SampleMessage = any(outerMessage) by ErrorCode;
+_events
+| join kind = fullouter _exceptions on ErrorCode
+| project ErrorCode = coalesce(ErrorCode, ErrorCode1),
+          Events,
+          Exceptions,
+          SampleEventName,
+          SampleMessage
+| order by coalesce(Events, 0) + coalesce(Exceptions, 0) desc
+| take 50

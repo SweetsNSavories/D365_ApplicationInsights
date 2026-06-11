@@ -1,0 +1,5 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// All telemetry for one Dataverse request, using the value of the
+// x-ms-service-requestId response header.
+union *
+| where operation_ParentId contains <requestId>

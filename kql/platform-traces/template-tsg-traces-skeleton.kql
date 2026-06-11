@@ -1,0 +1,19 @@
+// Source: microsoft/powerplatform-telemetry/samples/TroubleshootingGuides/Template-TSG.ipynb
+// The ONLY KQL query embedded in the entire samples/ tree of this repo.
+// It is a skeleton "starter" cell intended to be customised per investigation.
+//
+// Parameters (set by surrounding notebook cells):
+//   aadTenantId : optional AAD tenant filter (empty = all tenants)
+//   startDate   : YYYY-MM-DD
+//   endDate     : YYYY-MM-DD  (window is inclusive end-of-day)
+let _aadTenantId = aadTenantId;
+let _startDate   = startDate;
+let _endDate     = endDate;
+traces
+| where 1==1
+    and timestamp >= todatetime(_startDate)
+    and timestamp <= todatetime(_endDate) + totimespan(24h) - totimespan(1ms)
+    and (_aadTenantId == '' or customDimensions.aadTenantId == _aadTenantId)
+//
+// change query to reflect what you want to analyze
+| take 1

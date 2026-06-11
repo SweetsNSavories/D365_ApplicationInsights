@@ -1,0 +1,20 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// TOP 10 entity + SDK-operation pairs — daily p95 trend (last 30 days).
+let _top = dependencies
+    | where timestamp > ago(30d)
+    | where type startswith "SDK"
+    | extend EntityName = tostring(customDimensions.EntityName)
+    | where isnotempty(EntityName)
+    | summarize Calls = count(), p95 = percentile(duration, 95) by EntityName, type
+    | where Calls > 100
+    | top 10 by p95 desc
+    | extend Key = strcat(EntityName, " | ", type)
+    | project Key;
+dependencies
+| where timestamp > ago(30d)
+| where type startswith "SDK"
+| extend EntityName = tostring(customDimensions.EntityName)
+| extend Key = strcat(EntityName, " | ", type)
+| where Key in (_top)
+| summarize p95 = percentile(duration, 95) by bin(timestamp, 1d), Key
+| render timechart

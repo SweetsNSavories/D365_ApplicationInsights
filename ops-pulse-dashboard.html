@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Power Platform — Ops Pulse · Application Insights KQL</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --panel: #151a21;
+    --panel-2: #1c222b;
+    --border: #2a323e;
+    --text: #e6e8ec;
+    --muted: #8b95a4;
+    --accent: #4ea1f3;
+    --accent-2: #ffb454;
+    --code-bg: #0a0d11;
+    --warn: #f97171;
+    --ok: #7ed492;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 Helvetica, Arial, sans-serif;
+    font-size: 14px; line-height: 1.55;
+  }
+  body { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; }
+
+  /* Sidebar */
+  nav {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    background: var(--panel); border-right: 1px solid var(--border);
+    padding: 22px 18px 32px;
+  }
+  nav .brand { font-size: 14px; font-weight: 700; letter-spacing: .2px; }
+  nav .sub   { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  nav h2 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
+    color: var(--muted); margin: 22px 0 6px; font-weight: 600;
+  }
+  nav ol { list-style: none; padding: 0; margin: 0; }
+  nav li a {
+    display: block; padding: 6px 10px; border-radius: 5px;
+    color: var(--text); text-decoration: none; font-size: 13px;
+    border-left: 2px solid transparent;
+  }
+  nav li a:hover  { background: var(--panel-2); }
+  nav li a.active {
+    background: var(--panel-2);
+    border-left-color: var(--accent);
+    color: var(--accent);
+  }
+  nav li a .n {
+    display: inline-block; width: 24px;
+    color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px;
+  }
+  nav .footer {
+    margin-top: 26px; padding-top: 14px;
+    border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 11px; line-height: 1.6;
+  }
+  nav .footer code { font-size: 11px; color: var(--accent); }
+
+  /* Main */
+  main { padding: 32px 40px 80px; max-width: 1120px; }
+  header.page {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 18px; margin-bottom: 28px;
+  }
+  header.page h1 { margin: 0 0 8px; font-size: 22px; }
+  header.page p  { color: var(--muted); margin: 0; max-width: 820px; }
+  header.page .pill {
+    display: inline-block; padding: 2px 8px; margin-right: 6px;
+    background: rgba(78,161,243,.12); color: var(--accent);
+    border-radius: 10px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+
+  /* Section header (group) */
+  h3.group {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted); margin: 30px 0 14px; padding-bottom: 6px;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  /* Query card */
+  section.query {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 22px;
+    overflow: hidden;
+    scroll-margin-top: 12px;
+  }
+  section.query > header {
+    padding: 13px 18px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+  }
+  section.query .meta {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  section.query .num {
+    color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums;
+    font-size: 12px; padding: 2px 6px; background: rgba(78,161,243,.10);
+    border-radius: 4px;
+  }
+  section.query h2 { margin: 0; font-size: 15px; font-weight: 600; }
+  section.query .tag {
+    font-size: 10.5px; padding: 2px 8px; border-radius: 10px;
+    background: rgba(255,180,84,.12); color: var(--accent-2);
+    text-transform: uppercase; letter-spacing: .4px;
+  }
+  section.query .tag.signal { background: rgba(126,212,146,.12); color: var(--ok); }
+  section.query .tag.warn   { background: rgba(249,113,113,.14); color: var(--warn); }
+
+  section.query .body { padding: 14px 18px 0; }
+  section.query .watch {
+    font-size: 13px; color: #cdd3dc;
+    margin: 0 0 14px;
+    padding: 9px 12px;
+    border-left: 3px solid var(--accent-2);
+    background: rgba(255,180,84,.06);
+    border-radius: 0 4px 4px 0;
+  }
+  section.query .watch strong { color: var(--accent-2); }
+
+  section.query .codewrap { position: relative; }
+  section.query pre {
+    margin: 0; padding: 16px 18px 18px;
+    background: var(--code-bg); border-top: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  section.query pre code {
+    font-family: "JetBrains Mono", "Cascadia Code", Consolas,
+                 "Courier New", monospace;
+    font-size: 12.5px; line-height: 1.55; color: #d4d4d4;
+    white-space: pre;
+  }
+  button.copy {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(20,26,33,.85); color: var(--muted);
+    border: 1px solid var(--border); border-radius: 5px;
+    padding: 4px 10px; font-size: 11px; cursor: pointer;
+    font-family: inherit;
+    backdrop-filter: blur(4px);
+  }
+  button.copy:hover  { color: var(--text); border-color: var(--accent); }
+  button.copy.done   { color: var(--ok); border-color: var(--ok); }
+
+  /* Tiny keyword tinting (purely cosmetic, regex'd in JS) */
+  .kw  { color: #5fbff9; }
+  .fn  { color: #c594c5; }
+  .str { color: #ce9178; }
+  .num { color: #b5cea8; }
+  .cmt { color: #6a9955; font-style: italic; }
+
+  @media (max-width: 900px) {
+    body { grid-template-columns: 1fr; }
+    nav  { position: static; height: auto; }
+    main { padding: 24px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">Power Platform — Ops Pulse</div>
+  <div class="sub">App Insights · 14 KQL queries</div>
+
+  <h2>Pulse &amp; Health</h2>
+  <ol>
+    <li><a href="#q1"><span class="n">1.</span>Anomaly pulse (24h)</a></li>
+    <li><a href="#q2"><span class="n">2.</span>Hourly request volume (7d)</a></li>
+    <li><a href="#q3"><span class="n">3.</span>Failure rate % (7d)</a></li>
+    <li><a href="#q4"><span class="n">4.</span>4xx vs 5xx daily (14d)</a></li>
+  </ol>
+
+  <h2>Latency &amp; Workload</h2>
+  <ol>
+    <li><a href="#q5"><span class="n">5.</span>Duration percentiles (7d)</a></li>
+    <li><a href="#q6"><span class="n">6.</span>Top 10 ops by volume (14d)</a></li>
+    <li><a href="#q7"><span class="n">7.</span>Top 10 ops P95 (14d)</a></li>
+  </ol>
+
+  <h2>Channels &amp; Errors</h2>
+  <ol>
+    <li><a href="#q8"><span class="n">8.</span>DAU by channel (30d)</a></li>
+    <li><a href="#q9"><span class="n">9.</span>Exceptions: Signal vs Noise</a></li>
+    <li><a href="#q10"><span class="n">10.</span>PageView P95 by channel (7d)</a></li>
+  </ol>
+
+  <h2>Portal · Bots · Users · Throttle</h2>
+  <ol>
+    <li><a href="#q11"><span class="n">11.</span>Top Power Pages URLs (7d)</a></li>
+    <li><a href="#q12"><span class="n">12.</span>UA split: browsers vs bots (24h)</a></li>
+    <li><a href="#q13"><span class="n">13.</span>Heaviest authenticated users (24h)</a></li>
+    <li><a href="#q14"><span class="n">14.</span>429 throttling by top op (7d)</a></li>
+  </ol>
+
+  <div class="footer">
+    Paste any block into <code>App Insights → Logs</code>.<br>
+    Time windows are baked in; toolbar override ignored for those that set <code>ago()</code>.
+  </div>
+</nav>
+
+<main>
+  <header class="page">
+    <h1>Power Platform — Ops Pulse Dashboard</h1>
+    <p>
+      <span class="pill">App Insights</span>
+      <span class="pill">KQL</span>
+      <span class="pill">Power Pages + MDA</span>
+      A focused set of 14 queries to triage event-day pressure: traffic shape, error
+      class, latency tail, channel split, exception signal, plus portal pressure,
+      bot/scripted UA detection, heaviest users, and 429 throttling. Each block is
+      standalone — copy, paste, run.
+    </p>
+  </header>
+
+  <!-- ===================== GROUP 1: Pulse & Health ===================== -->
+  <h3 class="group">Pulse &amp; Health</h3>
+
+  <section class="query" id="q1">
+    <header>
+      <div class="meta">
+        <span class="num">01</span>
+        <h2>Anomaly pulse — requests/min, last 24 h</h2>
+        <span class="tag">anomaly</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> a marker on the line = a real anomaly relative to the
+        24 h baseline. Daytime hump should look smooth; markers in the trough usually
+        mean a scripted burst.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Pulse — requests per minute, last 24 h. Markers = real anomalies vs current baseline.
+let _step = 1m;
+requests
+| where timestamp &gt; ago(24h)
+| make-series Calls = count() default = 0
+    on timestamp from ago(24h) to now() step _step
+| extend (anomalies, score, baseline) = series_decompose_anomalies(Calls, 2.5, 0, 'linefit')
+| extend anomaly_points = series_multiply(Calls, anomalies)
+| render timechart</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q2">
+    <header>
+      <div class="meta">
+        <span class="num">02</span>
+        <h2>Hourly request volume — last 7 days</h2>
+        <span class="tag">volume</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> weekday peaks ~3–5× weekend. Event-day surge should be
+        visible without disappearing the prior baseline.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Hourly request volume — last 7 days. Should follow weekday business-hour pattern.
+requests
+| where timestamp &gt; ago(7d)
+| summarize Calls = count() by bin(timestamp, 1h)
+| render timechart with (title = 'Requests/hour — 7d', ytitle = 'Calls')</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q3">
+    <header>
+      <div class="meta">
+        <span class="num">03</span>
+        <h2>Failure rate % per hour — last 7 days</h2>
+        <span class="tag warn">errors</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> anything ≥ 2–3× the prior week's typical band. Sustained
+        &gt; 1 % on a Dataverse-backed env usually means something real.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Failure rate % per hour — last 7 days.
+requests
+| where timestamp &gt; ago(7d)
+| summarize Total = count(), Failed = countif(success == false) by bin(timestamp, 1h)
+| extend FailurePct = round(100.0 * Failed / Total, 2)
+| project timestamp, FailurePct
+| render timechart with (title = 'Failure rate % — 7d')</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q4">
+    <header>
+      <div class="meta">
+        <span class="num">04</span>
+        <h2>4xx vs 5xx per day — last 14 days</h2>
+        <span class="tag warn">errors</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> 5xx growing day-over-day = server-side regression.
+        4xx growing = client / auth / throttling.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// 4xx vs 5xx per day — last 14 days. Stacked to see error-class composition.
+requests
+| where timestamp &gt; ago(14d)
+| where toint(resultCode) &gt;= 400
+| extend Class = case(toint(resultCode) &gt;= 500, '5xx',
+                      toint(resultCode) &gt;= 400, '4xx',
+                      'other')
+| summarize Errors = count() by bin(timestamp, 1d), Class
+| render columnchart with (kind = stacked, title = '4xx / 5xx per day — 14d')</code></pre>
+    </div>
+  </section>
+
+  <!-- ===================== GROUP 2: Latency & Workload ===================== -->
+  <h3 class="group">Latency &amp; Workload</h3>
+
+  <section class="query" id="q5">
+    <header>
+      <div class="meta">
+        <span class="num">05</span>
+        <h2>Request duration percentiles — last 7 days</h2>
+        <span class="tag">latency</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> P95 rising while P50 stays flat = tail growing under
+        load. Both rising = systemic slowdown.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Request duration percentiles per hour — last 7 days.
+requests
+| where timestamp &gt; ago(7d)
+| summarize p50 = percentile(duration, 50),
+            p95 = percentile(duration, 95),
+            p99 = percentile(duration, 99) by bin(timestamp, 1h)
+| render timechart with (title = 'Duration P50/P95/P99 — 7d (ms)')</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q6">
+    <header>
+      <div class="meta">
+        <span class="num">06</span>
+        <h2>Top 10 operations by call volume — daily, 14 days</h2>
+        <span class="tag">workload</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> a new operation muscling in = new feature traffic /
+        integration. A line going flat or dropping = something stopped calling.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Top 10 operations by call volume — daily, last 14 days. Shows workload composition.
+let _top = requests
+    | where timestamp &gt; ago(14d) and operation_Name !contains "synapse"
+        and operation_Name !contains "GetClientMetadata" and operation_Name !contains "WebResources"
+        and operation_Name !contains "datalake"           and operation_Name !contains "CDNHandler"
+        and operation_Name !contains "/Organization.svc/web"
+        and operation_Name !contains "WhoAmI"             and operation_Name !contains "ClientMetrics"
+        and operation_Name !contains "usersettings"
+    | summarize n = count() by operation_Name
+    | top 10 by n
+    | project operation_Name;
+requests
+| where timestamp &gt; ago(14d)
+| where operation_Name in (_top)
+| summarize Calls = count() by bin(timestamp, 1d), operation_Name
+| render areachart with (kind = stacked, title = 'Top 10 ops — daily volume, 14d')</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q7">
+    <header>
+      <div class="meta">
+        <span class="num">07</span>
+        <h2>P95 latency of top 10 operations — daily, 14 days</h2>
+        <span class="tag">latency</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> any single line trending up while others flat =
+        that op is degrading. Cross-reference with Q6 to see if its volume also spiked
+        (load) or stayed flat (real regression).
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// P95 latency of top 10 operations — daily, last 14 days. Regression early-warning.
+let _top = requests
+    | where timestamp &gt; ago(14d) and operation_Name !contains "synapse"
+        and operation_Name !contains "GetClientMetadata" and operation_Name !contains "WebResources"
+        and operation_Name !contains "datalake"           and operation_Name !contains "CDNHandler"
+        and operation_Name !contains "/Organization.svc/web"
+        and operation_Name !contains "WhoAmI"             and operation_Name !contains "ClientMetrics"
+        and operation_Name !contains "usersettings"
+    | summarize n = count() by operation_Name
+    | top 10 by n
+    | project operation_Name;
+requests
+| where timestamp &gt; ago(14d)
+| where operation_Name in (_top)
+| summarize p95 = percentile(duration, 95) by bin(timestamp, 1d), operation_Name
+| render timechart with (title = 'Top 10 ops — P95 daily, 14d (ms)')</code></pre>
+    </div>
+  </section>
+
+  <!-- ===================== GROUP 3: Channels & Errors ===================== -->
+  <h3 class="group">Channels &amp; Errors</h3>
+
+  <section class="query" id="q8">
+    <header>
+      <div class="meta">
+        <span class="num">08</span>
+        <h2>Daily Active Users by channel — 30 days</h2>
+        <span class="tag">audience</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> Power Pages jumping during an event = public surge.
+        MDA flat or shrinking = agent capacity not scaling — that's a staffing signal,
+        not a perf one.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Daily Active Users split by channel — 30 days. PowerPages = public/citizens, MDA = internal/agents.
+pageViews
+| where timestamp &gt; ago(30d)
+| extend cd        = parse_json(customDimensions)
+| extend portalId  = tostring(cd.PortalId)
+| extend appModule = tostring(cd.appModule)
+| extend channel   = case(isnotempty(portalId),  'PowerPages',
+                          isnotempty(appModule), 'ModelDrivenApp',
+                          'Other')
+| summarize DAU = dcount(user_Id) by bin(timestamp, 1d), channel
+| render timechart with (title = 'DAU by channel — 30d')</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q9">
+    <header>
+      <div class="meta">
+        <span class="num">09</span>
+        <h2>Exceptions — Signal vs Noise (14 days)</h2>
+        <span class="tag signal">signal</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> Signal line rising = real new issue, drill in.
+        Noise rising = ignore (or revisit the filter if the gap closes).
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Exceptions split into Signal vs Noise (PrvRead / PrincipalPrivilegeDenied on first-party entities).
+let _IsNoise = (msg:string, ent:string) {
+       (msg has "PrvRead" or msg has "prvRead" or msg has "0x80040220")
+    or  msg has "SecLib::"
+    or  msg has "PrincipalPrivilegeDenied"
+    or ((ent startswith "msdyn"     or ent startswith "adx_"
+      or ent startswith "msdyncrm_" or ent startswith "msdyn365_"
+      or ent startswith "mscrm_")
+        and (msg has "Principal"   or msg has "privilege"
+          or msg has "Access"      or msg has "denied"))
+    or  msg has "was cancelled"
+    or  msg has "OperationCanceled"
+    or  msg has "TooManyRequests"
+};
+exceptions
+| where timestamp &gt; ago(14d)
+| extend cd     = parse_json(customDimensions)
+| extend entity = tostring(cd.entityName)
+| extend Bucket = iif(_IsNoise(outerMessage, entity), 'Noise', 'Signal')
+| summarize Count = count() by bin(timestamp, 1d), Bucket
+| render areachart with (kind = stacked, title = 'Exceptions — Signal vs Noise, 14d')</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q10">
+    <header>
+      <div class="meta">
+        <span class="num">10</span>
+        <h2>Page-load P95 by channel — hourly, 7 days</h2>
+        <span class="tag">latency</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> Power Pages P95 climbing during business hours =
+        citizens hitting slow portal pages — the bit that turns into visible
+        complaints fastest.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Page-load P95 split by channel — hourly, 7 days. Catches portal-side slowdown during event traffic.
+pageViews
+| where timestamp &gt; ago(7d)
+| extend cd        = parse_json(customDimensions)
+| extend portalId  = tostring(cd.PortalId)
+| extend appModule = tostring(cd.appModule)
+| extend channel   = case(isnotempty(portalId),  'PowerPages',
+                          isnotempty(appModule), 'ModelDrivenApp',
+                          'Other')
+| summarize p95 = percentile(duration, 95) by bin(timestamp, 1h), channel
+| render timechart with (title = 'PageView P95 by channel — 7d (ms)')</code></pre>
+    </div>
+  </section>
+
+  <!-- ===================== GROUP 4: Portal / Bots / Users / Throttle ===================== -->
+  <h3 class="group">Portal · Bots · Users · Throttle</h3>
+
+  <section class="query" id="q11">
+    <header>
+      <div class="meta">
+        <span class="num">11</span>
+        <h2>Top Power Pages portal URLs — 7 days</h2>
+        <span class="tag">portal</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> what citizens are actually loading. New URLs appearing
+        in the top 25 during an event = the form / status page everyone is hitting.
+        High <code>P95ms</code> + high <code>Hits</code> = priority to fix.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Top 25 Power Pages portal URLs by hit count — 7d, with users and P95.
+// Filters to PortalId-tagged pageViews so MDA noise doesn't leak in.
+pageViews
+| where timestamp &gt; ago(7d)
+| extend cd       = parse_json(customDimensions)
+| extend portalId = tostring(cd.PortalId)
+| where isnotempty(portalId)
+| extend page = coalesce(tostring(name), tostring(url))
+| summarize Hits   = count(),
+            Users  = dcount(user_Id),
+            P50ms  = percentile(duration, 50),
+            P95ms  = percentile(duration, 95),
+            Errors = countif(itemType == "pageView" and toint(customDimensions.statusCode) &gt;= 400)
+        by page
+| top 25 by Hits desc
+| project page, Hits, Users, P50ms, P95ms, Errors</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q12">
+    <header>
+      <div class="meta">
+        <span class="num">12</span>
+        <h2>User-agent split: browsers vs bots / scripted — 24 h</h2>
+        <span class="tag warn">bots</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> any non-Browser bucket above a few % of traffic =
+        scripted load. <code>Bot/Crawler</code> spike during an event = scrapers
+        piling on; <code>Scripted</code> = an integration / API client. Cross-check
+        with Q13 to find the user, Q14 to see if they're getting throttled.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Traffic split by user-agent class — last 24h, 15-min bins.
+// Uses raw UA from customDimensions if present, else falls back to App Insights'
+// parsed client_Browser (which is just "Chrome 120" etc and won't say "bot").
+let _classify = (rawUA:string, browser:string) {
+    let ua = iif(isnotempty(rawUA), rawUA, browser);
+    case(
+      isempty(ua),                                                                           'NoUA',
+      ua matches regex @"(?i)bot|crawler|spider|slurp|scrap|facebookexternalhit|googlebot",  'Bot/Crawler',
+      ua matches regex @"(?i)curl|wget|python|java/|okhttp|go-http|httpclient|postman|insomnia|axios|node-fetch|powershell|ruby|perl",  'Scripted',
+      ua matches regex @"(?i)headless|phantomjs|puppeteer|playwright|selenium|webdriver",    'Headless',
+      ua startswith "Mozilla"
+        or browser has_any ('Chrome','Firefox','Edge','Safari','Opera','Internet Explorer'), 'Browser',
+      'Other')
+};
+requests
+| where timestamp &gt; ago(24h)
+| extend cd    = parse_json(customDimensions)
+| extend rawUA = coalesce(tostring(cd.userAgent),
+                          tostring(cd["User-Agent"]),
+                          tostring(cd["user-agent"]),
+                          tostring(cd["Http.UserAgent"]))
+| extend Bucket = _classify(rawUA, tostring(client_Browser))
+| summarize Calls = count() by bin(timestamp, 15m), Bucket
+| render timechart with (title = 'Requests by UA bucket — 24h')</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q13">
+    <header>
+      <div class="meta">
+        <span class="num">13</span>
+        <h2>Heaviest authenticated users — 24 h (top 20)</h2>
+        <span class="tag warn">abuse</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> a single <code>uid</code> driving &gt; 5 % of total
+        traffic = a runaway integration or an agent script. High <code>Failed</code>
+        share = that user is also getting 429s / errors (likely throttling — see Q14).
+        Empty <code>uid</code> rows are pre-auth / anonymous portal traffic.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// Top 20 users by request volume — 24h. Use AuthenticatedId (Entra/AAD oid)
+// where present, else session user_Id. Shows % of all traffic so you can spot
+// a single account behaving like a fleet.
+let _total = toscalar(requests | where timestamp &gt; ago(24h) | count);
+requests
+| where timestamp &gt; ago(24h)
+| extend uid = coalesce(user_AuthenticatedId, user_Id)
+| where isnotempty(uid)
+| summarize Calls  = count(),
+            Failed = countif(success == false),
+            R429   = countif(toint(resultCode) == 429),
+            Ops    = dcount(operation_Name),
+            P95ms  = percentile(duration, 95)
+        by uid
+| extend PctOfTotal = round(100.0 * Calls / _total, 2)
+| top 20 by Calls desc
+| project uid, Calls, PctOfTotal, Failed, R429, Ops, P95ms</code></pre>
+    </div>
+  </section>
+
+  <section class="query" id="q14">
+    <header>
+      <div class="meta">
+        <span class="num">14</span>
+        <h2>429 throttling by top operation — 7 days</h2>
+        <span class="tag warn">throttle</span>
+      </div>
+    </header>
+    <div class="body">
+      <p class="watch">
+        <strong>Watch:</strong> a single operation dominating the stack = a client
+        hammering one endpoint and getting bulkhead-throttled (typical Dataverse
+        UserBulkhead pattern). Pair with Q13 to identify which <code>uid</code>
+        is responsible, and Q12 to check if it's scripted UA.
+      </p>
+    </div>
+    <div class="codewrap">
+      <button class="copy" type="button">Copy</button>
+<pre><code>// 429s per hour by top operation — 7d. Top-5 operations on their own series,
+// everything else collapsed into 'Other'.
+let _top429 = requests
+    | where timestamp &gt; ago(7d) and toint(resultCode) == 429
+    | summarize n = count() by operation_Name
+    | top 5 by n
+    | project operation_Name;
+requests
+| where timestamp &gt; ago(7d)
+| where toint(resultCode) == 429
+| extend op = iif(operation_Name in (_top429), operation_Name, 'Other')
+| summarize Throttled = count() by bin(timestamp, 1h), op
+| render timechart with (title = '429s per hour by top operation — 7d')</code></pre>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Copy-to-clipboard for each <pre>
+  document.querySelectorAll('button.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.parentElement.querySelector('pre code');
+      if (!pre) return;
+      var text = pre.innerText;
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'Copied';
+        btn.classList.add('done');
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.classList.remove('done');
+        }, 1500);
+      }, function () {
+        btn.textContent = 'Press Ctrl+C';
+      });
+    });
+  });
+
+  // Active-section highlighting in the sidebar as you scroll
+  var links = Array.from(document.querySelectorAll('nav li a'));
+  var sections = links
+    .map(function (a) { return document.querySelector(a.getAttribute('href')); })
+    .filter(Boolean);
+
+  function syncActive() {
+    var scrollY = window.scrollY + 120;
+    var current = sections[0];
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].offsetTop <= scrollY) current = sections[i];
+    }
+    links.forEach(function (a) { a.classList.remove('active'); });
+    var match = links.find(function (a) {
+      return a.getAttribute('href') === '#' + current.id;
+    });
+    if (match) match.classList.add('active');
+  }
+  document.addEventListener('scroll', syncActive, { passive: true });
+  syncActive();
+</script>
+
+</body>
+</html>

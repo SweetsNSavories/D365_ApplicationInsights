@@ -1,0 +1,14 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Top 10 endpoints (operation_Name) currently producing 4xx OR 5xx errors during the last
+// detected anomaly window. Use as a follow-up to 25/26 — paste the anomaly timestamp ranges in.
+// As-is the query returns top error endpoints across the full last 7 days for triage.
+requests
+| where timestamp > ago(7d)
+| extend rc = toint(resultCode)
+| where rc >= 400
+| extend Bucket = case(rc between (400 .. 499), "4xx", "5xx")
+| summarize Errors  = count(),
+            Users   = dcount(user_Id),
+            SampleResultCodes = make_set(resultCode, 10)
+        by operation_Name, Bucket
+| top 10 by Errors desc

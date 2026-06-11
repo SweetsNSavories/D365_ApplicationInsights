@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// Count of users by host type — Browser vs MobileApplication vs Embedded.
+pageViews
+| summarize count() by tostring(customDimensions.hostType)

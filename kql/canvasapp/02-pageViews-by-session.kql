@@ -1,0 +1,6 @@
+// Source: aliyoussefi/MonitoringPowerPlatform/docs/02.04 - Monitoring Canvas Apps - Getting Started with Application Insights.md
+// Follow a user's path in the canvas app via session_Id
+pageViews
+// | where session_Id == "f8Pae"  // Windows 10 example
+// | where session_Id == "YhUhd"  // iOS example
+| where timestamp between (datetime(2020-05-13T10:02:52.137Z) .. datetime(2020-05-14T12:04:52.137Z))

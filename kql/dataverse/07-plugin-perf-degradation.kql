@@ -1,0 +1,6 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// Detect a plug-in upgrade perf regression. Custom plug-ins typically carry version in name.
+dependencies
+| where ['type'] == "Plugin"
+| where name startswith "[InsertYourPluginName]"
+| summarize avg(duration) by name

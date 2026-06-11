@@ -1,0 +1,19 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Forms/ADE-Dashboard-D365FO-Monitoring-Forms.json
+// Tile: Form instance execution times
+//
+// Parameters - adjust before running, or accept the defaults.
+let _activityId    = "";        // empty = all; paste an activity id to scope
+let _endTime       = now();     // dashboard window end
+let _formName      = "";        // empty = all forms
+let _startTime     = ago(7d);   // dashboard window start
+let _userId        = "";        // empty = all users
+
+pageViews
+| where timestamp between (_startTime .. _endTime)
+| where duration > 0
+| extend ['Activity Id'] = customDimensions.activityId 
+| where isempty(['_userId']) or user_Id == ['_userId']
+| where isempty(['_activityId']) or ['Activity Id'] in (['_activityId'])
+| where isempty(['_formName']) or name == ['_formName']
+| project ['Time stamp'] = timestamp, ['Activity Id'], ['Form Name'] = name, ['Duration (s)'] = round(duration/1000,2)

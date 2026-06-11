@@ -1,0 +1,7 @@
+// Source: aliyoussefi/MonitoringPowerPlatform/docs/02.02.02 - Monitoring Canvas Apps - Auditing and Activity Logs Part 2.md
+// NOTE: This runs against Azure Log Analytics, NOT Application Insights.
+// Surfaces Logic Apps / Azure Automation runbook output rows (used for piping
+// Office 365 Unified Audit Log entries into Log Analytics).
+AzureDiagnostics
+| where StreamType_s == "Output"
+| project TimeGenerated, ResultDescription

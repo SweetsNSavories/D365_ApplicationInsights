@@ -1,0 +1,13 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#track-manual-assignments-consult-and-transfers-for-a-work-item
+// Manual assignment audit: every CSRAssignment + ManualAssignment row, with the
+// `IsAgentAssigned` flag extracted so you can see at a glance whether the manual override
+// actually landed on a representative. Uncomment `lwiid` to scope to one conversation.
+traces
+| extend customDim = parse_json(customDimensions)
+| extend lwiid       = tostring(customDim["powerplatform.analytics.resource.id"])
+| extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+| where subscenario in ("CSRAssignment", "ManualAssignment")
+//| where lwiid == "<insert conversation id>"
+| extend isAgentAssigned = tostring(parse_json(tostring(customDim["omnichannel.assignment.status"]))["IsAgentAssigned"])
+| project timestamp, lwiid, subscenario, isAgentAssigned, customDim
+| order by timestamp asc

@@ -1,0 +1,14 @@
+// Source: aliyoussefi/MonitoringPowerPlatform/docs/02.03 - The Monitor Tool Part 2- Session Consumption and Analytics.md
+// Browser request method/code/duration with full Resource Timing API breakdown
+requests
+| extend cd   = parse_json(customDimensions)
+| extend data = parse_json(tostring(cd.data))
+| project
+    session_Id, name, data.method, resultCode, data.name, data.duration,
+    data.startTime,
+    data.fetchStart,
+    data.domainLookupStart,
+    data.connectStart,
+    data.requestStart,
+    data.responseStart,
+    data.responseEnd

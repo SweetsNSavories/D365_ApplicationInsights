@@ -1,0 +1,22 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// FIRST-PARTY ENTITY noise breakdown - shows exactly which msdyn_/adx_/msdyncrm_/msdyn365_/mscrm_
+// entities are generating PrvRead/privilege noise. Use this to confirm the prefix list is complete
+// and to spot first-party entity prefixes we haven't yet learned about.
+exceptions
+| where timestamp > ago(7d)
+| extend cd       = parse_json(customDimensions)
+| extend entityNm = tostring(cd.entityName)
+| where isnotempty(entityNm)
+| extend prefix = case(
+        entityNm startswith "msdyn365_",  "msdyn365_",
+        entityNm startswith "msdyncrm_",  "msdyncrm_",
+        entityNm startswith "msdyn_",     "msdyn_",
+        entityNm startswith "adx_",       "adx_",
+        entityNm startswith "mscrm_",     "mscrm_",
+        entityNm startswith "msft_",      "msft_",
+        entityNm startswith "new_",       "new_ (custom)",
+        "other")
+| where prefix != "other" or outerMessage has "PrvRead" or outerMessage has "Principal"
+| summarize Count = count(), DistinctEntities = dcount(entityNm), Sample = any(entityNm)
+        by prefix
+| order by Count desc

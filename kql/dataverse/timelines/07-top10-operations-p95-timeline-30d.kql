@@ -1,0 +1,15 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// TOP 10 Dataverse operations by p95 latency — daily p95 trend (last 30 days) timechart.
+// Uses the same top-10 set as 16-top10-operations-percentiles-table-30d.kql.
+let _top = requests
+    | where timestamp > ago(30d)
+    | where isnotempty(operation_Name)
+    | summarize Calls = count(), p95 = percentile(duration, 95) by operation_Name
+    | where Calls > 100
+    | top 10 by p95 desc
+    | project operation_Name;
+requests
+| where timestamp > ago(30d)
+| where operation_Name in (_top)
+| summarize p95 = percentile(duration, 95) by bin(timestamp, 1d), operation_Name
+| render timechart

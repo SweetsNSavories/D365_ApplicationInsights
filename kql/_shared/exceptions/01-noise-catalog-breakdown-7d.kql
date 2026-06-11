@@ -1,0 +1,50 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// KNOWN-NOISE CATALOG for the `exceptions` table on a Dataverse-backed App Insights resource.
+//
+// On any Dataverse-backed App Insights resource, the exceptions table is
+// dominated by background privilege-check failures that are NOT real bugs:
+//
+// 1. PrvRead access denied on msdyn_*, adx_*, msdyncrm_*, msdyn365_* (first-party solution
+//    entities). These fire whenever an internal service or a low-privileged user touches
+//    metadata for a table they don't have read on - by design.
+//
+// 2. SecLib::CheckPrivilege / SecLib::RetrievePrivilegeForUser / PrincipalPrivilegeDenied -
+//    the security stack throwing on a check that the platform itself catches and handles.
+//
+// 3. 0x80040220 - "Principal user is missing prvRead privilege" (the numeric form of #1).
+//
+// 4. AJAX cancelled / "The operation was cancelled" - user navigated away mid-request.
+//
+// 5. 429-retry exceptions that succeed on the next attempt (visible because the SDK
+//    sometimes raises before the retry policy swallows them).
+//
+// USE: paste this `let _noise = (T:(*) { ... })` block at the top of any exception query
+// and apply with `| invoke _noise()` ... OR just `| where not (isNoise)` after extending.
+// The simpler usable form lives in 02-known-noise-filter.kql below.
+//
+// This file is the documentation source - run it as-is to see the FULL UNFILTERED
+// exception breakdown, grouped so each noise class is obvious.
+exceptions
+| where timestamp > ago(7d)
+| extend cd            = parse_json(customDimensions)
+| extend entityName    = tostring(cd.entityName)
+| extend exceptionSrc  = tostring(cd.exceptionSource)
+| extend pluginName    = tostring(cd.pluginName)
+| extend isPrvRead     = outerMessage has "PrvRead" or outerMessage has "prvRead" or outerMessage has "0x80040220"
+| extend isSecLib      = outerMessage has "SecLib::"
+| extend isFirstParty  = entityName startswith "msdyn"
+                       or entityName startswith "adx_"
+                       or entityName startswith "msdyncrm_"
+                       or entityName startswith "msdyn365_"
+                       or entityName startswith "mscrm_"
+| extend isCancelled   = outerMessage has "was cancelled" or outerMessage has "OperationCanceled"
+| extend isThrottle    = outerMessage has "429" or outerMessage has "TooManyRequests"
+| extend NoiseClass    = case(
+        isPrvRead and isFirstParty, "1. PrvRead on first-party (msdyn_/adx_/...)",
+        isPrvRead,                  "2. PrvRead on other entity",
+        isSecLib,                   "3. SecLib::* privilege noise",
+        isCancelled,                "4. Cancelled request",
+        isThrottle,                 "5. Throttling 429",
+        "0. Real signal (review)")
+| summarize Count = count(), Users = dcount(user_Id) by NoiseClass, problemId
+| order by NoiseClass asc, Count desc

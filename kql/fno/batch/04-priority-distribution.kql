@@ -1,0 +1,19 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Batch/ADE-Dashboard-D365FO-Monitoring-Batch.json
+// Tile: Priority distribution
+//
+// Parameters - adjust before running, or accept the defaults.
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+
+customEvents
+| where     timestamp between (_startTime .. _endTime)
+| where     name == "BatchTaskStart"
+| extend    customDimensionsParsed  = parse_json(customDimensions)
+| where     isempty(_environmentId) or tostring(customDimensionsParsed.EnvironmentId) == _environmentId
+| extend    InfoMessageParsed       = parse_json(tostring(customDimensionsParsed.InfoMessage))
+| extend    Priority                = iif(isnotempty(tostring(customDimensionsParsed.Priority)), tostring(customDimensionsParsed.Priority), 'Normal') // Ensuring that when enabling the telemetry to test, we account for potential missing initial values)
+| extend    BatchTaskId             = tostring(customDimensionsParsed.BatchTaskId)
+| distinct  BatchTaskId, Priority
+| summarize count() by Priority

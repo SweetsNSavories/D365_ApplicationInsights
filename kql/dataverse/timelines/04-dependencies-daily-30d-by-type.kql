@@ -1,0 +1,8 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily dependency call volume + average duration for the last 30 days, broken down by type.
+// Typical types on a Dataverse-backed App Insights resource:
+//   Plugin, SDK Retrieve, SDK RetrieveMultiple, UCI REQUEST, Http, Azure blob, Ajax, etc.
+dependencies
+| where timestamp > ago(30d)
+| summarize Calls = count(), AvgMs = avg(duration) by bin(timestamp, 1d), type
+| render timechart

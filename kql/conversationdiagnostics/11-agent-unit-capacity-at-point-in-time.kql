@@ -1,0 +1,35 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#individual-queries-for-quick-diagnosis
+// One-representative point-in-time unit capacity lookup. Uses the empty-capacity-profile rows
+// (cpparsed == "") because those carry the unit-mode available capacity number.
+let assignmentAttemptTime = now();                              // fill in timestamp
+let agentId               = '<insert system user id>';
+let statusCapacityHistoryRecords =
+    traces
+    | where timestamp < assignmentAttemptTime
+    | extend customDim   = parse_json(customDimensions)
+    | extend agentid     = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario in ("AgentStatusAndCapacity", "CSRStatusandCapacityDetails")
+    | extend cpparsed = parse_json(tostring(customDim["omnichannel.capacity_profile"]))
+    | where cpparsed == ""
+    | extend UnitAvailableCapacity = tostring(customDim["omnichannel.available_capacity.units"])
+    | where agentid == agentId
+    | project statusCapacityHistoryRecordedTime = timestamp, agentid, subscenario,
+              agentConfig = customDim, UnitAvailableCapacity
+    | summarize arg_max(statusCapacityHistoryRecordedTime, *) by agentid
+    | order by statusCapacityHistoryRecordedTime desc;
+let agentNames =
+    traces
+    | where timestamp > ago(2d)
+    | extend customDim   = parse_json(customDimensions)
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario == "AgentNameConfig"
+    | extend agentInfo       = tostring(customDim["omnichannel.data"])
+    | extend agentInfoParsed = parse_json(agentInfo)
+    | mv-expand keyValue = bag_keys(agentInfoParsed)
+    | project agentid = tostring(keyValue),
+              agentName = tostring(agentInfoParsed[tostring(keyValue)]), timestamp
+    | summarize arg_max(timestamp, *) by agentid;
+statusCapacityHistoryRecords
+| join kind = leftouter agentNames on agentid
+| project statusCapacityHistoryRecordedTime, agentid, agentName, UnitAvailableCapacity

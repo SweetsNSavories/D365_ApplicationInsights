@@ -1,0 +1,22 @@
+// Source: aliyoussefi/MonitoringPowerPlatform/docs/02.04 - Monitoring Canvas Apps - Getting Started with Application Insights.md
+// End-to-end session timeline across every standard App Insights table for one session_Id
+union (traces), (requests), (pageViews), (dependencies),
+      (customEvents), (availabilityResults), (exceptions)
+| extend itemType = iif(itemType == 'availabilityResult', itemType,
+                    iif(itemType == 'customEvent',        itemType,
+                    iif(itemType == 'dependency',         itemType,
+                    iif(itemType == 'pageView',           itemType,
+                    iif(itemType == 'request',            itemType,
+                    iif(itemType == 'trace',              itemType,
+                    iif(itemType == 'exception',          itemType, "")))))))
+| where
+    (
+        (itemType == 'request' or itemType == 'trace' or itemType == 'exception'
+         or itemType == 'dependency' or itemType == 'availabilityResult'
+         or itemType == 'pageView' or itemType == 'customEvent')
+        and
+        (timestamp between (datetime(2020-04-26T05:17:59.459Z) .. datetime(2020-04-27T05:17:59.459Z)))
+        and
+        session_Id == 'tmcZK'
+    )
+| top 101 by timestamp desc

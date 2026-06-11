@@ -1,0 +1,41 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#individual-queries-for-quick-diagnosis
+// One-representative point-in-time skills + skill rating snapshot. Expands the
+// `omnichannel.associated_skills` array — each row is one skill with CharacteristicId,
+// RatingValue, SkillType, RatingModelMin, RatingModelMax.
+let assignmentAttemptTime = now();                              // fill in timestamp
+let agentId               = '<insert system user id>';
+let agentConfigs =
+    traces
+    | extend customDim   = parse_json(customDimensions)
+    | extend agentid     = tostring(customDim["powerplatform.analytics.resource.id"])
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | extend skillData   = parse_json(tostring(customDim["omnichannel.associated_skills"]))
+    | where subscenario in ("AgentConfiguration", "CSRConfigurationDetails")
+    | where agentid == agentId
+    | where timestamp < assignmentAttemptTime
+    | project agentConfigRecordedTime = timestamp, agentid, subscenario,
+              agentConfig = customDim, skillData
+    | order by agentConfigRecordedTime desc
+    | summarize arg_max(agentConfigRecordedTime, *) by agentid;
+let agentNames =
+    traces
+    | where timestamp > ago(2d)
+    | extend customDim   = parse_json(customDimensions)
+    | extend subscenario = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario in ("AgentNameConfig", "CSRConfigurationDetails")
+    | extend agentInfo       = tostring(customDim["omnichannel.data"])
+    | extend agentInfoParsed = parse_json(agentInfo)
+    | mv-expand keyValue = bag_keys(agentInfoParsed)
+    | project agentid = tostring(keyValue),
+              agentName = tostring(agentInfoParsed[tostring(keyValue)]), timestamp
+    | summarize arg_max(timestamp, *) by agentid;
+agentConfigs
+| mv-expand skillEntry = skillData
+| extend
+    CharacteristicId = tostring(skillEntry.CharacteristicId),
+    RatingValue      = toint(skillEntry.RatingValue),
+    SkillType        = toint(skillEntry.SkillType),
+    RatingModelMin   = toint(skillEntry.RatingModelMin),
+    RatingModelMax   = toint(skillEntry.RatingModelMax)
+| join kind = leftouter agentNames on agentid
+| project agentid, agentName, CharacteristicId, RatingValue, SkillType, RatingModelMin, RatingModelMax

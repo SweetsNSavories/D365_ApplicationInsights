@@ -1,0 +1,12 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/app-insights-cloud-flow.md
+// Custom alert — failures of a specific cloud flow run.
+// Replace the bolded values with your environment ID and flow ID.
+let myEnvironmentId = 'Insert your environment ID here';
+let myFlowId        = 'Insert your flow ID here';
+requests
+| where timestamp > ago(1d)
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| where customDimensions['signalCategory']  == 'Cloud flow runs'
+| where customDimensions['environmentId']   == myEnvironmentId
+| where customDimensions['resourceId']      == myFlowId
+| where success == false

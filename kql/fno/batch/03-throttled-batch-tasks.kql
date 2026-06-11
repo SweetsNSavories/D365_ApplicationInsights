@@ -1,0 +1,21 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Batch/ADE-Dashboard-D365FO-Monitoring-Batch.json
+// Tile: Throttled batch tasks
+//
+// Parameters - adjust before running, or accept the defaults.
+let _batchJobId    = "";        // empty = all batch jobs
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+
+let _scale = '10m';
+customEvents
+| where     timestamp between (_startTime .. _endTime)
+| where     name in ("BatchThrottled", "BatchTaskStart")
+| extend    customDimensionsParsed = parse_json(customDimensions)
+| extend    batchJobId  = customDimensionsParsed.BatchJobId
+| where     isempty(_batchJobId) or tostring(batchJobId) in (_batchJobId)
+| where     isempty(_environmentId) or tostring(customDimensionsParsed.EnvironmentId) == _environmentId
+| summarize ThrottledTasks = countif(name == "BatchThrottled"), RunningTasks = countif(name  == "BatchTaskStart") by TimeSum=bin(timestamp, totimespan(_scale))
+| project TimeSum, RunningTasks, ThrottledTasks
+| order by TimeSum asc

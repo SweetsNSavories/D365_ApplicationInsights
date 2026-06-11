@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// Entity ID / entity name on SDK Retrieve dependency rows.
+dependencies
+| where type == "SDK Retrieve"

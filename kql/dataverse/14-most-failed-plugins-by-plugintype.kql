@@ -1,0 +1,15 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Customer%20Service/ComponentLibrary/AppInsights-Telemetry/Dataverse/dashboard-CSAppInsights.json
+// Also: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/cs-dataverse-appinsights#most-failed-plugins-query
+// Top 10 plug-ins by failure count, attributed via customDimensions.pluginType (the .NET type)
+// instead of `dependencies.name` (which is the SDK step name). Use this when one type backs
+// many registered steps.
+dependencies
+| where type == "Plugin"
+| extend cd = parse_json(customDimensions)
+| project timestamp, success, correlationId = cd.correlationId, typeName = cd.pluginType
+| summarize NumberofRequest = count(),
+            Passed          = dcountif(timestamp, success == "True"),
+            Failed          = dcountif(timestamp, success == "False")
+        by tostring(typeName)
+| order by Failed desc
+| limit 10

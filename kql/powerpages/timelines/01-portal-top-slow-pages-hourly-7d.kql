@@ -1,0 +1,17 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Power Pages portal pages — top 10 slowest URL paths, hourly p95 over the last 7 days.
+let _top = pageViews
+    | where timestamp > ago(7d)
+    | extend cd = parse_json(customDimensions)
+    | where isnotempty(tostring(cd.PortalId))
+    | summarize p95 = percentile(duration, 95), Loads = count() by name
+    | where Loads > 100
+    | top 10 by p95
+    | project name;
+pageViews
+| where timestamp > ago(7d)
+| extend cd = parse_json(customDimensions)
+| where isnotempty(tostring(cd.PortalId))
+| where name in (_top)
+| summarize p95 = percentile(duration, 95) by bin(timestamp, 1h), name
+| render timechart

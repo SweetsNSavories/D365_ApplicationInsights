@@ -1,0 +1,5 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// All activity for a single Unified Interface session.
+// Session ID is visible to end users via Settings > About in UCI.
+union *
+| where session_Id == '[sessionIdHere]'

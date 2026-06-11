@@ -1,0 +1,19 @@
+// Source: https://github.com/microsoft/AzureMonitorCommunity/blob/master/Azure%20Services/Power%20Platform/Power%20Automate/Queries/Analytics/Cloud%20flows%20in%20use.kql
+// Flow-run counts by FlowDisplayName + trigger (TriggerName joined from the dependencies row
+// of the Cloud-flow-triggers signal). Use to inventory which flows are actually running in the
+// last hour (extend the timestamp filter for longer windows).
+requests
+| where timestamp > ago(1h)
+| extend requestData = todynamic(tostring(customDimensions.Data))
+| join kind=leftouter (
+    dependencies
+    | where type == "Cloud Flow/Cloud flow triggers"
+    | project TriggerName = name, target
+  ) on $left.name == $right.target
+| summarize FlowDisplayNameRuns = count() by tostring(requestData.FlowDisplayName),
+                                              TriggerName,
+                                              tostring(requestData.tags.createdBy)
+| project TriggerName,
+          ['FlowDisplayName']  = requestData_FlowDisplayName,
+          FlowDisplayNameRuns,
+          ['CreatedBy']        = requestData_tags_createdBy

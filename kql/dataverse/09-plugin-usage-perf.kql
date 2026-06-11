@@ -1,0 +1,7 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-dataverse.md
+// Plug-in response-time profile at peak. Substitute the plug-in name.
+dependencies
+| where ['type'] == "Plugin"
+| where name == "[Plugin name here]"
+| summarize avg(duration) by bin(timestamp, 1h)
+| render timechart

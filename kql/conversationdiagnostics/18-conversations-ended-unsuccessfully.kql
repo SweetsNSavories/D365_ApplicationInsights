@@ -1,0 +1,16 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#conversations-that-ended-unsuccessfully
+// Voice calls that ended with a non-zero CallStatusCode (= unsuccessful). Filters
+// `type == "CallEndDiagnosticEvent"` then keeps rows where `CallStatusCode != 0`. Channel type
+// falls back from `omnichannel.channel.type` to `ChannelType` because both names appear in
+// historical data.
+traces
+| extend customDim = parse_json(customDimensions)
+| extend eventType    = tostring(customDim["type"])
+| extend workitem     = tostring(customDim["powerplatform.analytics.resource.id"])
+| extend routingStage = tostring(customDim["powerplatform.analytics.subscenario"])
+| extend channelType  = coalesce(tostring(customDim["omnichannel.channel.type"]), tostring(customDim["ChannelType"]))
+| extend callId       = tostring(customDim["omnichannel.call.id"])
+| extend callStatus   = toint(customDim["CallStatusCode"])
+| where eventType == "CallEndDiagnosticEvent"
+| where callStatus != 0 and isnotnull(callStatus)
+| project timestamp, eventType, workitem, callId, routingStage, channelType, callStatus, customDimensions

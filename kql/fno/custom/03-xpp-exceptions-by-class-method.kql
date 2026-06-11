@@ -1,0 +1,35 @@
+// Source: Derived from https://learn.microsoft.com/en-us/dynamics365/fin-ops-core/dev-itpro/monitoring-telemetry/monitoring-developer-add-custom-signals
+// Every X++ Infolog error that bubbled to AppInsights via SysApplicationInsightsGlobalTelemetry
+// arrives in the exceptions table tagged with ClassName, MethodName, and CallStack
+// custom-dimension properties. This query ranks them so you can attack the top
+// offenders first.
+//
+// Watch:
+//   - One ClassName/MethodName dominating in Failures is your top fix target.
+//   - LegalEntity / ExecutionMode columns surface whether errors concentrate
+//     in a specific company or run mode (Interactive vs Batch vs Service vs DMF).
+//   - Sample CallStack value is included so you can recognise the failure
+//     pattern without round-tripping to a second query.
+
+let _lookback = 7d;
+exceptions
+| where timestamp > ago(_lookback)
+| extend cd            = parse_json(customDimensions)
+| extend ClassName     = tostring(cd.ClassName),
+         MethodName    = tostring(cd.MethodName),
+         CallStack     = tostring(cd.CallStack),
+         LegalEntity   = tostring(cd.LegalEntity),
+         ExecutionMode = tostring(cd.ExecutionMode)
+| where isnotempty(ClassName) or isnotempty(MethodName)
+| summarize Failures        = count(),
+            Users           = dcount(user_Id),
+            Sessions        = dcount(session_Id),
+            LegalEntities   = make_set(LegalEntity, 10),
+            ExecutionModes  = make_set(ExecutionMode, 10),
+            SampleMessage   = any(outerMessage),
+            SampleCallStack = any(CallStack),
+            FirstSeen       = min(timestamp),
+            LastSeen        = max(timestamp)
+        by ClassName, MethodName
+| order by Failures desc
+| take 50

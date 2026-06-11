@@ -1,0 +1,34 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Customer%20Service/ComponentLibrary/AppInsights-Telemetry/Dataverse/dashboard-CSAppInsights.json
+// Also documented at https://learn.microsoft.com/en-us/dynamics365/guidance/resources/cs-dataverse-appinsights#top-plugins-with-high-execution-time-query
+// Custom plug-ins (excluding OOB Microsoft.* plug-ins) with AvgExecutionTime > 500 ms.
+// Surfaces PT95vsPT50 ratio so you can spot plug-ins whose tail is much worse than the median
+// (i.e. unpredictable, not just consistently slow).
+dependencies
+| where type == 'Plugin'
+| where name !startswith "Microsoft"
+| extend executionTimeInMS = todouble(duration)
+| extend cd = parse_json(customDimensions)
+| extend depth = toint(cd.depth)
+| where success == 'True'
+| summarize percentiles(executionTimeInMS, 10, 50, 90, 95, 98),
+            NumOfRequests    = count(),
+            MaxDepth         = max(depth),
+            AvgExecutionTime = toint(avg(executionTimeInMS))
+        by name
+| join kind = inner (
+    dependencies
+    | summarize NumOfTotalRequests = count() by name
+  ) on name
+| project-away name1
+| extend PassRate         = todouble(NumOfRequests) * 100 / NumOfTotalRequests
+| extend PT95vsPT50Ratio  = iif(percentile_executionTimeInMS_50 != 0,
+                                percentile_executionTimeInMS_95 / percentile_executionTimeInMS_50,
+                                toreal(0))
+| where AvgExecutionTime > 500
+| project-rename Namespace             = name,
+                 ExecutionTimeinMS_90  = percentile_executionTimeInMS_95,
+                 ExecutionCount        = NumOfTotalRequests,
+                 Depth                 = MaxDepth
+| project Namespace, ExecutionCount, AvgExecutionTime,
+          percentile_executionTimeInMS_50, ExecutionTimeinMS_90, Depth, PT95vsPT50Ratio, PassRate
+| order by ExecutionTimeinMS_90 desc

@@ -1,0 +1,15 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily p50/p95/p99 page-load duration for the last 30 days, split by channel.
+// Use to spot a perf regression on either the portal or the agent UI.
+pageViews
+| where timestamp > ago(30d)
+| extend cd      = parse_json(customDimensions)
+| extend channel = case(
+        isnotempty(tostring(cd.PortalId)),  "PowerPages",
+        isnotempty(tostring(cd.appModule)), "ModelDrivenApp",
+        "Other")
+| summarize p50 = percentile(duration, 50),
+            p95 = percentile(duration, 95),
+            p99 = percentile(duration, 99)
+        by bin(timestamp, 1d), channel
+| render timechart

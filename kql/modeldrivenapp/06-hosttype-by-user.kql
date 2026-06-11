@@ -1,0 +1,5 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// Drill down host-type usage for one specific user.
+pageViews
+| where user_Id == "[userid]"
+| summarize count() by tostring(customDimensions.hostType)

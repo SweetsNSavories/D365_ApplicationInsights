@@ -1,0 +1,6 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/inventory-sample-queries.md
+// Azure Resource Graph — items created in the last 24 hours.
+PowerPlatformResources
+| extend properties = parse_json(properties)
+| extend createdAt = todatetime(properties.createdAt)
+| where createdAt >= ago(24h)

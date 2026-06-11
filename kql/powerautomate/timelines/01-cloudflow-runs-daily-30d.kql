@@ -1,0 +1,12 @@
+// Source: Locally authored (generic Power Platform App Insights queries)
+// Daily Power Automate cloud-flow run volume + failure rate for the last 30 days.
+// Per the cloud-flow docs, runs land in `requests` with customDimensions.signalCategory == 'Cloud flow runs'.
+requests
+| where timestamp > ago(30d)
+| where customDimensions['resourceProvider'] == 'Cloud Flow'
+| where customDimensions['signalCategory']  == 'Cloud flow runs'
+| summarize Runs    = count(),
+            Failed  = countif(success == false),
+            FailPct = round(100.0 * countif(success == false) / count(), 2)
+        by bin(timestamp, 1d)
+| render timechart

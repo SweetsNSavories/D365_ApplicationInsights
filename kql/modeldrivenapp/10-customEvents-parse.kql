@@ -1,0 +1,7 @@
+// Source: aliyoussefi/D365-Monitoring/KustoQueries.CustomEvents.txt
+// General example: extension of serialized customDimensions and customMeasurements
+customEvents
+| where name == "sample"
+| extend cd = parse_json(customDimensions)
+| extend cm = parse_json(customMeasurements)
+| order by timestamp desc

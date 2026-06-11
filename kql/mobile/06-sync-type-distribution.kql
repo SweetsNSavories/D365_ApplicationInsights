@@ -1,0 +1,11 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Field%20Service/Analytics/dashboard-Field%20Service%20Mobile%20Offline.json
+// Distribution of offline sync attempts by mode (FIRST_SYNC, DELTA_SYNC, GRID_SYNC, FORCED_SYNC).
+// First slide of the FastTrack Field Service Mobile Offline dashboard.
+dependencies
+| where name == "Offline.SyncDatabase"
+| extend cd = parse_json(customDimensions)
+| extend dataSyncMode = tostring(cd.DataSyncMode)
+| where isnotempty(dataSyncMode)
+| summarize count() by dataSyncMode
+| project-rename ['Data sync mode'] = dataSyncMode
+| render piechart

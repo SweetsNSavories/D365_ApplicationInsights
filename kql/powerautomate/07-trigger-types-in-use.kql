@@ -1,0 +1,7 @@
+// Source: https://github.com/microsoft/AzureMonitorCommunity/blob/master/Azure%20Services/Power%20Platform/Power%20Automate/Queries/Analytics/Types%20of%20cloud%20flows%20in%20use.kql
+// Trigger inventory: counts each cloud-flow trigger by name. Tells you whether your tenant is
+// dominated by scheduled triggers, webhook triggers, Dataverse triggers, etc.
+dependencies
+| where type == "Cloud Flow/Cloud flow triggers"
+| summarize count() by name
+| order by count_ desc

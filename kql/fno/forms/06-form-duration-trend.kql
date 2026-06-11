@@ -1,0 +1,33 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Forms/ADE-Dashboard-D365FO-Monitoring-Forms.json
+// Tile: Form duration trend
+//
+// Parameters - adjust before running, or accept the defaults.
+let _formName      = "";        // empty = all forms
+
+let _startTime30Days = ago(30d);
+let _startTime14Days = ago(14d);
+let _startTime7Days = ago(7d);
+let _pageViews30Days = pageViews
+                        | where timestamp between (_startTime30Days .. now())
+                        | where duration > 0
+                        | where isempty(['_formName']) or name == ['_formName']
+                        | project ['Form name'] = name, duration,timestamp;
+let _pageViews30DaysAgg =   _pageViews30Days
+                            | summarize ['30 days average (s)']           = round(avg(duration)/1000,2) by ['Form name']
+                            | order by ['30 days average (s)'] desc;
+let _pageViews14DaysAgg =   _pageViews30Days
+                            | where timestamp between (_startTime14Days .. now())
+                            | summarize ['14 days average (s)']           = round(avg(duration)/1000,2) by ['Form name']
+                            | order by ['14 days average (s)'] desc;
+let _pageViews7DaysAgg =    _pageViews30Days
+                            | where timestamp between (_startTime7Days .. now())
+                            | summarize     ['7 days executions']            = count()
+                                        ,   ['7 days average (s)']           = round(avg(duration)/1000,2) by ['Form name']
+                            | order by ['7 days average (s)'] desc;                        
+_pageViews7DaysAgg
+| lookup kind=leftouter _pageViews14DaysAgg on ['Form name']
+| lookup kind=leftouter _pageViews30DaysAgg on ['Form name']
+| extend ['14 Day trend'] = round(100 - ((['7 days average (s)'] / ['14 days average (s)'])*100),2)
+| extend ['30 Day trend'] = round(100 - ((['7 days average (s)'] / ['30 days average (s)'])*100),2)
+| project ['Form name'], ['7 days executions'], ['7 days average (s)'], ['14 Day trend'], ['30 Day trend']

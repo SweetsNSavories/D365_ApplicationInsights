@@ -1,0 +1,28 @@
+// Source: https://learn.microsoft.com/en-us/dynamics365/guidance/resources/conversation-diagnostics-sample-queries#representative-assignment-took-longer-than-two-minutes
+// Conversations whose representative assignment took longer than 2 minutes. Computes the wait
+// between the latest RouteToQueue event and the subsequent CSRAccepted event per conversation.
+let _startTime = ago(60d);
+let _endTime   = now();
+let _threshold = 2min;
+let subscenarios =
+    traces
+    | where timestamp between (_startTime .. _endTime)
+    | extend customDim = parse_json(customDimensions)
+    | extend conversationId = tostring(customDim["powerplatform.analytics.resource.id"]),
+             subscenario    = tostring(customDim["powerplatform.analytics.subscenario"])
+    | where subscenario in ("RouteToQueue", "CSRAccepted")
+    | project timestamp, conversationId, subscenario;
+let latestRTQsBeforeAgentAccept =
+    subscenarios
+    | where subscenario == "RouteToQueue"
+    | join kind = inner (
+        subscenarios
+        | where subscenario == "CSRAccepted"
+        | project agentAcceptTime = timestamp, conversationId
+      ) on conversationId
+    | where timestamp < agentAcceptTime
+    | summarize latestRTQTime = max(timestamp) by conversationId, agentAcceptTime;
+latestRTQsBeforeAgentAccept
+| extend assignmentTime = agentAcceptTime - latestRTQTime
+| where assignmentTime > _threshold
+| project conversationId, assignmentTime

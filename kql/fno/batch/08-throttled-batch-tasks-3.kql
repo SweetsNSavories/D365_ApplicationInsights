@@ -1,0 +1,27 @@
+﻿// Source: microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples
+// Upstream: https://github.com/microsoft/Dynamics-365-FastTrack-FSCM-Telemetry-Samples/blob/main/Dashboards/AzureDataExplorer/Batch/ADE-Dashboard-D365FO-Monitoring-Batch.json
+// Tile: Throttled batch tasks
+//
+// Parameters - adjust before running, or accept the defaults.
+let _endTime       = now();     // dashboard window end
+let _environmentId = "";        // empty = all environments; paste an environment GUID to scope
+let _startTime     = ago(7d);   // dashboard window start
+
+let _scale = '10m';
+customEvents
+| where     timestamp between (_startTime .. _endTime)
+| where     name == "BatchThrottled"
+| extend    customDimensionsParsed = parse_json(customDimensions)
+| where     isempty(_environmentId) or tostring(customDimensionsParsed.EnvironmentId) == _environmentId
+| extend    BatchJobId          = customDimensionsParsed.BatchJobId  // this is actually always 0
+| extend    EventId             = customDimensionsParsed.eventId
+| extend    EnvironmentId       = customDimensionsParsed.environmentId
+| extend    LegalEntity         = customDimensionsParsed.LegalEntity
+| extend    ActivityId          = customDimensionsParsed.activityId
+| extend    EventMessage        = customDimensionsParsed.EventMessage
+| extend    InfoMessage         = customDimensionsParsed.InfoMessage
+| extend    InfoMessageParsed       = parse_json(tostring(InfoMessage))
+| extend    CurrentMachineCPU       = round(toreal(InfoMessageParsed.CurrentMachineCpu), 0)
+| extend    CurrentMachineMemory    = InfoMessageParsed.CurrentMachineMemory
+| extend    CurrentSqlDtu           = InfoMessageParsed.CurrentSqlDtu
+| project   timestamp, EventId, name, user_Id, session_Id, cloud_RoleInstance, EnvironmentId, LegalEntity, ActivityId, EventMessage, CurrentMachineCPU, CurrentMachineMemory, CurrentSqlDtu

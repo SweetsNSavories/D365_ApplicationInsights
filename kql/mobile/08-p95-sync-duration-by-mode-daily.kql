@@ -1,0 +1,11 @@
+// Source: https://raw.githubusercontent.com/microsoft/Dynamics-365-FastTrack-Implementation-Assets/master/Customer%20Service/Field%20Service/Analytics/dashboard-Field%20Service%20Mobile%20Offline.json
+// Daily P95 sync duration (ms) per DataSyncMode. Use to spot regression dates per sync mode.
+// Optional: set `_dataSyncMode` (e.g. 'DELTA_SYNC') to filter to one mode; empty = all modes.
+let _dataSyncMode = '';
+dependencies
+| where name == "Offline.SyncDatabase"
+| extend cd = parse_json(customDimensions)
+| extend DataSyncMode = tostring(cd.DataSyncMode)
+| where isempty(_dataSyncMode) or DataSyncMode == _dataSyncMode
+| summarize ['P95 Duration (ms)'] = percentile(duration, 95) by bin(timestamp, 1d), DataSyncMode
+| order by timestamp desc, DataSyncMode asc

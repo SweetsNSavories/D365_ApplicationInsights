@@ -1,0 +1,4 @@
+// Source: aliyoussefi/D365-Monitoring/KustoQueries.PageViews.txt
+// Records coming from a Generic Smartphone
+pageViews
+| where client_Model == "Generic Smartphone"

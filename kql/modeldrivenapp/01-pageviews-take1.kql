@@ -1,0 +1,4 @@
+// Source: MicrosoftDocs/power-platform / power-platform/admin/telemetry-events-model-driven-apps.md
+// First pageView row — quick view of every attribute for a UCI page load.
+pageViews
+| take 1
