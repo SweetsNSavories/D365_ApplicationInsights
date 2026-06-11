@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Dashboard - mobile</title>
+<style>
+body { font-family: Segoe UI, Arial, sans-serif; margin: 0; background: #f6f8fb; color: #1f2937; }
+main { max-width: 1180px; margin: 0 auto; padding: 28px; }
+h1 { margin-bottom: 4px; }
+.subtitle { color: #5f6b7a; margin-top: 0; }
+.tile { background: white; border: 1px solid #d9e1ec; border-radius: 8px; margin: 18px 0; padding: 16px; box-shadow: 0 1px 2px rgba(15,23,42,.06); }
+.tile header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tile header span { color: #2563eb; font-weight: 700; }
+.tile header strong { font-size: 16px; }
+.tile header em { margin-left: auto; font-style: normal; font-size: 12px; padding: 3px 8px; border-radius: 999px; }
+.ok { background: #dcfce7; color: #166534; } .warn { background: #fef3c7; color: #92400e; } .error { background: #fee2e2; color: #991b1b; }
+.query, .meta { color: #64748b; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin-top: 12px; }
+th, td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; vertical-align: top; font-size: 12px; }
+th { background: #f1f5f9; }
+.empty { color: #92400e; }
+</style>
+</head>
+<body><main>
+<h1>Live Dashboard - mobile</h1>
+<p class="subtitle">Generated live dashboard output. Customer-specific data stays local.</p>
+
+            <section class="tile">
+              <header><span>Tile 01</span><strong>Distribution of sync types</strong><em class="warn">dry-run</em></header>
+              <p class="query">06-sync-type-distribution.kql</p>
+              <div class="meta">Rows: 0 | Viz: piechart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 02</span><strong>Daily users doing offline sync</strong><em class="warn">dry-run</em></header>
+              <p class="query">07-daily-users-offline-sync.kql</p>
+              <div class="meta">Rows: 0 | Viz: timechart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 03</span><strong>Users by device + app version</strong><em class="warn">dry-run</em></header>
+              <p class="query">05-users-by-device-and-version.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 04</span><strong>P95 sync duration by mode (daily)</strong><em class="warn">dry-run</em></header>
+              <p class="query">08-p95-sync-duration-by-mode-daily.kql</p>
+              <div class="meta">Rows: 0 | Viz: timechart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 05</span><strong>Daily sync success rate</strong><em class="warn">dry-run</em></header>
+              <p class="query">09-daily-sync-success-rate.kql</p>
+              <div class="meta">Rows: 0 | Viz: timechart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 06</span><strong>Failures by error code</strong><em class="warn">dry-run</em></header>
+              <p class="query">01-offline-sync-failures-by-errorcode.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 07</span><strong>Offline filter perf (`SDKRetrieveMultiple` join)</strong><em class="warn">dry-run</em></header>
+              <p class="query">13-offline-retrievemultiple-perf-join.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 08</span><strong>Network connectivity by geo</strong><em class="warn">dry-run</em></header>
+              <p class="query">10-network-connectivity-by-geo.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 09</span><strong>Foreground vs background by device</strong><em class="warn">dry-run</em></header>
+              <p class="query">12-foreground-vs-background-by-device.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 10</span><strong>Avg records synced by table</strong><em class="warn">dry-run</em></header>
+              <p class="query">02-avg-records-synced-by-table.kql</p>
+              <div class="meta">Rows: 0 | Viz: piechart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 11</span><strong>Records-synced timeline (1-min)</strong><em class="warn">dry-run</em></header>
+              <p class="query">11-records-synced-timeline-1min.kql</p>
+              <div class="meta">Rows: 0 | Viz: timechart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 12</span><strong>Avg payload size (KB) by sync mode</strong><em class="warn">dry-run</em></header>
+              <p class="query">14-avg-payload-size-by-sync-mode.kql</p>
+              <div class="meta">Rows: 0 | Viz: barchart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 13</span><strong>Detailed sync per user</strong><em class="warn">dry-run</em></header>
+              <p class="query">04-sync-details-by-user.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 14</span><strong>Avg sync duration by mode</strong><em class="warn">dry-run</em></header>
+              <p class="query">03-avg-sync-duration-by-mode.kql</p>
+              <div class="meta">Rows: 0 | Viz: barchart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 15</span><strong>Context: All tables pulse 24h</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\timelines\06-all-tables-pulse-24h.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+</main></body></html>

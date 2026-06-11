@@ -8,6 +8,7 @@ Every KQL folder that has runnable tiles also has two generated live-dashboard f
 |---|---|
 | `LIVE-DASHBOARD.json` | Machine-readable manifest with 10-15 tiles, query paths, visualization hints, runtime, and observation focus. |
 | `LIVE-DASHBOARD.ipynb` | VS Code/Jupyter runbook that executes the manifest through the shared Python runner. |
+| `live-output/index.html` | Committed dry-run preview page for the folder's live dashboard, with no customer data. |
 
 A customer-facing dashboard is created in the customer's own Application Insights / Azure Data Explorer context. It must:
 
@@ -37,40 +38,41 @@ Install the Python dependencies once:
 python -m pip install -r requirements-live-dashboard.txt
 ```
 
-Dry-run any folder first. This checks that the manifest, query files, and output generation work without querying customer data:
+Dry-run any folder first. This checks that the manifest, query files, and output generation work without querying customer data, and it refreshes the committed preview page:
 
 ```pwsh
 python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --dry-run
 ```
 
-Run against an Application Insights resource:
+Run against an Application Insights resource. Write customer results to `live-dashboard-output/`, not the committed preview folder:
 
 ```pwsh
-python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --appinsights-resource-id "<resourceId>" --timespan-days 30
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-dashboard-output --appinsights-resource-id "<resourceId>" --timespan-days 30
 ```
 
 Run against a Log Analytics workspace instead:
 
 ```pwsh
-python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --workspace-id "<workspaceId>" --timespan-days 30
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-dashboard-output --workspace-id "<workspaceId>" --timespan-days 30
 ```
 
 Run the Azure Resource Graph inventory dashboard:
 
 ```pwsh
-python tools\live_dashboard_runner.py --manifest kql\resourcegraph\LIVE-DASHBOARD.json --output kql\resourcegraph\live-output --subscriptions "<subscriptionId1>,<subscriptionId2>"
+python tools\live_dashboard_runner.py --manifest kql\resourcegraph\LIVE-DASHBOARD.json --output kql\resourcegraph\live-dashboard-output --subscriptions "<subscriptionId1>,<subscriptionId2>"
 ```
 
 Each run writes local artifacts:
 
 | Output | Purpose |
 |---|---|
-| `live-output/index.html` | Rendered dashboard with tile status, observations, and table previews. |
-| `live-output/observations.md` | Markdown observation log for the case notes. |
-| `live-output/results.json` | Structured result summary and row previews. |
-| `live-output/csv/tile-XX.csv` | Per-tile CSV exports. |
+| `live-output/index.html` | Committed dry-run preview page for the folder. |
+| `live-dashboard-output/index.html` | Rendered dashboard with live customer tile status, observations, and table previews. |
+| `live-dashboard-output/observations.md` | Markdown observation log for the case notes. |
+| `live-dashboard-output/results.json` | Structured result summary and row previews. |
+| `live-dashboard-output/csv/tile-XX.csv` | Per-tile CSV exports. |
 
-The `live-output/` folders are ignored by Git. Keep those outputs local or move them into a private customer case workspace.
+Only the dry-run `live-output/index.html` preview is committed. Keep `live-dashboard-output/` local or move it into a private customer case workspace.
 
 You can run the same workflow from VS Code by opening a folder's `LIVE-DASHBOARD.ipynb`, setting `DRY_RUN = False`, and filling either `APPINSIGHTS_RESOURCE_ID`, `WORKSPACE_ID`, or `SUBSCRIPTIONS` depending on the manifest runtime.
 

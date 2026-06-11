@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Dashboard - canvasapp</title>
+<style>
+body { font-family: Segoe UI, Arial, sans-serif; margin: 0; background: #f6f8fb; color: #1f2937; }
+main { max-width: 1180px; margin: 0 auto; padding: 28px; }
+h1 { margin-bottom: 4px; }
+.subtitle { color: #5f6b7a; margin-top: 0; }
+.tile { background: white; border: 1px solid #d9e1ec; border-radius: 8px; margin: 18px 0; padding: 16px; box-shadow: 0 1px 2px rgba(15,23,42,.06); }
+.tile header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tile header span { color: #2563eb; font-weight: 700; }
+.tile header strong { font-size: 16px; }
+.tile header em { margin-left: auto; font-style: normal; font-size: 12px; padding: 3px 8px; border-radius: 999px; }
+.ok { background: #dcfce7; color: #166534; } .warn { background: #fef3c7; color: #92400e; } .error { background: #fee2e2; color: #991b1b; }
+.query, .meta { color: #64748b; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; margin-top: 12px; }
+th, td { border: 1px solid #e5e7eb; padding: 6px 8px; text-align: left; vertical-align: top; font-size: 12px; }
+th { background: #f1f5f9; }
+.empty { color: #92400e; }
+</style>
+</head>
+<body><main>
+<h1>Live Dashboard - canvasapp</h1>
+<p class="subtitle">Generated live dashboard output. Customer-specific data stays local.</p>
+
+            <section class="tile">
+              <header><span>Tile 01</span><strong>Resolve `ms-appid` / `appName` / environment</strong><em class="warn">dry-run</em></header>
+              <p class="query">01-ms-app-identifiers.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 02</span><strong>`pageViews` grouped by `session_Id`</strong><em class="warn">dry-run</em></header>
+              <p class="query">02-pageViews-by-session.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 03</span><strong>Slowest screens (pie)</strong><em class="warn">dry-run</em></header>
+              <p class="query">03-slowest-pages-piechart.kql</p>
+              <div class="meta">Rows: 0 | Viz: piechart</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 04</span><strong>`union *` timeline for a single session</strong><em class="warn">dry-run</em></header>
+              <p class="query">04-session-timeline-union.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 05</span><strong>Context: All tables pulse 24h</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\timelines\06-all-tables-pulse-24h.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 06</span><strong>Context: Pageviews daily 30d by channel</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\timelines\01-pageviews-daily-30d-by-channel.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 07</span><strong>Context: Pageviews hourly 7d by channel</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\timelines\02-pageviews-hourly-7d-by-channel.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 08</span><strong>Context: Pageviews duration percentiles 30d</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\timelines\03-pageviews-duration-percentiles-30d.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 09</span><strong>Context: Exceptions daily 30d top problems</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\timelines\05-exceptions-daily-30d-top-problems.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 10</span><strong>Context: Noise catalog breakdown 7d</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\exceptions\01-noise-catalog-breakdown-7d.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 11</span><strong>Context: Top10 real problems 7d</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\exceptions\03-top10-real-problems-7d.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 12</span><strong>Context: Exceptions signal vs noise 30d</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\exceptions\04-exceptions-signal-vs-noise-30d.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 13</span><strong>Context: Noise discovery candidates 7d</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\exceptions\06-noise-discovery-candidates-7d.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 14</span><strong>Context: Ingestion volume by table 30d</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\cost\01-ingestion-volume-by-table-30d.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+            <section class="tile">
+              <header><span>Tile 15</span><strong>Context: Noisy signals candidates for sampling</strong><em class="warn">dry-run</em></header>
+              <p class="query">C:\Users\pravth\Downloads\D365_ApplicationInsights\kql\_shared\cost\02-noisy-signals-candidates-for-sampling.kql</p>
+              <div class="meta">Rows: 0 | Viz: table</div>
+              <h3>Observations</h3><ul><li>Dry run only: query was found and validated for execution, but no customer data was queried.</li><li>Run with an App Insights resource ID, workspace ID, or Resource Graph subscriptions to populate live results.</li></ul>
+              <p class='empty'>No rows returned.</p>
+            </section>
+            
+</main></body></html>

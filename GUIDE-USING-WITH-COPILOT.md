@@ -15,6 +15,7 @@ Alongside the `.kql` files, every folder ships dashboard assets:
 - `DASHBOARD-*.md` — dashboard spec and troubleshooting runbook for people and Copilot.
 - `LIVE-DASHBOARD.json` — machine-readable manifest with 10-15 runnable tiles.
 - `LIVE-DASHBOARD.ipynb` — VS Code/Jupyter runbook that executes those tiles and writes local results and observations.
+- `live-output/index.html` — committed dry-run preview page for that folder's dashboard, with no customer data.
 
 The dashboard markdown explains:
 
@@ -136,16 +137,16 @@ Then either open a folder's `LIVE-DASHBOARD.ipynb` in VS Code and run the cells,
 
 ```pwsh
 python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --dry-run
-python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --appinsights-resource-id "<resourceId>" --timespan-days 30
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-dashboard-output --appinsights-resource-id "<resourceId>" --timespan-days 30
 ```
 
 For `kql/resourcegraph/`, pass subscriptions instead of an App Insights resource:
 
 ```pwsh
-python tools\live_dashboard_runner.py --manifest kql\resourcegraph\LIVE-DASHBOARD.json --output kql\resourcegraph\live-output --subscriptions "<subscriptionId1>,<subscriptionId2>"
+python tools\live_dashboard_runner.py --manifest kql\resourcegraph\LIVE-DASHBOARD.json --output kql\resourcegraph\live-dashboard-output --subscriptions "<subscriptionId1>,<subscriptionId2>"
 ```
 
-The runner writes `live-output/index.html`, `live-output/observations.md`, `live-output/results.json`, and one CSV per tile. Those folders are ignored by Git so customer telemetry does not get pushed back to the public repo.
+Every folder has a committed `live-output/index.html` dry-run preview. Real customer runs write `live-dashboard-output/index.html`, `live-dashboard-output/observations.md`, `live-dashboard-output/results.json`, and one CSV per tile. The customer output folder is ignored by Git so telemetry does not get pushed back to the public repo.
 
 ---
 

@@ -29,7 +29,7 @@ When the user opens this repo and asks for help troubleshooting:
    See `kql/_shared/timelines/01-pageviews-daily-30d-by-channel.kql` for the canonical split.
 5. **Correlation walks** — to follow one user action across tables, use `operation_Id`. Walk parent/child spans with `operation_ParentId` / `id`. UCI sessions are `session_Id`. See `kql/_shared/overview/02-pageviews-by-operation-id.kql`.
 6. **F&O (`fno/`) specifics** — F&O telemetry is point-to-point to a customer-owned App Insights, distinct from the tenant-wide Power Platform pipeline. Triage facets to always include: `cloud_RoleName` (`AOSService` / `BatchService` / `DIXFService`), `cloud_RoleInstance` (the specific AOS), `customDimensions.ExecutionMode` (Interactive / Batch / Service / DMF), `customDimensions.LegalEntity`, `customDimensions.environmentId`. Dashboard parameters in every `fno/` file are `let` bindings near the top with safe defaults — empty string is the pass-through value because upstream queries use the `isempty(<var>) or <Column> == <var>` idiom.
-7. **Live dashboard requests** → prefer the matching folder's `LIVE-DASHBOARD.ipynb` or `LIVE-DASHBOARD.json` when the user wants executable dashboards, results, observations, or CSV/HTML output. Use `tools/live_dashboard_runner.py`; keep all generated `live-output/` files local and uncommitted.
+7. **Live dashboard requests** → prefer the matching folder's `LIVE-DASHBOARD.ipynb` or `LIVE-DASHBOARD.json` when the user wants executable dashboards, results, observations, or CSV/HTML output. Each folder has a committed dry-run `live-output/index.html` preview. Use `tools/live_dashboard_runner.py`; write real customer runs to `live-dashboard-output/` or `cases/`, not the committed preview folder.
 
 ## Placeholder convention
 
@@ -51,7 +51,7 @@ When showing a query to the user, point out any placeholders that need substitut
 - **New component-specific queries** → bump the numeric prefix in that folder; update the folder's `README.md` table.
 - **Resource Graph** queries always go in `kql/resourcegraph/` — they don't run in App Insights and shouldn't be `union`-ed with App Insights tables.
 - **Do not commit customer-specific identifiers** (subscription GUIDs, resource names, real user IDs). Use the placeholder convention above.
-- **Do not commit customer telemetry output**. `live-output/`, `live-dashboard-output/`, and `cases/` are local evidence folders and must stay out of commits.
+- **Do not commit customer telemetry output**. Only dry-run `live-output/index.html` preview pages are committed. `live-output/observations.md`, `live-output/results.json`, `live-output/csv/`, `live-dashboard-output/`, and `cases/` must stay out of commits.
 
 ## What NOT to suggest
 
@@ -95,4 +95,4 @@ When showing a query to the user, point out any placeholders that need substitut
       └── resourcegraph/
 ```
 
-Every folder with runnable tiles also has generated `LIVE-DASHBOARD.json` and `LIVE-DASHBOARD.ipynb` files. These are committed; generated `live-output/` folders are not.
+Every folder with runnable tiles also has generated `LIVE-DASHBOARD.json`, `LIVE-DASHBOARD.ipynb`, and dry-run `live-output/index.html` files. These are committed; generated customer outputs are not.

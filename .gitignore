@@ -4,8 +4,11 @@ cases/
 # Local VS Code/browser automation traces.
 .playwright-mcp/
 
-# Live dashboard outputs generated from customer telemetry.
-live-output/
-**/live-output/
+# Committed dry-run preview pages. Keep every folder's live-output/index.html visible,
+# but do not commit per-run observations/results/CSV or customer telemetry.
+live-output/*
+**/live-output/*
+!live-output/index.html
+!**/live-output/index.html
 live-dashboard-output/
 **/live-dashboard-output/

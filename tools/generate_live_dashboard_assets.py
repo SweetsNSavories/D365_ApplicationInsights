@@ -171,7 +171,7 @@ def notebook_for(folder: Path) -> dict:
                 "source": [
                     f"# Live Dashboard - {title}\n",
                     "Run this notebook in a customer workspace to execute the folder's KQL tiles, generate local dashboard output, and capture observations.\n",
-                    "Customer data is written only to the local `live-output/` folder, which is ignored by Git.\n",
+                    "Each folder includes a committed dry-run `live-output/index.html` preview. Real customer runs should write to `live-dashboard-output/`, which is ignored by Git.\n",
                 ],
             },
             {
@@ -192,7 +192,7 @@ def notebook_for(folder: Path) -> dict:
                     "\n",
                     "REPO_ROOT = find_repo_root(Path.cwd().resolve())\n",
                     "MANIFEST = Path.cwd() / 'LIVE-DASHBOARD.json'\n",
-                    "OUTPUT_DIR = Path.cwd() / 'live-output'\n",
+                    "OUTPUT_DIR = Path.cwd() / 'live-dashboard-output'\n",
                 ],
             },
             {
@@ -250,7 +250,8 @@ def notebook_for(folder: Path) -> dict:
                 "metadata": {"language": "markdown"},
                 "source": [
                     "## Review Output\n",
-                    "Open `live-output/index.html` for the rendered dashboard and `live-output/observations.md` for the observation log.\n",
+                    "Open `live-dashboard-output/index.html` for the rendered dashboard and `live-dashboard-output/observations.md` for the observation log.\n",
+                    "The committed `live-output/index.html` file is only a dry-run preview for this folder.\n",
                     "Re-run with `DRY_RUN = False` after confirming credentials and RBAC.\n",
                 ],
             },

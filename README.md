@@ -6,7 +6,7 @@ A curated, **vendor-neutral** collection of [Kusto (KQL)](https://learn.microsof
 
 Covers **Dataverse, Model-Driven Apps, Power Pages, Canvas, Power Automate, Power Apps Mobile, Copilot Studio, and Dynamics 365 Finance & Supply Chain (F&O / FSCM)**.
 
-Organized by component so you can find the right query in seconds, and designed to work well with **GitHub Copilot** for guided troubleshooting (see [AGENTS.md](AGENTS.md)). Each KQL folder also includes a repeatable live-dashboard manifest and notebook for running 10-15 tiles, saving local results, and capturing observations.
+Organized by component so you can find the right query in seconds, and designed to work well with **GitHub Copilot** for guided troubleshooting (see [AGENTS.md](AGENTS.md)). Each KQL folder also includes a repeatable live-dashboard manifest, notebook, and `live-output/index.html` dry-run preview for running 10-15 tiles, saving local results, and capturing observations.
 
 ## What's in here
 
@@ -47,15 +47,20 @@ See [`kql/README.md`](kql/README.md) for the full index, per-folder READMEs for 
 
 Every `.kql` file is **standalone** — no project-wide setup, no `let` imports, no shared lambdas you have to paste in separately. The reusable noise-filter lambda from `_shared/exceptions/02-known-noise-filter.kql` is inlined into every consuming file.
 
-To run the packaged live dashboards locally:
+To run or refresh the packaged dry-run preview for a folder:
 
 ```pwsh
 python -m pip install -r requirements-live-dashboard.txt
 python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --dry-run
-python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-output --appinsights-resource-id "<resourceId>"
 ```
 
-Open `live-output/index.html` for the rendered dashboard and `live-output/observations.md` for the observation log. Live output folders are ignored by Git so customer telemetry stays local.
+For a real customer run, write to the ignored customer-output folder:
+
+```pwsh
+python tools\live_dashboard_runner.py --manifest kql\dataverse\LIVE-DASHBOARD.json --output kql\dataverse\live-dashboard-output --appinsights-resource-id "<resourceId>"
+```
+
+Each folder's committed `live-output/index.html` is a no-data preview that makes the dashboard obvious on GitHub. Open `live-dashboard-output/index.html` for real rendered results and `live-dashboard-output/observations.md` for the customer observation log. Customer output folders are ignored by Git so telemetry stays local.
 
 ## Use with GitHub Copilot + Akusto Explorer
 
@@ -82,7 +87,8 @@ Every KQL folder with runnable tiles also ships:
 | File | Use |
 |---|---|
 | `LIVE-DASHBOARD.json` | Machine-readable tile manifest with 10-15 queries, viz hints, runtime, and observation focus. |
-| `LIVE-DASHBOARD.ipynb` | VS Code/Jupyter runbook that calls the shared runner and writes `live-output/`. |
+| `LIVE-DASHBOARD.ipynb` | VS Code/Jupyter runbook that calls the shared runner and writes real customer output to `live-dashboard-output/`. |
+| `live-output/index.html` | Committed dry-run preview page for that folder's dashboard. |
 
 See [LIVE-DASHBOARDS.md](LIVE-DASHBOARDS.md) for the exact workflow and Copilot prompts.
 
@@ -110,7 +116,7 @@ See [LIVE-DASHBOARDS.md](LIVE-DASHBOARDS.md) for the exact workflow and Copilot 
 | ✅ Included | ❌ Not included |
 |---|---|
 | KQL for App Insights data emitted by Power Platform components | Bicep / ARM / Terraform for Application Insights provisioning |
-| Markdown **`DASHBOARD-*.md`** specs plus per-folder **`LIVE-DASHBOARD.json`** and **`LIVE-DASHBOARD.ipynb`** runbooks — use with Copilot/Akusto or Python to run KQL, render results, and capture observations | Pre-built Azure Workbooks JSON / Grafana panels |
+| Markdown **`DASHBOARD-*.md`** specs plus per-folder **`LIVE-DASHBOARD.json`**, **`LIVE-DASHBOARD.ipynb`**, and **`live-output/index.html`** previews — use with Copilot/Akusto or Python to run KQL, render results, and capture observations | Pre-built Azure Workbooks JSON / Grafana panels |
 | Reusable noise-filter and anomaly-detection patterns | A configured App Insights resource (you bring your own) |
 | Time-series, ranking, percentile, and anomaly queries | Customer-specific data — every query is generic |
 | Azure Resource Graph tenant inventory queries | An LLM — you bring your own GitHub Copilot subscription |
